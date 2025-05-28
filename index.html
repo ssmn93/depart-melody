@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="google-site-verification" content="BPhfRfp9tGYJEm2pHludrDGOjAcPen5tdnKp9G_ZzBc" />
+  <meta name="robots" content="index, follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="どこでもステーションベルへようこそ！発車メロディを再現できるサイトです！">
+  <link rel="icon" href="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/icon.png?v=1743076679120" />
+  <link rel="stylesheet" href="style.css">
+  <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
+  <meta property="og:description" content="どこでもステーションベルへようこそ！発車メロディを再現できるサイトです！">
+  <meta property="og:title" content="どこでもステーションベル">
+  <meta property="og:url" content="https://depart-melody.glitch.me">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:site_name" content="どこでもステーションベル">
+  <title>どこでもステーションベル</title>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <a href="https://depart-melody.glitch.me/" class="title-link">
+        <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" alt="アイコン" class="logo">
+        <h1 class="title">どこでもステーションベル</h1>
+      </a>
+    </div>
+    <nav class="nav">
+      <ul class="menu-group">
+        <div class="menu-item"><li class="menu-item"><a href="search.html">検索</a></li></div>
+        <div class="menu-item-sp"><li class="menu-item-sp"><a href="search.html"><img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/e61846fe-1ff2-4b3c-b789-4426554fdcf2.image.png?v=1743074812357" alt="スマホで表示する画像"></a></li></div>
+      </ul>
+    </nav>
+  </header>
+    <div class="background-image">
+      <div class="content">
+        <h1>どこでもステーションベル</h1>
+      </div>
+    </div>
+    <div class="main">
+      <h1>お知らせ</h1>
+      <div class="display">
+        <div class="display" style="overflow: hidden; white-space: nowrap; width: 100%;">
+        <div class="message" id="message" style="display: inline-block; white-space: nowrap;"></div>
+      </div>
+
+      <script>
+        const messages = [
+          {
+            text: "【お知らせ】「Glitch」サービス終了に伴うURL移転に伴い、メロディ変更等の反映を行わない可能性があります",
+            url: "notice-20250525.html"
+          },
+          {
+            text: "【ページ追加】2025/5/23 宇都宮線等 赤羽駅#4~#7・東海道本線 藤沢駅#4･#2(旧) ページ追加",
+            url: null
+          },
+          {
+            text: "【メロディ変更】2025/5/23 根岸線 新杉田駅･洋光台駅･港南台駅･本郷台駅 メロディ変更（反映なし）",
+            url: null
+          },
+          {
+            text: "【特集ページ】「『日本初』は、変えさせない。」 京浜東北線 桜木町駅 ページ追加",
+            url: "station/sakuragicho.html"
+          },
+          {
+            text: "【サイトのお知らせ】2025/5/13 1コーラス固定のメロディ用のスイッチを追加しました",
+            url: null
+          },
+          {
+            text: "【間違い修正】2025/5/12 立川駅・武蔵中原駅に関する問題を修正しました",
+            url: null
+          },
+          // 必要に応じて他のメッセージも追加可能
+        ];
+
+        const messageElem = document.getElementById("message");
+        const displayElem = document.querySelector('.display');
+        let currentIndex = 0;
+
+        function scrollMessage(messageObj) {
+          return new Promise((resolve) => {
+            if (messageObj.url) {
+              // URL がある場合はリンクを作成
+              messageElem.innerHTML = `<a href="${messageObj.url}" target="_blank" style="color: inherit; text-decoration: none;">${messageObj.text}</a>`;
+            } else {
+              // URL がない場合はリンクなしのテキストだけ
+              messageElem.textContent = messageObj.text;
+            }
+
+            // スクロール処理
+            messageElem.style.transform = 'translateX(100%)';
+            const displayWidth = displayElem.offsetWidth;
+            const textWidth = messageElem.offsetWidth;
+
+            let x = displayWidth;
+
+            function step() {
+              x -= 2;
+              messageElem.style.transform = `translateX(${x}px)`;
+              if (x + textWidth > 0) {
+                requestAnimationFrame(step);
+              } else {
+                resolve();
+              }
+            }
+
+            setTimeout(() => {
+              step();
+            }, 500);
+          });
+        }
+
+        async function run() {
+          while (true) {
+            const message = messages[currentIndex];
+            await scrollMessage(message);
+            currentIndex = (currentIndex + 1) % messages.length;
+          }
+        }
+
+        run();
+      </script>
+
+      </div>
+      <h1>会社でさがす</h1>
+      <div class="container">
+        <div class="column">
+          <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/P1190200%20(1).jpeg?v=1743597260004" alt="山手線">
+          <div class="line">
+            <p>JR東日本</p>
+          </div>
+          <a href="jre.html"></a>
+        </div>
+        <div class="column columnj" style="visibility: hidden;">
+          <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/GlXPM3Gb0AA86yv.jpeg?v=1743656947343" alt="京王線">
+          <div class="line">
+            <p>京王電鉄 【追加予定】</p>
+          </div>
+<!--           <a href="keio.html"></a> -->
+        </div>
+        <div class="column columnj" style="visibility: hidden;">
+          <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/P3271240.jpg?v=1743657930984" alt="小田急線">
+          <div class="line">
+            <p>小田急電鉄 【追加予定】</p>
+          </div>
+<!--           <a href="line/odakyu.html"></a> -->
+        </div>
+        <div class="column columnj" style="visibility: hidden;">
+          <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/P3271240.jpg?v=1743657930984" alt="小田急線">
+          <div class="line">
+            <p>小田急電鉄 【追加予定】</p>
+          </div>
+<!--           <a href="line/odakyu.html"></a> -->
+        </div>
+      </div>
+    </div>
+  <footer class="footer">
+    <div class="md-flex md-justify-between">
+      <a href="https://depart-melody.glitch.me" style="text-decoration:none;" class="footer__logo">
+        <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" width="40" height="40" alt="334bot Logo" />
+        <p class="title">どこでもステーションベル</p>
+      </a>
+      <ul class="footer__navi flex">
+        <li><a href="https://depart-melody.glitch.me">ホーム</a></li>
+        <li><a href="https://depart-melody.glitch.me/search.html">検索</a></li>
+        <li><a href="https://depart-melody.glitch.me/thanks.html">音声提供等</a></li>
+        <li><a href="https://depart-melody.glitch.me/support.html">問い合わせ</a></li>
+        <li><a href="https://depart-melody.glitch.me/ikst/ikst.html">IKST動静</a></li>
+      </ul>
+    </div>
+    <hr />
+    <p class="copyright">
+      鉄道モバイル:<a href="https://www.te2do.jp">https://www.te2do.jp</a>
+    </p>
+  </footer>
+</body>
+</html>
