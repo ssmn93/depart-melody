@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="google-site-verification" content="BPhfRfp9tGYJEm2pHludrDGOjAcPen5tdnKp9G_ZzBc" />
+  <meta name="robots" content="index, follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="どこでもステーションベルへようこそ！発車メロディを再現できるサイトです！">
+  <link rel="icon" href="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/icon.png?v=1743076679120" />
+  <link rel="stylesheet" href="ikst_name.css">
+  <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
+  <meta property="og:description" content="どこでもステーションベルへようこそ！発車メロディを再現できるサイトです！">
+  <meta property="og:title" content="管理名称・俗称変換表｜IKST動静">
+  <meta property="og:url" content="https://depart-melody.glitch.me">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:site_name" content="管理名称・俗称変換表｜IKST動静">
+  <title>管理名称・俗称変換表｜IKST動静</title>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <a href="https://depart-melody.glitch.me/" class="title-link">
+        <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" alt="アイコン" class="logo">
+        <h1 class="title">どこでもステーションベル</h1>
+      </a>
+    </div>
+    <nav class="nav">
+      <ul class="menu-group">
+        <div class="menu-item"><li class="menu-item"><a href="../search.html">検索</a></li></div>
+        <div class="menu-item-sp"><li class="menu-item-sp"><a href="../search.html"><img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/e61846fe-1ff2-4b3c-b789-4426554fdcf2.image.png?v=1743074812357" alt="スマホで表示する画像"></a></li></div>
+      </ul>
+    </nav>
+  </header>
+    <div class="background-image">
+      <div class="content">
+        <h1>管理名称・俗称変換表</h1>
+      </div>
+    </div>
+    <div class="main">
+      <div class="ikstname">
+        <div class="ikstbutton">
+          <button onclick="showTable('shutoken')">首都圏○番基準</button>
+          <button onclick="showTable('ikst')">JRE-IKST-○○○基準</button>
+        </div>
+      <div class="tables">
+      <table id="shutoken" class="table-container active">
+        <thead>
+          <tr> 
+            <th scope="col">主な導入路線</th>
+            <th scope="col">首都圏○番</th>
+            <th scope="col">JRE-IKST-○○○</th>
+            <th scope="col">初導入駅基準</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="2" bgcolor="#00B2E5">京浜東北線</td>
+            <td>首都圏1番</td>
+            <td>JRE-IKST-007-02</td>
+            <td>横浜1番</td>
+          </tr>
+          <tr>
+            <td>首都圏1-1番</td>
+            <td>JRE-IKST-007-01</td>
+            <td>横浜1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2">東海道本線副線<br>中央総武緩行線副線</td>
+            <td>首都圏2番</td>
+            <td>JRE-IKST-017-02</td>
+            <td>横浜2番</td>
+          </tr>
+          <tr>
+            <td>首都圏2-1番</td>
+            <td>JRE-IKST-017-01</td>
+            <td>横浜2-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="3" bgcolor="#F68B1E">東海道本線<br>宇都宮線<br>新宿#2#3</td>
+            <td>首都圏3番</td>
+            <td>JRE-IKST-021-02</td>
+            <td>横浜3番</td>
+          </tr>
+          <tr>
+            <td>首都圏3-1番</td>
+            <td>JRE-IKST-021-01</td>
+            <td>横浜3-1番</td>
+          </tr>
+          <tr>
+            <td>首都圏3-2番</td>
+            <td>JRE-IKST-021-03</td>
+            <td>横浜3-2番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#007AC1">横須賀線<br>総武快速線</td>
+            <td>首都圏4番</td>
+            <td>JRE-IKST-015-01</td>
+            <td>横浜4番</td>
+          </tr>
+          <tr>
+            <td>首都圏4-1番</td>
+            <td>JRE-IKST-015-02</td>
+            <td>横浜4-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="4" bgcolor="#00B48D">埼京線<br>埼京線副線</td>
+            <td>首都圏5番</td>
+            <td>JRE-IKST-006-01</td>
+            <td>新宿1番</td>
+          </tr>
+          <tr>
+            <td>首都圏5-1番</td>
+            <td>JRE-IKST-006-02</td>
+            <td>新宿1-1番</td>
+          </tr>
+          <tr>
+            <td>首都圏5-2番</td>
+            <td>JRE-IKST-006-??</td>
+            <td>新宿1-2番</td>
+          </tr>
+          <tr>
+            <td>首都圏5-3番</td>
+            <td>JRE-IKST-006-05</td>
+            <td>新宿1-3番</td>
+          </tr>
+          <tr>
+            <td rowspan="2">高崎線<br>新宿#5#6</td>
+            <td>首都圏6番</td>
+            <td>JRE-IKST-009-01</td>
+            <td>新宿2番</td>
+          </tr>
+          <tr>
+            <td>首都圏6-1番</td>
+            <td>JRE-IKST-009-02</td>
+            <td>新宿2-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#F15A22">中央線副線</td>
+            <td>首都圏7番</td>
+            <td>JRE-IKST-011-02</td>
+            <td>新宿3番</td>
+          </tr>
+          <tr>
+            <td>首都圏7-1番</td>
+            <td>JRE-IKST-011-01</td>
+            <td>新宿3-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#F15A22">中央線</td>
+            <td>首都圏8番</td>
+            <td>JRE-IKST-016-01</td>
+            <td>新宿4番</td>
+          </tr>
+          <tr>
+            <td>首都圏8-1番</td>
+            <td>JRE-IKST-016-02</td>
+            <td>新宿4-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#007ac0">新宿#9#10</td>
+            <td>首都圏9番</td>
+            <td>JRE-IKST-012-01</td>
+            <td>新宿5番</td>
+          </tr>
+          <tr>
+            <td>首都圏9-1番</td>
+            <td>JRE-IKST-012-02</td>
+            <td>新宿5-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#ffd400">中央総武緩行線</td>
+            <td>首都圏10番</td>
+            <td>JRE-IKST-003-02</td>
+            <td>新宿6番</td>
+          </tr>
+          <tr>
+            <td>首都圏10-1番</td>
+            <td>JRE-IKST-003-01</td>
+            <td>新宿6-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="4" bgcolor="#89C85D">山手線<br>山手線副線</td>
+            <td>首都圏11番</td>
+            <td>JRE-IKST-010-01</td>
+            <td>新宿7番</td>
+          </tr>
+          <tr>
+            <td>首都圏11-1番</td>
+            <td>JRE-IKST-010-02</td>
+            <td>新宿7-1番</td>
+          </tr>
+          <tr>
+            <td>首都圏11-2番</td>
+            <td>JRE-IKST-010-??</td>
+            <td>新宿7-2番</td>
+          </tr>
+          <tr>
+            <td>首都圏11-3番</td>
+            <td>JRE-IKST-010-05</td>
+            <td>新宿7-3番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#36AE6E">常磐線<br>東京#9#10</td>
+            <td>首都圏12番</td>
+            <td>JRE-IKST-013-02</td>
+            <td>東京1番</td>
+          </tr>
+          <tr>
+            <td>首都圏12-1番</td>
+            <td>JRE-IKST-013-01</td>
+            <td>東京1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2">横須賀線<br>総武快速線<br>上野#10</td>
+            <td>首都圏13番</td>
+            <td>JRE-IKST-005-01</td>
+            <td>東京2番</td>
+          </tr>
+          <tr>
+            <td>首都圏13-1番</td>
+            <td>JRE-IKST-005-02</td>
+            <td>東京2-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#c9252f">京葉線？</td>
+            <td>首都圏14番</td>
+            <td>JRE-IKST-004-02</td>
+            <td>東京3番</td>
+          </tr>
+          <tr>
+            <td>首都圏14-1番</td>
+            <td>JRE-IKST-004-01</td>
+            <td>東京3-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#c9252f">京葉線？</td>
+            <td>首都圏15番</td>
+            <td>JRE-IKST-001-02</td>
+            <td>東京4番</td>
+          </tr>
+          <tr>
+            <td>首都圏15-1番</td>
+            <td>JRE-IKST-001-01</td>
+            <td>東京4-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="3">総武快速線副線？<br>湘南新宿ライン副線？</td>
+            <td>首都圏16番</td>
+            <td>JRE-IKST-008-03</td>
+            <td>逗子1番</td>
+          </tr>
+          <tr>
+            <td>首都圏16-1番</td>
+            <td>JRE-IKST-008-01</td>
+            <td>逗子1-1番</td>
+          </tr>
+          <tr>
+            <td>首都圏16-2番</td>
+            <td>JRE-IKST-008-02</td>
+            <td>逗子1-2番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#F15A22">武蔵野線</td>
+            <td>首都圏17番</td>
+            <td>JRE-IKST-002-02</td>
+            <td>府中本町3番・北府中1番</td>
+          </tr>
+          <tr>
+            <td>首都圏17-1番</td>
+            <td>JRE-IKST-002-01</td>
+            <td>府中本町3-1番・北府中1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#F15A22">武蔵野線副線</td>
+            <td>首都圏18番</td>
+            <td>JRE-IKST-019-01</td>
+            <td>東所沢1番</td>
+          </tr>
+          <tr>
+            <td>首都圏18-1番</td>
+            <td>JRE-IKST-019-02</td>
+            <td>東所沢1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#c9252f">湘南新宿ライン<br>熱海#3#4</td>
+            <td>首都圏19番</td>
+            <td>JRE-IKST-018-02</td>
+            <td>池袋1番</td>
+          </tr>
+          <tr>
+            <td>首都圏19-1番</td>
+            <td>JRE-IKST-018-01</td>
+            <td>池袋1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#00AC9A">埼京線副線？</td>
+            <td>首都圏20番</td>
+            <td>JRE-IKST-014-01</td>
+            <td>大宮1番</td>
+          </tr>
+          <tr>
+            <td>首都圏20-1番</td>
+            <td>JRE-IKST-014-02</td>
+            <td>大宮1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2">常磐線副線<br>熱海#1</td>
+            <td>首都圏21番</td>
+            <td>JRE-IKST-020-01</td>
+            <td>上野1番</td>
+          </tr>
+          <tr>
+            <td>首都圏21-1番</td>
+            <td>JRE-IKST-020-02</td>
+            <td>上野1-1番</td>
+          </tr>
+        </tbody>
+      </table>
+      <table id="ikst" class="table-container">
+        <thead>
+          <tr> 
+            <th scope="col">主な導入路線</th>
+            <th scope="col">JRE-IKST-○○○</th>
+            <th scope="col">首都圏○番</th>
+            <th scope="col">初導入駅基準</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td rowspan="2" bgcolor="#c9252f">京葉線？</td>
+            <td>JRE-IKST-001-01</td>
+            <td>首都圏15-1番</td>
+            <td>東京4-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-001-02</td>
+            <td>首都圏15番</td>
+            <td>東京4番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#F15A22">武蔵野線</td>
+            <td>JRE-IKST-002-01</td>
+            <td>首都圏17-1番</td>
+            <td>府中本町3-1番・北府中1-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-002-02</td>
+            <td>首都圏17番</td>
+            <td>府中本町3番・北府中1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#ffd400">中央総武緩行線</td>
+            <td>JRE-IKST-003-01</td>
+            <td>首都圏10-1番</td>
+            <td>新宿6-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-003-02</td>
+            <td>首都圏10番</td>
+            <td>新宿6番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#c9252f">京葉線？</td>
+            <td>JRE-IKST-004-01</td>
+            <td>首都圏14-1番</td>
+            <td>東京3-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-004-02</td>
+            <td>首都圏14番</td>
+            <td>東京3番</td>
+          </tr>
+          <tr>
+            <td rowspan="2">横須賀線<br>総武快速線・上野#10</td>
+            <td>JRE-IKST-005-01</td>
+            <td>首都圏13番</td>
+            <td>東京2番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-005-02</td>
+            <td>首都圏13-1番</td>
+            <td>東京2-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="4" bgcolor="#00B48D">埼京線<br>埼京線副線</td>
+            <td>JRE-IKST-006-01</td>
+            <td>首都圏5番</td>
+            <td>新宿1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-006-02</td>
+            <td>首都圏5-1番</td>
+            <td>新宿1-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-006-??</td>
+            <td>首都圏5-2番</td>
+            <td>新宿1-2番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-006-??</td>
+            <td>首都圏5-3番</td>
+            <td>新宿1-3番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#00B2E5">京浜東北線</td>
+            <td>JRE-IKST-007-01</td>
+            <td>首都圏1-1番</td>
+            <td>横浜1-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-007-02</td>
+            <td>首都圏1番</td>
+            <td>横浜1番</td>
+          </tr>
+          <tr>
+            <td rowspan="3">総武快速線副線？<br>湘南新宿ライン副線？</td>
+            <td>JRE-IKST-008-01</td>
+            <td>首都圏16-1番</td>
+            <td>逗子1-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-008-02</td>
+            <td>首都圏16-2番</td>
+            <td>逗子1-2番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-008-03</td>
+            <td>首都圏16番</td>
+            <td>逗子1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2">高崎線<br>新宿#5#6</td>
+            <td>JRE-IKST-009-01</td>
+            <td>首都圏6番</td>
+            <td>新宿2番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-009-02</td>
+            <td>首都圏6-1番</td>
+            <td>新宿2-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="4" bgcolor="#89C85D">山手線<br>山手線副線</td>
+            <td>JRE-IKST-010-01</td>
+            <td>首都圏11番</td>
+            <td>新宿7番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-010-02</td>
+            <td>首都圏11-1番</td>
+            <td>新宿7-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-010-??</td>
+            <td>首都圏11-2番</td>
+            <td>新宿7-2番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-010-??</td>
+            <td>首都圏11-3番</td>
+            <td>新宿7-3番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#F15A22">中央線副線</td>
+            <td>JRE-IKST-011-01</td>
+            <td>首都圏7-1番</td>
+            <td>新宿3-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-011-02</td>
+            <td>首都圏7番</td>
+            <td>新宿3番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#007ac0">新宿#9#10</td>
+            <td>JRE-IKST-012-01</td>
+            <td>首都圏9番</td>
+            <td>新宿5番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-012-02</td>
+            <td>首都圏9-1番</td>
+            <td>新宿5-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#36AE6E">常磐線<br>東京#9#10</td>
+            <td>JRE-IKST-013-01</td>
+            <td>首都圏12-1番</td>
+            <td>東京1-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-013-02</td>
+            <td>首都圏12番</td>
+            <td>東京1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#00AC9A">埼京線副線？</td>
+            <td>JRE-IKST-014-01</td>
+            <td>首都圏20番</td>
+            <td>大宮1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-014-02</td>
+            <td>首都圏20-1番</td>
+            <td>大宮1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#007AC1">横須賀線<br>総武快速線</td>
+            <td>JRE-IKST-015-01</td>
+            <td>首都圏4番</td>
+            <td>横浜4番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-015-02</td>
+            <td>首都圏4-1番</td>
+            <td>横浜4-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#F15A22">中央線</td>
+            <td>JRE-IKST-016-01</td>
+            <td>首都圏8番</td>
+            <td>新宿4番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-016-02</td>
+            <td>首都圏8-1番</td>
+            <td>新宿4-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2">東海道本線副線<br>中央総武緩行線副線</td>
+            <td>JRE-IKST-017-01</td>
+            <td>首都圏2-1番</td>
+            <td>横浜2-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-017-02</td>
+            <td>首都圏2番</td>
+            <td>横浜2番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#c9252f">湘南新宿ライン<br>熱海#3#4</td>
+            <td>JRE-IKST-018-01</td>
+            <td>首都圏19-1番</td>
+            <td>池袋1-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-018-02</td>
+            <td>首都圏19番</td>
+            <td>池袋1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2" bgcolor="#F15A22">武蔵野線副線</td>
+            <td>JRE-IKST-019-01</td>
+            <td>首都圏18番</td>
+            <td>東所沢1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-019-02</td>
+            <td>首都圏18-1番</td>
+            <td>東所沢1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="2">常磐線副線<br>熱海#1</td>
+            <td>JRE-IKST-020-01</td>
+            <td>首都圏21番</td>
+            <td>上野1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-020-02</td>
+            <td>首都圏21-1番</td>
+            <td>上野1-1番</td>
+          </tr>
+          <tr>
+            <td rowspan="3" bgcolor="#F68B1E">東海道本線<br>宇都宮線<br>新宿#2#3</td>
+            <td>JRE-IKST-021-01</td>
+            <td>首都圏3-1番</td>
+            <td>横浜3-1番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-021-02</td>
+            <td>首都圏3番</td>
+            <td>横浜3番</td>
+          </tr>
+          <tr>
+            <td>JRE-IKST-021-03</td>
+            <td>首都圏3-2番</td>
+            <td>横浜3-2番</td>
+          </tr>
+        </tbody>
+      </table>
+      <script>
+        function showTable(id) {
+          const tables = document.querySelectorAll('.table-container');
+          tables.forEach(table => table.classList.remove('active'));
+
+          const target = document.getElementById(id);
+          target.classList.add('active');
+        }
+      </script>
+      </div>
+      </div>
+    </div>
+  <footer class="footer">
+    <div class="md-flex md-justify-between">
+      <a href="https://depart-melody.glitch.me" style="text-decoration:none;" class="footer__logo">
+        <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" width="40" height="40" alt="334bot Logo" />
+        <p class="title">どこでもステーションベル</p>
+      </a>
+      <ul class="footer__navi flex">
+        <li><a href="https://depart-melody.glitch.me">ホーム</a></li>
+        <li><a href="https://depart-melody.glitch.me/search.html">検索</a></li>
+        <li><a href="https://depart-melody.glitch.me/thanks.html">音声提供等</a></li>
+        <li><a href="https://depart-melody.glitch.me/support.html">問い合わせ</a></li>
+        <li><a href="https://depart-melody.glitch.me/ikst/ikst.html">IKST動静</a></li>
+      </ul>
+    </div>
+    <hr />
+    <p class="copyright">
+      鉄道モバイル:<a href="https://www.te2do.jp">https://www.te2do.jp</a>
+    </p>
+  </footer>
+</body>
+</html>
