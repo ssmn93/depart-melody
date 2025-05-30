@@ -1,0 +1,345 @@
+body {
+  margin: 0;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 15px;
+  padding-right: 15px;
+  background-color: #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+@media (max-width: 650px) {
+  .menu-item {
+    display: none;
+  }
+  .menu-item-sp {
+    display: block;
+  }
+  
+  .container {
+    flex-direction: column !important; /* 狭い画面では縦並びに変更 */
+    align-items: center;
+    padding-left: 0 !important;
+    padding-right: 0;
+  }
+
+  .column {
+/*     width: 100%; カラムの幅を100%に設定 */
+    padding: 10px; /* パディングを調整して余白を縮小 */
+    margin-bottom: 5px;
+  }
+
+  .start {
+/*     padding-left: 20px;
+    padding-right: 20px; */
+  }
+  .main {
+/*     padding-left: 20px;
+    padding-right: 20px; */
+  }
+  
+  .melody {
+    flex-direction: column;
+  }
+  
+  .rect {
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  svg {
+    width: 100%;
+  }
+}
+
+@media (min-width: 651px) {
+  .menu-item {
+    display: block;
+  }
+  .menu-item-sp {
+    display: none;
+  }
+  .main {
+    padding-left: 100px;
+    padding-right: 100px;
+  }
+  
+  .arrange {
+    flex-direction: row;
+  }
+  
+  svg {
+    width: 30vw;
+  }
+}
+
+svg {
+  padding-top: 20px;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.title {
+  font-size: 24px;
+  color: #333333;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.title-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.menu-group {
+  display: flex;
+  list-style: none;
+}
+
+.menu-item-sp img {
+  height: 35px;
+  padding: 5px;
+}
+
+.menu-item a {
+  text-decoration: none;
+  color: #333333;
+  font-weight: bold;
+}
+
+.background-image {
+  position: relative;
+  width: 100%;
+  height: 300px; /* お好みの高さに調整 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #ffffff;
+  overflow: hidden;
+  transform: translate3d(0px, 0px, 0px);
+}
+
+.background-image::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/5bc8a826-181c-422d-9e91-74b321057906.%E9%A7%85%E5%90%8D%E6%A8%99_%E5%85%AB%E7%8E%8B%E5%AD%90%20(1).png?v=1744985515246"); /* 指定画像を挿入 */
+  background-size: cover;
+  background-position: center;
+  opacity: 0.3; /* 透明度を調整（0.0～1.0） */
+  z-index: 1;
+}
+
+.content {
+  position: relative;
+  z-index: 2; /* 背景画像よりも前面に表示 */
+  font-family: "arial", sans-serif;
+  font-size: 20px; /* 文字の大きさを設定 */
+  color: #0d1b2a; /* 文字の色を設定 */
+  margin: 0; /* 不要な余白を削除 */
+  padding-left: 20px;
+  padding-right: 15px;
+}
+
+.main h1 {
+  border-left: 10px solid #3f7aa1;
+  color: #3f7aa1;
+  font-weight: 400;
+  display: flex;
+/*   margin: 0; */
+  font-size: 2rem;
+  padding-bottom: 10px;
+/*   padding-top: 20px; */
+  justify-content: left;
+  padding-left: 30px;
+}
+
+.bellCanvas {
+  width: 100%;
+}
+
+.container {
+  position: relative;
+  display: inline-block;
+  max-width: 300px; /* 画像サイズを適宜調整 */
+  text-align: center;
+}
+
+.container img {
+  width: 100%;
+  height: auto;
+}
+
+.button-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 60px; /* ONとOFFの間隔を調整 */
+}
+
+/* ボタン共通スタイル */
+.button-wrapper button {
+  width: 50%; /* 画像の幅に対する割合 */
+  max-width: 80px; /* ボタンの最大幅 */
+  padding: 10px 0;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  text-align: center;
+  opacity: 0.8; /* 半透明 */
+}
+
+/* ONボタン */
+.start {
+/*   background-color: black; */
+  color: white;
+}
+
+/* OFFボタン */
+.stop {
+/*   background-color: red; */
+  color: white;
+}
+
+.column {
+  flex: 2;
+  padding: 10px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  transition: transform 0.2s;
+  position: relative;
+  display: flex;
+/*   text-align: left; */
+  text-align: center;
+  height: 70px;
+  align-items: center;
+}
+
+/* 画像のスタイル */
+.column img {
+  width: auto; /* 画像の幅を親要素に合わせる */
+  height: 100%;
+}
+
+.column h2 {
+  font-size: 20px;
+  color: #333333;
+  font-weight: bold;
+  text-decoration: none;
+/*   padding-left: 20px; */
+  margin: 0px;
+}
+
+.platform h2 {
+  text-align: left;
+  margin: 0; /* 不要な余白を削除 */
+}
+
+.column p {
+  font-size: 15px;
+  color: #333333;
+  text-decoration: none;
+  margin: 0;
+  
+  /* 修正部分 */
+  display: block; /* flex を解除 */
+  text-align: left; /* 左寄せ */
+}
+
+.column a {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.platform {
+  flex-direction: column;
+  display: flex;
+  padding-left: 20px;
+/*   align-items: center; */
+/*   display: flex; */
+/*   flex-direction: column; /* 縦並び */
+  align-items: flex-start; /* 左寄せ */
+}
+
+.footer {
+  padding: 2rem;
+  margin-top: 40px;
+  font-size: 15px;
+  color: #999999;
+  background: #ffffff;
+  background-color: #ededed;
+  text-align: left !important;
+}
+
+.footer__navi {
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.footer__navi li {
+  display: inline-block;
+}
+
+.footer__navi li:not(:last-child) {
+  margin-right: 16px;
+}
+
+.footer__logo {
+  display: flex;
+  margin-bottom: 1rem;
+}
+
+.footer__logo img {
+  margin-right: 10px;
+}
+
+.footer p {
+  margin: 0;
+}
+
+/* svg {
+  width: 200px;
+  height: 300px;
+} */
+.button {
+  cursor: pointer;
+}
+
+.melody {
+  display: flex;
+}
+
+.main h2 {
+  text-align: center;
+}
+
+iframe {
+  padding-left: 20px;
+}
