@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="robots" content="index, follow">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="このサイトでは、発車メロディを再現することができます！">
+  <link rel="icon" href="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" />
+  <link rel="stylesheet" href="bubaigawara_2.css">
+  <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
+  <meta property="og:description" content="このサイトでは、発車メロディを再現することができます！">
+  <meta property="og:title" content="分倍河原駅2番線「浜千鳥 高速ver」｜どこでもステーションベル">
+  <meta property="og:url" content="https://depart-melody.glitch.me">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:site_name" content="分倍河原駅2番線「浜千鳥 高速ver」｜どこでもステーションベル">
+  <title>分倍河原駅2番線「浜千鳥 高速ver」｜どこでもステーションベル</title>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <a href="https://depart-melody.glitch.me/" class="title-link">
+        <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" alt="アイコン" class="logo">
+        <h1 class="title">どこでもステーションベル</h1>
+      </a>
+    </div>
+    <nav class="nav">
+      <ul class="menu-group">
+        <div class="menu-item"><li class="menu-item"><a href="../search.html">検索</a></li></div>
+        <div class="menu-item-sp"><li class="menu-item-sp"><a href="../search.html"><img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/e61846fe-1ff2-4b3c-b789-4426554fdcf2.image.png?v=1743074812357" alt="スマホで表示する画像"></a></li></div>
+      </ul>
+    </nav>
+  </header>
+    <div class="background-image">
+      <div class="content">
+        <h1>分倍河原駅 2番線</h1>
+      </div>
+    </div>
+    <div class="main">
+    <div class="melody">
+      <div class="arrange" style="display: flex; align-items: center; justify-content: center;">
+      <input type="range" name="approach" id="approach" class="approach" min="1" max="5" step="1" value="1" style="writing-mode: bt-lr; transform: rotate(90deg); transform-origin: center;">
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%B5%9C%E5%8D%83%E9%B3%A5%20%E9%AB%98%E9%80%9Fver.mp4"></audio>      
+    <script>
+      
+      const audio = document.getElementById("melody");
+
+        // クリックイベント
+        document.getElementById('approach').addEventListener("input", (e) => {
+          if (document.getElementById('approach').value == 5) {
+            audio.play();
+          }
+        });
+    </script>
+    </div>
+      <div class="arrange">
+        <div class="content">
+          <h1>分倍河原駅 2番線「浜千鳥 高速ver」</h1>
+          <p>収録駅:稲城長沼駅4番線</p>
+          <p>スピーカー:小丸VOSS、JVC横長型(分倍河原)</p>
+        </div>
+      </div>
+  </div>
+  </div>
+  <footer class="footer">
+    <div class="md-flex md-justify-between">
+      <a href="https://depart-melody.glitch.me" style="text-decoration:none;" class="footer__logo">
+        <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" width="40" height="40" alt="334bot Logo" />
+        <p class="title">どこでもステーションベル</p>
+      </a>
+      <ul class="footer__navi flex">
+        <li><a href="https://depart-melody.glitch.me">ホーム</a></li>
+        <li><a href="https://depart-melody.glitch.me/search.html">検索</a></li>
+        <li><a href="https://depart-melody.glitch.me/thanks.html">音声提供等</a></li>
+        <li><a href="https://depart-melody.glitch.me/support.html">問い合わせ</a></li>
+        <li><a href="https://depart-melody.glitch.me/ikst/ikst.html">IKST動静</a></li>
+      </ul>
+    </div>
+    <hr />
+    <p class="copyright">
+      鉄道モバイル:<a href="https://www.te2do.jp">https://www.te2do.jp</a>
+    </p>
+  </footer>
+</body>
+</html>
