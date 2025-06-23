@@ -1,3 +1,4 @@
+
 body {
   margin: 0;
 }
@@ -334,4 +335,8 @@ svg {
 
 .melody {
   display: flex;
+}
+
+select {
+  margin-left: 20px;
 }
