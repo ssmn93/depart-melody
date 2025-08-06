@@ -221,7 +221,7 @@
       <div class="arrange">
         <div class="content">
           <h1>音声設定</h1>
-          <h4>①メロディ部ファイルを選択してください。</h4>
+          <p>①メロディ部ファイルを選択してください。</p>
             <select id="mySelect">
               <option value="朝の静けさ">朝の静けさ</option>
               <option value="木々の目覚めV1">木々の目覚めV1</option>
@@ -243,10 +243,12 @@
                 if (value === "カスタム") {
                   fileUpload.style.display = "block";
                   audio.pause();
+                  audio.loop = false;
                   audio.src = ""; // 前の音声をクリア
                 } else {
                   fileUpload.style.display = "none";
                   audio.pause();
+                  audio.loop = false;
                   audio.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/" + value + ".mp3"; // A.mp3などに切り替え
                 }
               });
