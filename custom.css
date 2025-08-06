@@ -405,3 +405,7 @@ svg {
 .melody {
   display: flex;
 }
+
+p {
+  text-decoration: none;
+}
