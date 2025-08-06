@@ -222,14 +222,15 @@
         <div class="content">
           <h1>音声設定</h1>
           <p>①メロディ部ファイルを選択してください。</p>
+            <div class="arrange">
             <select id="mySelect">
               <option value="朝の静けさ">朝の静けさ</option>
               <option value="木々の目覚めV1">木々の目覚めV1</option>
               <option value="木々の目覚めV2">木々の目覚めV2</option>
               <option value="カスタム">カスタム(音声ファイルのみ)</option>
             </select>
-            <div id="fileUpload" style="display: none; margin-top: 10px;">
-              <label for="fileInput">音声ファイルをアップロード:</label>
+            </div>
+            <div class="arrange" id="fileUpload" style="display: none; margin-top: 10px;">
               <input type="file" id="fileInput" accept="audio/*">
             </div>
             <script>
