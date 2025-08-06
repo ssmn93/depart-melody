@@ -164,8 +164,8 @@
         <rect class="button" id="offButton" x="432" y="445" width="100" height="100" fill="#e06666" stroke="#e06666" stroke-width="2"/>
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/Sunrise.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E7%94%B7%E5%A3%B01%E7%95%AA.mp3"></audio>
+    <audio id="audio"></audio>
+    <audio id="tojime"></audio>
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
       
     <script>
@@ -220,9 +220,44 @@
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>我孫子駅 1番線「Sunrise」</h1>
-          <p>収録駅:我孫子駅1番線</p>
-          <p>スピーカー:小丸VOSS</p>
+          <h1>音声設定</h1>
+          <p>①メロディ部ファイルを選択してください。</p>
+            <select id="mySelect">
+              <option value="朝の静けさ">朝の静けさ</option>
+              <option value="木々の目覚めV1">木々の目覚めV1</option>
+              <option value="木々の目覚めV2">木々の目覚めV2</option>
+              <option value="カスタム">カスタム(音声ファイルのみ)</option>
+            </select>
+            <div id="fileUpload" style="display: none; margin-top: 10px;">
+              <label for="fileInput">音声ファイルをアップロード:</label>
+              <input type="file" id="fileInput" accept="audio/*">
+            </div>
+            <script>
+              const select = document.getElementById("mySelect");
+              const fileInput = document.getElementById("fileInput");
+              const fileUpload = document.getElementById("fileUpload");
+          
+              select.addEventListener("change", function () {
+                const value = this.value;
+          
+                if (value === "カスタム") {
+                  fileUpload.style.display = "block";
+                  audio.src = ""; // 前の音声をクリア
+                } else {
+                  fileUpload.style.display = "none";
+                  audio.src = value + ".mp3"; // A.mp3などに切り替え
+                }
+              });
+          
+              fileInput.addEventListener("change", function () {
+                const file = this.files[0];
+                if (file && file.type.startsWith("audio/")) {
+                  const url = URL.createObjectURL(file);
+                  audio.src = url;
+                }
+              });
+          <p>②戸閉放送部ファイルを選択してください。</p>
+          <p>③オプションを選択してください。(任意)</p>
         </div>
       </div>
 <!--       </div> -->
