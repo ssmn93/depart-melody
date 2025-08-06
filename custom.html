@@ -242,12 +242,16 @@
           
                 if (value === "カスタム") {
                   fileUpload.style.display = "block";
+                  isPlaying = false;
                   audio.pause();
+                  audio.currentTime = 0;
                   audio.loop = false;
                   audio.src = ""; // 前の音声をクリア
                 } else {
+                  isPlaying = false;
                   fileUpload.style.display = "none";
                   audio.pause();
+                  audio.currentTime = 0;
                   audio.loop = false;
                   audio.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/" + value + ".mp3"; // A.mp3などに切り替え
                 }
@@ -264,9 +268,8 @@
           <p>②戸閉放送部ファイルを選択してください。</p>
           <p>③オプションを選択してください。(任意)</p>
         </div>
-      </div>
+<!--       </div>
       <script>
-        const audio = document.getElementById("melody");
         const tojime = document.getElementById("tojime");
         const playButton = document.getElementById("start");
         const stopButton = document.getElementById("stop");
