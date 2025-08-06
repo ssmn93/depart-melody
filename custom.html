@@ -243,9 +243,11 @@
           
                 if (value === "カスタム") {
                   fileUpload.style.display = "block";
+                  audio.pause();
                   audio.src = ""; // 前の音声をクリア
                 } else {
                   fileUpload.style.display = "none";
+                  audio.pause();
                   audio.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/" + value + ".mp3"; // A.mp3などに切り替え
                 }
               });
