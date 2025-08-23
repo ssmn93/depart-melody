@@ -73,11 +73,14 @@
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
           button.play();
-              // if (!isPlaying) {
-                // isPlaying = true;
-                // audio.loop = true; // ループ再生を有効にする
+              if (!isPlaying) {
+                isPlaying = true;
                 audio.play();
-              // }
+              } else {
+                audio.pause();
+                audio.currentTime = 0;
+                audio.play();
+              }
         });
          // document.getElementById('onText').addEventListener('click', function() {
          //   button.play();
