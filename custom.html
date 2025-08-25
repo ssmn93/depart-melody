@@ -255,8 +255,8 @@
               // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
               if (!nishiogikubo.checked) {
                 tojime.play();
-                tachikawa.readonly = false;
-                nishiogikubo.readonly = false;
+                tachikawa.disabled = false;
+                nishiogikubo.disabled = false;
               }
             }
         });
@@ -271,8 +271,8 @@
               // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
               if (!nishiogikubo.checked) {
                 tojime.play();
-                tachikawa.readonly = false;
-                nishiogikubo.readonly = false;
+                tachikawa.disabled = false;
+                nishiogikubo.disabled = false;
               }
             }
         });
@@ -281,11 +281,10 @@
           document.getElementById('audio').addEventListener('ended', function() {
             if (nishiogikubo.checked) {
               isPlaying = false;
-              audio.loop = false;
               audio.currentTime = 0;
               tojime.play();
-              tachikawa.readonly = false;
-              nishiogikubo.readonly = false;
+              tachikawa.disabled = false;
+              nishiogikubo.disabled = false;
             }
           });
         };
