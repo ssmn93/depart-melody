@@ -243,14 +243,14 @@
               <input type="file" id="tojimeInput" accept="audio/*">
             </div>
             <script>
-              const fileInput = document.getElementById("tojimeInput");
-              const fileUpload = document.getElementById("tojimeUpload");
+              const tojimeInput = document.getElementById("tojimeInput");
+              const tojimeUpload = document.getElementById("tojimeUpload");
           
-              fileInput.addEventListener("change", function () {
-                const file = this.files[0];
-                if (file && file.type.startsWith("audio/")) {
-                  const url = URL.createObjectURL(file);
-                  tojime.src = url;
+              tojimeInput.addEventListener("change", function () {
+                const tojimeFile = this.files[0];
+                if (tojimeFile && tojimeFile.type.startsWith("audio/")) {
+                  const tojimeUrl = URL.createObjectURL(tojimeFile);
+                  tojime.src = tojimeUrl;
                 }
               });
             </script>
