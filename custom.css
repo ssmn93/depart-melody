@@ -137,7 +137,7 @@ header {
   display: flex;
 /*   margin: 0; */
   font-size: 3rem;
-/*   padding-bottom: 10px; */
+  padding-bottom: 10px;
 /*   padding-top: 20px; */
   justify-content: left;
   padding-left: 30px;
