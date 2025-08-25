@@ -145,10 +145,9 @@ header {
 
 .main p {
   color: #000000;
-  font-weight: 400;
   display: flex;
 /*   margin: 0; */
-  font-size: 40px;
+  font-size: 25px; !important
 /*   padding-top: 20px; */
   justify-content: left;
 }
