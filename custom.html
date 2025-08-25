@@ -225,14 +225,16 @@
             }
         });
 
-        document.getElementById('audio').addEventListener('ended', function() {
-          if (nishiogikubo.checked) {
-            isPlaying = false;
-            audio.loop = false;
-            audio.currentTime = 0;
-            tojime.play();
-          }
-        });
+        if (isPlaying) {
+          document.getElementById('audio').addEventListener('ended', function() {
+            if (nishiogikubo.checked) {
+              isPlaying = false;
+              audio.loop = false;
+              audio.currentTime = 0;
+              tojime.play();
+            }
+          });
+        };
     </script>
     </div>
       <div class="arrange">
