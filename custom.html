@@ -225,6 +225,8 @@
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
+          tachikawa.readonly = true;
+          nishiogikubo.readonly = true;
           if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
@@ -233,6 +235,8 @@
               }
         });
          document.getElementById('onText').addEventListener('click', function() {
+          tachikawa.readonly = true;
+          nishiogikubo.readonly = true;
            if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
@@ -251,6 +255,8 @@
               // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
               if (!nishiogikubo.checked) {
                 tojime.play();
+                tachikawa.readonly = false;
+                nishiogikubo.readonly = false;
               }
             }
         });
@@ -265,6 +271,8 @@
               // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
               if (!nishiogikubo.checked) {
                 tojime.play();
+                tachikawa.readonly = false;
+                nishiogikubo.readonly = false;
               }
             }
         });
@@ -276,6 +284,8 @@
               audio.loop = false;
               audio.currentTime = 0;
               tojime.play();
+              tachikawa.readonly = false;
+              nishiogikubo.readonly = false;
             }
           });
         };
