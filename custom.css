@@ -143,6 +143,16 @@ header {
   padding-left: 30px;
 }
 
+.main p {
+  color: #000000;
+  font-weight: 400;
+  display: flex;
+/*   margin: 0; */
+  font-size: 40px;
+/*   padding-top: 20px; */
+  justify-content: left;
+}
+
 .container {
   display: flex;
   justify-content: space-between;
