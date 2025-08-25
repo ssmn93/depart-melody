@@ -222,14 +222,6 @@
         <div class="content">
           <h1>音声設定</h1>
           <p>①メロディ部ファイルを選択してください。</p>
-            <div class="arrange">
-            <select id="mySelect">
-              <option value="朝の静けさ">朝の静けさ</option>
-              <option value="木々の目覚めV1">木々の目覚めV1</option>
-              <option value="木々の目覚めV2">木々の目覚めV2</option>
-              <option value="カスタム">カスタム(音声ファイルのみ)</option>
-            </select>
-            </div>
             <div class="arrange" id="fileUpload" style="display: none; margin-top: 10px;">
               <input type="file" id="fileInput" accept="audio/*">
             </div>
@@ -237,26 +229,6 @@
               const select = document.getElementById("mySelect");
               const fileInput = document.getElementById("fileInput");
               const fileUpload = document.getElementById("fileUpload");
-          
-              select.addEventListener("change", function () {
-                const value = this.value;
-          
-                if (value === "カスタム") {
-                  fileUpload.style.display = "block";
-                  isPlaying = false;
-                  audio.pause();
-                  audio.currentTime = 0;
-                  audio.loop = false;
-                  audio.src = ""; // 前の音声をクリア
-                } else {
-                  isPlaying = false;
-                  fileUpload.style.display = "none";
-                  audio.pause();
-                  audio.currentTime = 0;
-                  audio.loop = false;
-                  audio.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/" + value + ".mp3"; // A.mp3などに切り替え
-                }
-              });
           
               fileInput.addEventListener("change", function () {
                 const file = this.files[0];
@@ -267,6 +239,22 @@
               });
             </script>
           <p>②戸閉放送部ファイルを選択してください。</p>
+            <div class="arrange" id="tojimeUpload" style="display: none; margin-top: 10px;">
+              <input type="file" id="tojimeInput" accept="audio/*">
+            </div>
+            <script>
+              const select = document.getElementById("mySelect");
+              const fileInput = document.getElementById("tojimeInput");
+              const fileUpload = document.getElementById("tojimeUpload");
+          
+              fileInput.addEventListener("change", function () {
+                const file = this.files[0];
+                if (file && file.type.startsWith("audio/")) {
+                  const url = URL.createObjectURL(file);
+                  tojime.src = url;
+                }
+              });
+            </script>
           <p>③オプションを選択してください。(任意)</p>
         </div>
       </div>
