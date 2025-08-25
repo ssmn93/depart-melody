@@ -168,6 +168,50 @@
     <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E7%94%B7%E5%A3%B01%E7%95%AA.mp3"></audio>
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
       
+    </div>
+      <div class="arrange">
+        <div class="content">
+          <h1>音声設定</h1>
+          <p>①メロディ部ファイルを選択してください。</p>
+            <div class="arrange" id="fileUpload">
+              <input type="file" id="fileInput" accept="audio/*">
+            </div>
+            <script>
+              const select = document.getElementById("mySelect");
+              const fileInput = document.getElementById("fileInput");
+              const fileUpload = document.getElementById("fileUpload");
+          
+              fileInput.addEventListener("change", function () {
+                const file = this.files[0];
+                if (file && file.type.startsWith("audio/")) {
+                  const url = URL.createObjectURL(file);
+                  audio.src = url;
+                }
+              });
+            </script>
+          <p>②戸閉放送部ファイルを選択してください。</p>
+            <div class="arrange" id="tojimeUpload">
+              <input type="file" id="tojimeInput" accept="audio/*">
+            </div>
+            <script>
+              const tojimeInput = document.getElementById("tojimeInput");
+              const tojimeUpload = document.getElementById("tojimeUpload");
+          
+              tojimeInput.addEventListener("change", function () {
+                const tojimeFile = this.files[0];
+                if (tojimeFile && tojimeFile.type.startsWith("audio/")) {
+                  const tojimeUrl = URL.createObjectURL(tojimeFile);
+                  tojime.src = tojimeUrl;
+                }
+              });
+            </script>
+          <p>③オプションを選択してください。(任意)</p>
+          <label><input type="checkbox" id="tachikawa">立川式</label>
+          <label><input type="checkbox" id="nishiogikubo">西荻窪式</label>
+          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        </div>
+
+        
     <script>
       
       const audio = document.getElementById("melody");
@@ -236,48 +280,6 @@
           });
         };
     </script>
-    </div>
-      <div class="arrange">
-        <div class="content">
-          <h1>音声設定</h1>
-          <p>①メロディ部ファイルを選択してください。</p>
-            <div class="arrange" id="fileUpload">
-              <input type="file" id="fileInput" accept="audio/*">
-            </div>
-            <script>
-              const select = document.getElementById("mySelect");
-              const fileInput = document.getElementById("fileInput");
-              const fileUpload = document.getElementById("fileUpload");
-          
-              fileInput.addEventListener("change", function () {
-                const file = this.files[0];
-                if (file && file.type.startsWith("audio/")) {
-                  const url = URL.createObjectURL(file);
-                  audio.src = url;
-                }
-              });
-            </script>
-          <p>②戸閉放送部ファイルを選択してください。</p>
-            <div class="arrange" id="tojimeUpload">
-              <input type="file" id="tojimeInput" accept="audio/*">
-            </div>
-            <script>
-              const tojimeInput = document.getElementById("tojimeInput");
-              const tojimeUpload = document.getElementById("tojimeUpload");
-          
-              tojimeInput.addEventListener("change", function () {
-                const tojimeFile = this.files[0];
-                if (tojimeFile && tojimeFile.type.startsWith("audio/")) {
-                  const tojimeUrl = URL.createObjectURL(tojimeFile);
-                  tojime.src = tojimeUrl;
-                }
-              });
-            </script>
-          <p>③オプションを選択してください。(任意)</p>
-          <label><input type="checkbox" id="tachikawa">立川式</label>
-          <label><input type="checkbox" id="nishiogikubo">西荻窪式</label>
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
-        </div>
       </div>
   <!-- <script>
         const tojime = document.getElementById("tojime");
