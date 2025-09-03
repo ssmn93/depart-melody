@@ -206,8 +206,11 @@
               });
             </script>
           <p>③オプションを選択してください。(任意)</p>
-          <label><input type="checkbox" id="tachikawa" name="switch">立川式</label>
-          <label><input type="checkbox" id="nishiogikubo" name="switch">西荻窪式</label>
+          <select name="switch_method" id="switch_method>
+              <option value="normal">通常</option>
+              <option value="tachikawa">立川式</option>
+              <option value="nishiogikubo">西荻窪式</option>
+          </select>
           <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
 
@@ -217,16 +220,14 @@
       const audio = document.getElementById("melody");
       const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
-      const tachikawa = document.getElementById("tachikawa");
-      const nishiogikubo = document.getElementById("nishiogikubo");
+      const switch_method = document.getElementById("switch_method");
       const buttonon = document.getElementById("buttonon");
       
         let isPlaying = false;
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
-          tachikawa.readonly = true;
-          nishiogikubo.readonly = true;
+          switch_method.style.pointer-events = "none";
           if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
@@ -235,8 +236,7 @@
               }
         });
          document.getElementById('onText').addEventListener('click', function() {
-          tachikawa.readonly = true;
-          nishiogikubo.readonly = true;
+          switch_method.style.pointer-events = "none";
            if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
@@ -245,51 +245,69 @@
               }
          });
         
+        // document.getElementById('offButton').addEventListener('click', function() {
+        //   if (!buttonon.checked) button.play();
+        //     if (isPlaying) {
+        //       if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") isPlaying = false;
+        //       audio.loop = false;
+        //       if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") audio.pause();
+        //       if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") audio.currentTime = 0;
+        //       // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
+        //       if (!nishiogikubo.checked) {
+        //         tojime.currentTime = 0;
+        //         tojime.play();
+        //         tachikawa.disabled = false;
+        //         nishiogikubo.disabled = false;
+        //       }
+        //     }
+        // });       
         document.getElementById('offButton').addEventListener('click', function() {
           if (!buttonon.checked) button.play();
             if (isPlaying) {
-              if (!tachikawa.checked && !nishiogikubo.checked) isPlaying = false;
-              audio.loop = false;
-              if (!tachikawa.checked && !nishiogikubo.checked) audio.pause();
-              if (!tachikawa.checked && !nishiogikubo.checked) audio.currentTime = 0;
-              // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-              if (!nishiogikubo.checked) {
+              if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") {
+                isPlaying = false;
+                audio.loop = false;
+                audio.pause();
+                audio.currentTime = 0;
+                tojime.currentTime = 0;
                 tojime.play();
-                tachikawa.disabled = false;
-                nishiogikubo.disabled = false;
+              } else if (switch_method.value === "tachikawa") {
+                isPlaying = false;
+                audio.loop = false;
+                tojime.play();
+              } else if (switch_method.value === "nishiogikubo") {
+                audio1.addEventListener('ended', () => {
+                  tojime.currentTime = 0;
+                  tojime.play();
+                });
               }
+              switch_method.style.pointer-events = "auto";
             }
         });
       
         document.getElementById('offText').addEventListener('click', function() {
           if (!buttonon.checked) button.play();
             if (isPlaying) {
-              if (!tachikawa.checked && !nishiogikubo.checked) isPlaying = false;
-              audio.loop = false;
-              if (!tachikawa.checked && !nishiogikubo.checked) audio.pause();
-              if (!tachikawa.checked && !nishiogikubo.checked) audio.currentTime = 0;
-              // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-              if (!nishiogikubo.checked) {
+              if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") {
+                isPlaying = false;
+                audio.loop = false;
+                audio.pause();
+                audio.currentTime = 0;
+                tojime.currentTime = 0;
                 tojime.play();
-                tachikawa.disabled = false;
-                nishiogikubo.disabled = false;
+              } else if (switch_method.value === "tachikawa") {
+                isPlaying = false;
+                audio.loop = false;
+                tojime.play();
+              } else if (switch_method.value === "nishiogikubo") {
+                audio1.addEventListener('ended', () => {
+                  tojime.currentTime = 0;
+                  tojime.play();
+                });
               }
+              switch_method.style.pointer-events = "auto";
             }
         });
-
-        if (isPlaying) {
-          document.getElementById('audio').addEventListener('ended', function() {
-            nishiogikubo.disabled = false;
-            if (nishiogikubo.checked) {
-              nishiogikubo.disabled = true;
-              isPlaying = false;
-              audio.currentTime = 0;
-              tojime.play();
-              tachikawa.disabled = false;
-              nishiogikubo.disabled = false;
-            }
-          });
-        };
     </script>
       </div>
   <!-- <script>
