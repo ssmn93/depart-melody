@@ -216,17 +216,17 @@
 
         
     <script>
-      
+      let switch_method;
       const audio = document.getElementById("melody");
       const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
-      const switch_method = document.getElementById("switch_method");
       const buttonon = document.getElementById("buttonon");
       
         let isPlaying = false;
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
+          switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
@@ -237,6 +237,7 @@
               }
         });
          document.getElementById('onText').addEventListener('click', function() {
+          switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
            if (!buttonon.checked) button.play();
