@@ -273,16 +273,18 @@
                 audio.pause();
                 audio.currentTime = 0;
                 tojime.currentTime = 0;
-                tojime.play();
+                tojime.play();              
               } else if (switch_method.value === "tachikawa") {
                 isPlaying = false;
                 audio.loop = false;
                 tojime.currentTime = 0;
                 tojime.play();
+                let tojime_end;
+                let audio_end;
               } else if (switch_method.value === "nishiogikubo") {
                 isPlaying = false;
                 audio.loop = false;
-                audio1.addEventListener('ended', () => {
+                audio.addEventListener('ended', () => {
                   tojime.currentTime = 0;
                   tojime.play();
                 });
@@ -301,16 +303,18 @@
                 audio.pause();
                 audio.currentTime = 0;
                 tojime.currentTime = 0;
-                tojime.play();
+                tojime.play();              
               } else if (switch_method.value === "tachikawa") {
                 isPlaying = false;
                 audio.loop = false;
                 tojime.currentTime = 0;
                 tojime.play();
+                let tojime_end;
+                let audio_end;
               } else if (switch_method.value === "nishiogikubo") {
                 isPlaying = false;
                 audio.loop = false;
-                audio1.addEventListener('ended', () => {
+                audio.addEventListener('ended', () => {
                   tojime.currentTime = 0;
                   tojime.play();
                 });
