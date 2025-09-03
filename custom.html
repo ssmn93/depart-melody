@@ -228,6 +228,7 @@
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
           switch_method.style.pointerEvents = "none";
+          button.currentTime = 0;
           if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
@@ -237,6 +238,7 @@
         });
          document.getElementById('onText').addEventListener('click', function() {
           switch_method.style.pointerEvents = "none";
+          button.currentTime = 0;
            if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
@@ -262,6 +264,7 @@
         //     }
         // });       
         document.getElementById('offButton').addEventListener('click', function() {
+          button.currentTime = 0;
           if (!buttonon.checked) button.play();
             if (isPlaying) {
               if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") {
@@ -274,8 +277,11 @@
               } else if (switch_method.value === "tachikawa") {
                 isPlaying = false;
                 audio.loop = false;
+                tojime.currentTime = 0;
                 tojime.play();
               } else if (switch_method.value === "nishiogikubo") {
+                isPlaying = false;
+                audio.loop = false;
                 audio1.addEventListener('ended', () => {
                   tojime.currentTime = 0;
                   tojime.play();
@@ -286,6 +292,7 @@
         });
       
         document.getElementById('offText').addEventListener('click', function() {
+          button.currentTime = 0;
           if (!buttonon.checked) button.play();
             if (isPlaying) {
               if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") {
@@ -298,8 +305,11 @@
               } else if (switch_method.value === "tachikawa") {
                 isPlaying = false;
                 audio.loop = false;
+                tojime.currentTime = 0;
                 tojime.play();
               } else if (switch_method.value === "nishiogikubo") {
+                isPlaying = false;
+                audio.loop = false;
                 audio1.addEventListener('ended', () => {
                   tojime.currentTime = 0;
                   tojime.play();
