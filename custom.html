@@ -268,7 +268,7 @@
         //     }
         // });       
         document.getElementById('offButton').addEventListener('click', function() { 
-          audio.removeEventListener('ended', playTojimeAfterEnd);
+          audio.removeEventListener('ended', nishiogikubo_tojime);
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
             if (isPlaying) {
@@ -294,7 +294,7 @@
         });
       
         document.getElementById('offText').addEventListener('click', function() {    
-          audio.removeEventListener('ended', playTojimeAfterEnd);
+          audio.removeEventListener('ended', nishiogikubo_tojime);
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
             if (isPlaying) {
