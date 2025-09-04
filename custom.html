@@ -226,6 +226,7 @@
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
+          audio.removeEventListener('ended', playTojimeAfterEnd);
           switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
@@ -237,6 +238,7 @@
               }
         });
          document.getElementById('onText').addEventListener('click', function() {
+          audio.removeEventListener('ended', playTojimeAfterEnd);
           switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
