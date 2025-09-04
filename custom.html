@@ -221,7 +221,10 @@
       const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       const buttonon = document.getElementById("buttonon");
-      
+      function nishiogikubo_tojime() {
+        tojime.currentTime = 0;
+        tojime.play();
+      }
         let isPlaying = false;
 
         // クリックイベント
@@ -283,14 +286,8 @@
               } else if (switch_method.value === "nishiogikubo") {
                 isPlaying = false;
                 audio.loop = false;
-                audio.addEventListener('ended', () => {
-                  tojime.currentTime = 0;
-                  tojime.play();
-                });
-                audio.removeEventListener('ended', () => {
-                  tojime.currentTime = 0;
-                  tojime.play();
-                });
+                audio.addEventListener('ended', nishiogikubo_tojime);    
+                audio.removeEventListener('ended', nishiogikubo_tojime);       
               }
             switch_method.style.pointerEvents = "auto";
             }
@@ -315,14 +312,8 @@
               } else if (switch_method.value === "nishiogikubo") {
                 isPlaying = false;
                 audio.loop = false;
-                audio.addEventListener('ended', () => {
-                  tojime.currentTime = 0;
-                  tojime.play();
-                });
-                audio.removeEventListener('ended', () => {
-                  tojime.currentTime = 0;
-                  tojime.play();
-                });
+                audio.addEventListener('ended', nishiogikubo_tojime);    
+                audio.removeEventListener('ended', nishiogikubo_tojime);              
               }
             switch_method.style.pointerEvents = "auto";
             }
