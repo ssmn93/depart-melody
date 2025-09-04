@@ -267,7 +267,8 @@
         //       }
         //     }
         // });       
-        document.getElementById('offButton').addEventListener('click', function() {
+        document.getElementById('offButton').addEventListener('click', function() { 
+          audio.removeEventListener('ended', playTojimeAfterEnd);
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
             if (isPlaying) {
@@ -286,14 +287,14 @@
               } else if (switch_method.value === "nishiogikubo") {
                 isPlaying = false;
                 audio.loop = false;
-                audio.addEventListener('ended', nishiogikubo_tojime);    
-                audio.removeEventListener('ended', nishiogikubo_tojime);       
+                audio.addEventListener('ended', nishiogikubo_tojime);         
               }
             switch_method.style.pointerEvents = "auto";
             }
         });
       
-        document.getElementById('offText').addEventListener('click', function() {
+        document.getElementById('offText').addEventListener('click', function() {    
+          audio.removeEventListener('ended', playTojimeAfterEnd);
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
             if (isPlaying) {
@@ -312,8 +313,7 @@
               } else if (switch_method.value === "nishiogikubo") {
                 isPlaying = false;
                 audio.loop = false;
-                audio.addEventListener('ended', nishiogikubo_tojime);    
-                audio.removeEventListener('ended', nishiogikubo_tojime);              
+                audio.addEventListener('ended', nishiogikubo_tojime);              
               }
             switch_method.style.pointerEvents = "auto";
             }
