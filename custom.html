@@ -226,7 +226,6 @@
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
-          audio.removeEventListener('ended', playTojimeAfterEnd);
           switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
@@ -238,7 +237,6 @@
               }
         });
          document.getElementById('onText').addEventListener('click', function() {
-          audio.removeEventListener('ended', playTojimeAfterEnd);
           switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
@@ -289,6 +287,7 @@
                   tojime.currentTime = 0;
                   tojime.play();
                 });
+                audio.removeEventListener('ended');
               }
             switch_method.style.pointerEvents = "auto";
             }
@@ -317,6 +316,7 @@
                   tojime.currentTime = 0;
                   tojime.play();
                 });
+                audio.removeEventListener('ended');
               }
             switch_method.style.pointerEvents = "auto";
             }
