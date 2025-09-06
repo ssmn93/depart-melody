@@ -168,98 +168,75 @@
     <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E7%94%B7%E5%A3%B01%E7%95%AA.mp3"></audio>
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
       
-    <script>
-      
-      const audio = document.getElementById("melody");
-      const tojime = document.getElementById("tojime");
-      const button = document.getElementById("button");
-      
-        let isPlaying = false;
-
-        // クリックイベント
-        document.getElementById('onButton').addEventListener('click', function() {
-          button.play();
-              if (!isPlaying) {
-                isPlaying = true;
-                audio.loop = true; // ループ再生を有効にする
-                audio.play();
-              }
-        });
-         document.getElementById('onText').addEventListener('click', function() {
-           button.play();
-              if (!isPlaying) {
-                isPlaying = true;
-                audio.loop = true; // ループ再生を有効にする
-                audio.play();
-              }
-         });
-        
-        document.getElementById('offButton').addEventListener('click', function() {
-          button.play();
-            if (isPlaying) {
-              isPlaying = false;
-              audio.loop = false;
-              audio.pause();
-              audio.currentTime = 0;
-              // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-              tojime.play();
-            }
-        });
-        document.getElementById('offText').addEventListener('click', function() {
-          button.play();
-            if (isPlaying) {
-              isPlaying = false;
-              audio.loop = false;
-              audio.pause();
-              audio.currentTime = 0;
-              // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-              tojime.play();
-            }
-        });
-    </script>
     </div>
       <div class="arrange">
         <div class="content">
           <h1>矢板駅 1番線「ムーンストーン」</h1>
           <p>収録駅:佐倉駅3番線</p>
           <p>スピーカー:ユニペックス小丸型・ユニペックス小型(矢板)</p>
+        
         </div>
+        <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         <select name="change" id="change" onchange="location.href=value;">
           <option value="yaita_1.html">ムーンストーン</option>
           <option value="yaita_1_o.html">すみれの花咲く頃 標準ver〈再現〉</option>
         </select>
 
+      
       </div>
-<!--       </div> -->
-<!--        <script>
-        const audio = document.getElementById("melody");
-        const tojime = document.getElementById("tojime");
-        const playButton = document.getElementById("start");
-        const stopButton = document.getElementById("stop");
-
+          <script>
+      const audio = document.getElementById("melody");
+      const tojime = document.getElementById("tojime");
+      const button = document.getElementById("button");
+      let buttonon = document.getElementById("buttonon");
+      
         let isPlaying = false;
 
-        playButton.addEventListener("click", () => {
-            if (!isPlaying) {
+        // クリックイベント
+        document.getElementById('onButton').addEventListener('click', function() {
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
+              if (!isPlaying) {
                 isPlaying = true;
-                audio.loop = true; // ループ再生を有効にする
+                audio.loop = true;
                 audio.play();
+              }
+        });
+         document.getElementById('onText').addEventListener('click', function() {
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
+              if (!isPlaying) {
+                isPlaying = true;
+                audio.loop = true;
+                audio.play();
+              }
+         });
+        
+        document.getElementById('offButton').addEventListener('click', function() {
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
+            if (isPlaying) {
+              isPlaying = false;
+              audio.loop = false;
+              audio.pause();
+              audio.currentTime = 0;
+              tojime.currentTime = 0;
+              tojime.play();
             }
         });
-
-        stopButton.addEventListener("click", () => {
-          isPlaying = false;
-          audio.loop = false; // ループを解除
-          audio.pause();
-          audio.currentTime = 0; // 音声を最初に戻す
-
-          // ボタンが押されるたびに新しい `Audio` インスタンスを作成して再生
-          const tojime = new Audio("https://video.twimg.com/ext_tw_video/1905964407139786752/pu/vid/avc1/1280x720/j3D2qa6ySZjnVlBm.mp3?tag=12");
-          tojime.play();
+        document.getElementById('offText').addEventListener('click', function() {
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
+            if (isPlaying) {
+              isPlaying = false;
+              audio.loop = false;
+              audio.pause();
+              audio.currentTime = 0;
+              tojime.currentTime = 0;
+              tojime.play();
+            }
         });
-      </script> -->
-  </div>
-  </div>
+    </script>
   <footer class="footer">
     <div class="md-flex md-justify-between">
       <a href="https://ssmn93.github.io/depart-melody" style="text-decoration:none;" class="footer__logo">
