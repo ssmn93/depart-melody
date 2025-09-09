@@ -144,7 +144,7 @@
             <path fill="#000000" d="m417.30185 439.3386l0 0c0 -36.88568 29.901733 -66.787415 66.787384 -66.787415l0 0c17.713135 0 34.700745 7.036499 47.22583 19.561584c12.525085 12.525055 19.561584 29.512695 19.561584 47.22583l0 0c0 36.88565 -29.901733 66.787384 -66.787415 66.787384l0 0c-36.88565 0 -66.787384 -29.901733 -66.787384 -66.787384z" fill-rule="evenodd"/>
             <path stroke="#cccccc" stroke-width="1.0" stroke-linejoin="round" stroke-linecap="butt" d="m417.30185 439.3386l0 0c0 -36.88568 29.901733 -66.787415 66.787384 -66.787415l0 0c17.713135 0 34.700745 7.036499 47.22583 19.561584c12.525085 12.525055 19.561584 29.512695 19.561584 47.22583l0 0c0 36.88565 -29.901733 66.787384 -66.787415 66.787384l0 0c-36.88565 0 -66.787384 -29.901733 -66.787384 -66.787384z" fill-rule="evenodd"/>
           </g>
-          <circle class="button" id="onButton" cx="484" cy="439.5" r="65.5" fill="#000000" stroke="#000000" stroke-width="1.0"></circle>
+          <circle class="button" id="onButton" cx="484" cy="439.5" r="65.5" fill="#000000" stroke="#000000" stroke-width="1.0" oncontextmenu="return false;"></circle>
         </svg>
         
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E5%8F%A4%E3%81%84%E3%82%AA%E3%83%AB%E3%82%B4%E3%83%BC%E3%83%AB.mp3"></audio>
@@ -185,7 +185,7 @@
         audio.play();
       });
 
-      circleButton.addEventListener("contextmenu", (e) => e.preventDefault());
+      // circleButton.addEventListener("contextmenu", (e) => e.preventDefault());
     
       // ボタンを離したとき
       circleButton.addEventListener("mouseup", () => {
