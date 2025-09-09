@@ -178,13 +178,14 @@
       });
     
       circleButton.addEventListener("touchstart", (e) => {
-        e.preventDefault();
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
         audio.currentTime = 0;
         audio.play();
       });
+
+      circleButton.addEventListener("contextmenu", (e) => e.preventDefault());
     
       // ボタンを離したとき
       circleButton.addEventListener("mouseup", () => {
