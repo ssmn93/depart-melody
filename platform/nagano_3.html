@@ -177,7 +177,8 @@
         audio.play();
       });
     
-      circleButton.addEventListener("mousedown", () => {
+      circleButton.addEventListener("touchstart", (e) => {
+        e.preventDefault();
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
