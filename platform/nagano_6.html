@@ -169,8 +169,8 @@
       let isCirclePressed = false;
       
       // ボタンを押したとき
-      circleButton.addEventListener("pointerdown", (event) => {
-        event.preventDefault();
+      circleButton.addEventListener("pointerdown", (e) => {
+        e.preventDefault();
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
