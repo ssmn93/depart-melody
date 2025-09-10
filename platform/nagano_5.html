@@ -165,11 +165,12 @@
       const button = document.getElementById("button");
       const buttonon = document.getElementById("buttonon");
       const circleButton = document.getElementById("onButton");
+      const arrange = document.getElementById("arrange");
     
       let isCirclePressed = false;
     
-      circleButton.addEventListener("touchstart", (event) => {  
-        event.preventDefault();
+      circleButton.addEventListener("touchstart", (e) => {
+        e.preventDefault();
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
