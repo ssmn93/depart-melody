@@ -168,14 +168,9 @@
       const arrange = document.getElementById("arrange");
     
       let isCirclePressed = false;
-
-      function preventSelect(e) {
-        e.preventDefault();
-      }
     
-      circleButton.addEventListener("touchstart", () => {    
-        arrange.addEventListener("selectstart", preventSelect);
-        arrange.addEventListener("contextmenu", preventSelect);
+      circleButton.addEventListener("touchstart", (e) => {
+        e.preventDefault();
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
