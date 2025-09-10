@@ -194,8 +194,6 @@
     
       circleButton.addEventListener("touchend", () => {
         isCirclePressed = false;
-        arrange.removeEventListener("selectstart", preventSelect);
-        arrange.removeEventListener("contextmenu", preventSelect);
       });
     
       // 曲が終了したとき
