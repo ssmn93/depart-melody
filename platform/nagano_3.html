@@ -168,6 +168,15 @@
     
       let isCirclePressed = false;
     
+      circleButton.addEventListener("touchstart", (event) => {  
+        event.preventDefault();
+        isCirclePressed = true;
+        button.currentTime = 0;
+        if (!buttonon.checked) button.play();
+        audio.currentTime = 0;
+        audio.play();
+      });
+      
       // ボタンを押したとき
       circleButton.addEventListener("mousedown", () => {
         isCirclePressed = true;
@@ -177,22 +186,14 @@
         audio.play();
       });
     
-      // circleButton.addEventListener("touchstart", () => {
-      //   isCirclePressed = true;
-      //   button.currentTime = 0;
-      //   if (!buttonon.checked) button.play();
-      //   audio.currentTime = 0;
-      //   audio.play();
-      // });
-    
       // ボタンを離したとき
       circleButton.addEventListener("mouseup", () => {
         isCirclePressed = false;
       });
     
-      // circleButton.addEventListener("touchend", () => {
-      //   isCirclePressed = false;
-      // });
+      circleButton.addEventListener("touchend", () => {
+        isCirclePressed = false;
+      });
     
       // 曲が終了したとき
       audio.addEventListener("ended", () => {
