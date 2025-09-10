@@ -165,18 +165,20 @@
       const button = document.getElementById("button");
       const buttonon = document.getElementById("buttonon");
       const circleButton = document.getElementById("onButton");
+      const arrange = document.getElementById("arrange");
     
       let isCirclePressed = false;
     
-      // ボタンを押したとき
-      circleButton.addEventListener("mousedown", () => {
+      circleButton.addEventListener("touchstart", (e) => {
+        e.preventDefault();
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
         audio.currentTime = 0;
         audio.play();
       });
-    
+      
+      // ボタンを押したとき
       circleButton.addEventListener("mousedown", () => {
         isCirclePressed = true;
         button.currentTime = 0;
