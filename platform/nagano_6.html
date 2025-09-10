@@ -167,18 +167,9 @@
       const circleButton = document.getElementById("onButton");
     
       let isCirclePressed = false;
-    
-      circleButton.addEventListener("touchstart", (event) => {  
-        event.preventDefault();
-        isCirclePressed = true;
-        button.currentTime = 0;
-        if (!buttonon.checked) button.play();
-        audio.currentTime = 0;
-        audio.play();
-      });
       
       // ボタンを押したとき
-      circleButton.addEventListener("mousedown", () => {
+      circleButton.addEventListener("pointerdown", (event) => {
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
@@ -187,11 +178,7 @@
       });
     
       // ボタンを離したとき
-      circleButton.addEventListener("mouseup", () => {
-        isCirclePressed = false;
-      });
-    
-      circleButton.addEventListener("touchend", () => {
+      circleButton.addEventListener("pointerup", () => {
         isCirclePressed = false;
       });
     
