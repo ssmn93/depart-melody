@@ -165,12 +165,17 @@
       const button = document.getElementById("button");
       const buttonon = document.getElementById("buttonon");
       const circleButton = document.getElementById("onButton");
+      const arrange = document.getElementById("arrange");
     
       let isCirclePressed = false;
 
-      circleButton.addEventListener("contextmenu", (e) => e.preventDefault());
+      function preventSelect(e) {
+        e.preventDefault();
+      }
     
-      circleButton.addEventListener("touchstart", () => {  
+      circleButton.addEventListener("touchstart", () => {    
+        arrange.addEventListener("selectstart", preventSelect);
+        arrange.addEventListener("contextmenu", preventSelect);
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
@@ -194,6 +199,8 @@
     
       circleButton.addEventListener("touchend", () => {
         isCirclePressed = false;
+        arrange.removeEventListener("selectstart", preventSelect);
+        arrange.removeEventListener("contextmenu", preventSelect);
       });
     
       // 曲が終了したとき
