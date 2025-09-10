@@ -170,7 +170,7 @@
 
       circleButton.addEventListener("contextmenu", (e) => e.preventDefault());
     
-      circleButton.addEventListener("touchstart", (event) => {  
+      circleButton.addEventListener("touchstart", () => {  
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
