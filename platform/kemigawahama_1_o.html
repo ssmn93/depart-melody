@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="kemigawahama_1.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
   <meta property="og:description" content="このサイトでは、発車メロディを再現することができます！">
-  <meta property="og:title" content="検見川浜駅1番線「緑の車窓」｜どこでもステーションベル">
+  <meta property="og:title" content="検見川浜駅1番線(旧)「緑の車窓」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="検見川浜駅1番線「緑の車窓」｜どこでもステーションベル">
-  <title>検見川浜駅1番線「緑の車窓」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="検見川浜駅1番線(旧)「緑の車窓」｜どこでもステーションベル">
+  <title>検見川浜駅1番線(旧)「緑の車窓」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -167,92 +167,74 @@
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E7%B7%91%E3%81%AE%E8%BB%8A%E7%AA%93.mp3"></audio>
     <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E5%A5%B3%E5%A3%B01%E7%95%AA.mp3"></audio>
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
+    </div>
+      <div class="arrange">
+        <div class="content">
+          <h1>検見川浜駅 1番線(旧)「緑の車窓」</h1>
+          <p>収録駅:検見川浜駅1番線</p>
+          <p>スピーカー:FPS平面型、JVC横長型、JVC横長新型、小丸VOSS</p>
+        </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="kemigawahama_1_o.html">緑の車窓</option>
+          <option value="kemigawahana_1.html">JRE-IKST-001-02(首都圏15番)</option>
+        </select>
+      </div>
+          <script>
       
     <script>
-      
       const audio = document.getElementById("melody");
       const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
+      let buttonon = document.getElementById("buttonon");
       
         let isPlaying = false;
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
-          button.play();
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
-                audio.loop = true; // ループ再生を有効にする
+                audio.loop = true;
                 audio.play();
               }
         });
          document.getElementById('onText').addEventListener('click', function() {
-           button.play();
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
-                audio.loop = true; // ループ再生を有効にする
+                audio.loop = true;
                 audio.play();
               }
          });
         
         document.getElementById('offButton').addEventListener('click', function() {
-          button.play();
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
-              // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.?tag=12");
+              tojime.currentTime = 0;
               tojime.play();
             }
         });
         document.getElementById('offText').addEventListener('click', function() {
-          button.play();
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
-              // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.?tag=12");
+              tojime.currentTime = 0;
               tojime.play();
             }
         });
     </script>
-    </div>
-      <div class="arrange">
-        <div class="content">
-          <h1>検見川浜駅 1番線「緑の車窓」</h1>
-          <p>収録駅:検見川浜駅1番線</p>
-          <p>スピーカー:FPS平面型、JVC横長型、JVC横長新型、小丸VOSS</p>
-        </div>
-      </div>
-<!--       </div> -->
-<!--        <script>
-        const audio = document.getElementById("melody");
-        const tojime = document.getElementById("tojime");
-        const playButton = document.getElementById("start");
-        const stopButton = document.getElementById("stop");
-
-        let isPlaying = false;
-
-        playButton.addEventListener("click", () => {
-            if (!isPlaying) {
-                isPlaying = true;
-                audio.loop = true; // ループ再生を有効にする
-                audio.play();
-            }
-        });
-
-        stopButton.addEventListener("click", () => {
-          isPlaying = false;
-          audio.loop = false; // ループを解除
-          audio.pause();
-          audio.currentTime = 0; // 音声を最初に戻す
-
-          // ボタンが押されるたびに新しい `Audio` インスタンスを作成して再生
-          const tojime = new Audio("https://video.twimg.com/ext_tw_video/1905964407139786752/pu/vid/avc1/1280x720/j3D2qa6ySZjnVlBm.?tag=12");
-          tojime.play();
-        });
-      </script> -->
   </div>
   </div>
   <footer class="footer">
