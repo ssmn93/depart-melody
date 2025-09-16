@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="shinagawa_1.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
   <meta property="og:description" content="このサイトでは、発車メロディを再現することができます！">
-  <meta property="og:title" content="品川駅1番線「せせらぎ」｜どこでもステーションベル">
+  <meta property="og:title" content="品川駅1番線(旧)「せせらぎ」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="品川駅1番線「せせらぎ」｜どこでもステーションベル">
-  <title>品川駅1番線「せせらぎ」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="品川駅1番線(旧)「せせらぎ」｜どこでもステーションベル">
+  <title>品川駅1番線(旧)「せせらぎ」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -171,12 +171,16 @@
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>品川駅 1番線「せせらぎ」</h1>
+          <h1>品川駅 1番線(旧)「せせらぎ」</h1>
           <p>収録駅:品川駅1番線</p>
           <p>スピーカー:小VOSS</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="shinagawa_1_o.html">せせらぎ</option>
+          <option value="shinagawa_1.html">JRE-IKST-010-01(首都圏11番)</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
