@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="makuharitoyosuna_2.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
   <meta property="og:description" content="このサイトでは、発車メロディを再現することができます！">
-  <meta property="og:title" content="幕張豊砂駅2番線「シーウィンド」｜どこでもステーションベル">
+  <meta property="og:title" content="幕張豊砂駅2番線(旧)「シーウィンド」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="幕張豊砂駅2番線「シーウィンド」｜どこでもステーションベル">
-  <title>幕張豊砂駅2番線「シーウィンド」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="幕張豊砂駅2番線(旧)「シーウィンド」｜どこでもステーションベル">
+  <title>幕張豊砂駅2番線(旧)「シーウィンド」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -171,12 +171,16 @@
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>幕張豊砂駅 2番線「シーウィンド」</h1>
+          <h1>幕張豊砂駅 2番線(旧)「シーウィンド」</h1>
           <p>収録駅:佐倉駅4番線</p>
           <p>スピーカー:JVC横長型(幕張豊砂)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="makuharitoyosuna_2_o.html">シーウィンド</option>
+          <option value="makuharitoyosuna_2.html">JRE-IKST-001-01(首都圏15-1番)</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
