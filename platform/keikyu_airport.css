@@ -331,6 +331,7 @@ svg {
 
 .melody {
   display: flex;
+  flex-direction: column;
 }
 
 select {
