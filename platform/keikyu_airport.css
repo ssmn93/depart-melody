@@ -182,7 +182,7 @@ svg {
   text-align: center;
 }
 
-.container img {
+img {
   width: 100%;
   height: auto;
 }
@@ -238,12 +238,6 @@ svg {
   text-align: center;
   height: 70px;
   align-items: center;
-}
-
-/* 画像のスタイル */
-.column img {
-  width: auto; /* 画像の幅を親要素に合わせる */
-  height: 100%;
 }
 
 .column h2 {
