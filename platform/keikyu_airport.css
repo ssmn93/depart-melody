@@ -72,10 +72,6 @@ header {
     padding-right: 100px;
   }
   
-  .arrange {
-    flex-direction: column;
-  }
-  
   svg {
     width: 30vw;
   }
@@ -182,7 +178,7 @@ svg {
   text-align: center;
 }
 
-img {
+.arrange img {
   width: 100%;
   height: auto;
 }
@@ -238,6 +234,12 @@ img {
   text-align: center;
   height: 70px;
   align-items: center;
+}
+
+/* 画像のスタイル */
+.column img {
+  width: auto; /* 画像の幅を親要素に合わせる */
+  height: 100%;
 }
 
 .column h2 {
