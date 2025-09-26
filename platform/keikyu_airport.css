@@ -58,6 +58,10 @@ header {
   svg {
     width: 100%;
   }
+
+  .arrange img {
+    padding-left: 20px;
+  }
 }
 
 @media (min-width: 651px) {
