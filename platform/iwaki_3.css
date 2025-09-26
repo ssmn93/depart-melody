@@ -336,3 +336,8 @@ svg {
 .melody {
   display: flex;
 }
+
+
+select {
+  margin-left: 20px;
+}
