@@ -24,7 +24,7 @@ header {
   }
   
   .container {
-    flex-direction: column !important; /* 狭い画面では縦並びに変更 */
+    flex-direction: column !important;
     align-items: center;
     padding-left: 0 !important;
     padding-right: 0;
