@@ -168,6 +168,15 @@
 <!--     <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E6%9D%B1%E6%AD%A6%E7%89%B9%E7%95%AA.mp3"></audio> -->
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
       
+    </div>
+      <div class="arrange">
+        <div class="content">
+          <h1>石巻駅 2番線平日「A Sea Bird」</h1>
+          <p>収録駅:石巻駅2番線</p>
+          <p>スピーカー:Nationalクリアホーン・TOAラッパ型</p>
+          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        </div>
+      </div>
     <script>
       
       const audio = document.getElementById("melody");
@@ -178,7 +187,8 @@
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
-          button.play();
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
               // if (!isPlaying) {
                 isPlaying = true;
                 audio.volume = 0.6;
@@ -187,7 +197,8 @@
               // }
         });
          document.getElementById('onText').addEventListener('click', function() {
-           button.play();
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
               // if (!isPlaying) {
                 isPlaying = true;
                 audio.volume = 0.6;
@@ -197,37 +208,30 @@
          });
         
         document.getElementById('offButton').addEventListener('click', function() {
-          button.play();
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
               // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-              tojime.play();
+              // tojime.play();
             }
         });
         document.getElementById('offText').addEventListener('click', function() {
-          button.play();
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
               // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-              tojime.play();
+              // tojime.play();
             }
         });
     </script>
-    </div>
-      <div class="arrange">
-        <div class="content">
-          <h1>石巻駅 2番線平日「A Sea Bird」</h1>
-          <p>収録駅:石巻駅2番線</p>
-          <p>スピーカー:Nationalクリアホーン・TOAラッパ型</p>
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
-        </div>
-      </div>
 <!--       </div> -->
 <!--        <script>
         const audio = document.getElementById("melody");
