@@ -457,3 +457,8 @@ iframe {
   display: flex;
   flex-direction: column;
 }
+
+.stationes > div {
+  display: flex;
+  align-items: center;
+}
