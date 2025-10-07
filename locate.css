@@ -448,3 +448,12 @@ iframe {
   margin-right: 40px;
   width: 100%;
 }
+
+.stationes {
+  display: flex;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+}
