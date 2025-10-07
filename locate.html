@@ -50,19 +50,18 @@
               <option value="station">最寄り駅を検索</option>
           </select>
             <script>
-              function viewChange(){
-                    const id = document.getElementById('setting').value;
-                    if (id == 'train')　{
-                        document.getElementById('trains').style.display = "";
-                        document.getElementById('stations').style.display = "none";
-                    } else if (id == 'station')　{
-                        document.getElementById('trains').style.display = "none";
-                        document.getElementById('stations').style.display = "";
-                    }
+              function viewChange() {
+                const id = document.getElementById('setting').value;
+                if (id == 'train') {
+                  document.getElementById('trains').style.display = "";
+                  document.getElementById('stations').style.display = "none";
+                } else if (id == 'station') {
+                  document.getElementById('trains').style.display = "none";
+                  document.getElementById('stations').style.display = "";
                 }
+              }
             
-            window.onload = viewChange;
-            }
+              window.onload = viewChange;
             </script>
           <div class="trains" id="trains">
             <p>②路線を選択してください。</p>
