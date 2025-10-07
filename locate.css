@@ -432,3 +432,9 @@ svg {
 p {
   text-decoration: none;
 }
+
+iframe {
+  padding-top: 30px;
+  padding-right: 10px;
+  width: 100%;
+}
