@@ -44,6 +44,10 @@ header {
     padding-left: 20px;
     padding-right: 20px;
   }
+
+  .content {
+    margin: 0;
+  }
 }
 
 @media (min-width: 651px) {
@@ -56,6 +60,13 @@ header {
   .main {
     padding-left: 100px;
     padding-right: 100px;
+  }
+
+  .content {
+    margin-left: 30px; /* 不要な余白を削除 */
+    margin-right: 0;
+    margin-top: 0;
+    margin-bottom: 0;
   }
 }
 
@@ -128,10 +139,6 @@ header {
   font-size: 30px; /* 文字の大きさを設定 */
   color: #0d1b2a; /* 文字の色を設定 */
   font-weight: bold; /* 太字に設定（必要に応じて） */
-  margin-left: 30px; /* 不要な余白を削除 */
-  margin-right: 0;
-  margin-top: 0;
-  margin-bottom: 0;
 }
 
 .main h1 {
