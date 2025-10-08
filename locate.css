@@ -503,3 +503,9 @@ iframe {
   font-weight: 600;
   white-space: nowrap;           /* 改行させたくない場合 */
 }
+
+summary {
+  font-weight: normal;
+  font-size: 20px;
+  margin-left: 5px;
+}
