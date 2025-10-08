@@ -457,7 +457,16 @@ iframe {
 }
 
 .stationes {
-  display: flex;
+  display: flex;                 /* 横並びにする（順番はHTMLのまま維持） */
+  align-items: center;           /* ラジオ・ラベル・h3 を縦方向中央揃え */
+  justify-content: flex-start;
+  gap: 12px;                     /* 項目間の余白 */
+  padding: 8px 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%); /* やや明るめの背景 */
+  border: 1px solid #d8e6ee;     /* 柔らかい境界線（サイトの色味に合わせる） */
+  border-radius: 6px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;               /* 幅が狭ければ折り返す（スマホ対応） */
 }
 
 .lines {
@@ -468,4 +477,29 @@ iframe {
 .stationes > div {
   display: flex;
   align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;                /* 横に並べたままサイズは中身に合わせる */
+}
+
+.stationes input[type="radio"] {
+  transform: scale(1.08);
+  margin: 0;
+  accent-color: #3f7aa1;         /* 既存のアクセント色を使用 */
+}
+
+.stationes label {
+  font-size: 0.95rem;
+  color: #1f2d36;
+  margin: 0 6px 0 0;
+  line-height: 1;
+}
+
+.stationes h3 {
+  font-size: 1rem;
+  margin: 0;
+  color: #0d1b2a;                 /* 既存コンテンツ色に合わせる */
+  font-weight: 600;
+  white-space: nowrap;           /* 改行させたくない場合 */
 }
