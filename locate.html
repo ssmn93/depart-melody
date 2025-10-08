@@ -385,10 +385,24 @@
           <div class="trains" id="trains">
             <p>④指定の始発駅到着後に「強制受信」ボタンを押し、操作を開始してください。</p>
             <div class="buttons" id="buttons">
-              <button class="GPS" type="button">強制受信</button>
-              <button class="before" type="button">前駅へ</button>
-              <button class="next" type="button">次駅へ</button>
+              <button class="GPS" type="button" onclick="locate();">強制受信</button>
+              <button class="before" type="button" onclick="before();">前駅へ</button>
+              <button class="next" type="button" onclick="next();">次駅へ</button>
             </div>
+            <script>
+              function locate() {
+                navigator.geolocation.getCurrentPosition(success,fail);
+              }
+
+              function success() {
+                const lat = pos.coords.latitude;   //緯度を取得して定数latに代入
+                const lng = pos.coords.longitude;  //経度を取得して定数lngに代入
+              }
+              
+              function fail(error){
+                window.alert('位置情報の取得に失敗しました。 以下のエラーコードを運営へ報告してください：' + error.code);
+              }
+            </script>
           </div>
         </div>
 
