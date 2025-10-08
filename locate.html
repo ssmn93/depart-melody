@@ -226,18 +226,26 @@
             
               window.onload = lineChange;
               
-              var remove = 0;
-              function radioDeselection(already, numeric) {
-                setTimeout(() => {
-                  if (remove == numeric) {
-                    already.checked = false;
-                    remove = 0;
+              // 前回選択されていた要素を記録
+              let lastChecked = null;
+          
+              // すべてのラジオボタンを取得
+              const radios = document.querySelectorAll('input[type="radio"]');
+          
+              radios.forEach(radio => {
+                // pointerdownはスマホでも安定的に反応（clickより確実）
+                radio.addEventListener('pointerdown', e => {
+                  if (radio === lastChecked) {
+                    // 同じものを2回押した → チェック解除
+                    e.preventDefault(); // デフォルトのチェック変更を止める
+                    radio.checked = false;
+                    lastChecked = null;
                   } else {
-                    remove = numeric;
+                    // 新しいものを選択
+                    lastChecked = radio;
                   }
-                }, 0); // イベントキューの最後に回す
-              }
-
+                });
+              });
             </script>
           </div>
         </div>
