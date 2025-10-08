@@ -165,6 +165,13 @@ header {
   justify-content: left;
 }
 
+.main h3 {
+  margin-left: 5px;
+  font-size: 20px;
+  font-weight: normal;
+  justify-content: left;
+}
+
 label {
   color: #000000;
   display: flex;
