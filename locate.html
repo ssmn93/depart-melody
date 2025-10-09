@@ -390,6 +390,19 @@
               <button class="next" type="button" onclick="next();">次駅へ</button>
             </div>
             <script>
+              function locate() {
+                navigator.geolocation.getCurrentPosition(success,fail);
+              }
+
+              function success() {
+                const lat = pos.coords.latitude;   //緯度を取得して定数latに代入
+                const lng = pos.coords.longitude;  //経度を取得して定数lngに代入
+              }
+              
+              function fail(error){
+                window.alert('位置情報の取得に失敗しました。 以下のエラーコードを運営へ報告してください：' + error.code);
+              }
+            
               // ==== 設定（必要に応じて変更） ====
               const IFRAME_SELECTOR = '#station-iframe';
               const FORCE_BUTTON_SELECTOR = '#forceReceiveBtn';
