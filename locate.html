@@ -390,6 +390,7 @@
               <button class="next" type="button" onclick="next();">次駅へ</button> -->
             </div>
             <script>
+            try {
               function locate() {
                 navigator.geolocation.getCurrentPosition(success,fail);
               }
@@ -636,6 +637,9 @@
                   else startAutoTimer();
                 });
               });
+            } catch(error) {                
+              window.alert(error);
+            }
             </script>
           </div>
         </div>
