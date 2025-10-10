@@ -381,6 +381,10 @@ tfoot td {
   svg {
     width: 30vw;
   }
+
+  iframe {
+    width: 30vw;
+  }
 }
 
 svg {
@@ -452,7 +456,6 @@ p {
 
 iframe {
   margin-top: 30px;
-  width: 100%;
   height: 100%;
 }
 
