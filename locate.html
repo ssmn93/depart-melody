@@ -420,7 +420,6 @@
                 'tachikawa': { lat: 35.6978, lng: 139.4137 },
               };
               
-            try {
               function locate() {
                 navigator.geolocation.getCurrentPosition(success,fail);
               }
@@ -444,11 +443,10 @@
           
           (() => {
             const IFRAME_SELECTOR = '#station-iframe';
-            const RADIO_SELECTOR = 'input[type="radio"]'; // あなたのHTMLではラジオに data-* が無いので id を使う
+            const RADIO_SELECTOR = 'input[type="radio"]';
             const CHECK_INTERVAL_MS = 30000;
             const MIN_SWITCH_INTERVAL_MS = 5000;
           
-            // 既にページ内で定義済みの registeredStations があればそれを使い、なければ空オブジェクト
             const registeredStationsMap = (typeof registeredStations !== 'undefined') ? registeredStations : {};
           
             let lastSwitchTime = 0;
@@ -464,11 +462,9 @@
               return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             }
           
-            // ラジオ要素 -> 候補オブジェクト
-            // radio.id を "kawasaki_5" のように使い、URL は platform/<radio.id>.html
             function radioToCandidate(radio){
               if(!radio || !radio.id) return null;
-              const radioId = radio.id; // ex: "kawasaki_5"
+              const radioId = radio.id;
               const parts = radioId.split('_');
               const stationId = parts[0];
               const platform = parts.slice(1).join('_') || '';
@@ -479,7 +475,6 @@
               return { radioId, stationId, platform, lat, lng, iframeUrl, radioEl: radio };
             }
           
-            // checked のラジオだけを候補にする（ユーザーがその駅のプラットフォームを選んだもの）
             function getSelectedCandidates(){
               return Array.from(document.querySelectorAll(`${RADIO_SELECTOR}:checked`))
                           .map(radioToCandidate)
@@ -499,32 +494,29 @@
             function setIframeToCandidate(cand){
               if(!cand) return;
               const iframe = document.querySelector(IFRAME_SELECTOR);
-              if(!iframe){ window.alert('iframe が見つかりません:', IFRAME_SELECTOR); return; }
-          
-              const now = Date.now();
-              if(now - lastSwitchTime < MIN_SWITCH_INTERVAL_MS){
-                // 短時間での往復切替を抑制
+              if(!iframe){
+                window.alert('iframe が見つかりません: ' + IFRAME_SELECTOR);
                 return;
               }
           
-              // 既に同じ station+platform を表示しているなら何もしない
+              const now = Date.now();
+              if(now - lastSwitchTime < MIN_SWITCH_INTERVAL_MS) return;
+          
               if(iframe.dataset.stationId === cand.stationId && iframe.dataset.platform === cand.platform) return;
           
               iframe.src = cand.iframeUrl;
               iframe.dataset.stationId = cand.stationId;
               iframe.dataset.platform = cand.platform;
           
-              // UI同期（念のため）
-              try { if(cand.radioEl) cand.radioEl.checked = true; } catch(e){}
+              try { if(cand.radioEl) cand.radioEl.checked = true; } catch(e){ /* ignore */ }
           
               lastSwitchTime = now;
               console.log('iframe 切替 ->', cand.radioId, cand.iframeUrl);
             }
           
-            // 位置取得ラッパー
             function getCurrentPositionPromise(options = { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }){
               return new Promise((resolve, reject) => {
-                if(!navigator.geolocation) return reject(new Error('Geolocation 非対応'));
+                if(!navigator.geolocation) return reject({ code: -1, message: 'Geolocation 非対応' });
                 navigator.geolocation.getCurrentPosition(
                   pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
                   err => reject(err),
@@ -533,13 +525,11 @@
               });
             }
           
-            // 自動判定：選択済みプラットフォームだけを候補にして、最も近いものが現在iframeより近ければ切替
             async function checkAndSwitchIfNeeded(){
               if(!hasInitializedFromForce) return; // 最初は強制受信で初期化する運用
               const candidates = getSelectedCandidates();
-              if(candidates.length === 0) return; // 候補無しなら何もしない
+              if(candidates.length === 0) return;
           
-              // 自動切替チェックボックスがあれば尊重（無ければ常に有効）
               const autoCheckbox = document.querySelector('#autoSwitch');
               if(autoCheckbox && !autoCheckbox.checked) return;
           
@@ -548,28 +538,29 @@
                 const current = getCurrentIframePlatform();
                 const currentDist = (current && !Number.isNaN(current.lat) && !Number.isNaN(current.lng)) ? haversineMeters(pos.lat, pos.lng, current.lat, current.lng) : Infinity;
           
-                // 候補の中で最も近いものを探す
                 let best = { cand: null, dist: Infinity };
                 for(const c of candidates){
                   const d = haversineMeters(pos.lat, pos.lng, c.lat, c.lng);
                   if(d < best.dist){ best = { cand: c, dist: d }; }
                 }
           
-                // 最も近い候補が現在表示より近ければ切替
                 if(best.cand && best.dist < currentDist){
                   setIframeToCandidate(best.cand);
                 }
               } catch (err) {
-                window.alert('位置情報取得失敗:', err);
+                // err は PositionError か任意のオブジェクト
+                const code = err && err.code !== undefined ? err.code : 'unknown';
+                const msg  = err && err.message ? err.message : JSON.stringify(err);
+                window.alert('位置情報取得失敗（自動判定）: コード=' + code + ' メッセージ=' + msg);
+                console.error(err);
               }
             }
           
-            // 強制受信ハンドラ：checked があればその中の最寄を使い、なければ登録済駅の最寄り駅に紐づく最初のラジオを使う
             async function onForceReceive(){
               try {
                 const pos = await getCurrentPositionPromise();
           
-                // 1) 選択済みプラットフォームがあればその中の最短を使う
+                // 1) 選択済みプラットフォームの最寄りを使う
                 let candidates = getSelectedCandidates();
                 if(candidates.length > 0){
                   let best = { cand: null, dist: Infinity };
@@ -580,8 +571,7 @@
                   if(best.cand){ setIframeToCandidate(best.cand); hasInitializedFromForce = true; return; }
                 }
           
-                // 2) 選択済みがない場合：registeredStations の最寄り駅を探し、
-                //    その駅に対応するラジオ（id が "station_platform" になっているもの）の最初の要素を使う
+                // 2) 選択済みがなければ registeredStations の最寄りに紐づくラジオ最初の要素を使う
                 let nearest = { id: null, dist: Infinity };
                 for(const id in registeredStationsMap){
                   const s = registeredStationsMap[id];
@@ -604,54 +594,58 @@
                   }
                 }
           
-                // 3) 見つからなければ何もしない
                 console.log('強制受信: 表示するプラットフォームが見つかりませんでした。');
               } catch (err) {
-                window.alert('位置情報の受信に失敗しました:', err.code);
+                const code = err && err.code !== undefined ? err.code : 'unknown';
+                const msg  = err && err.message ? err.message : JSON.stringify(err);
+                window.alert('位置情報の受信に失敗しました: コード=' + code + ' メッセージ=' + msg);
+                console.error(err);
               }
             }
           
-            // locate() は既存の onclick 呼び出しと互換させるためにグローバルとして用意
+            // グローバル互換
             window.locate = function() {
               onForceReceive();
             };
           
-            // DOM 初期化
             document.addEventListener('DOMContentLoaded', () => {
-              // もし強制受信ボタンに id を付けていればそれもイベント追加（onclick 併用でもOK）
               const btn = document.querySelector('.GPS') || document.querySelector('#forceReceiveBtn');
               if(btn){
                 btn.addEventListener('click', onForceReceive);
               }
           
-              // ユーザーがラジオを直接切り替えた場合は即座に反映（ユーザー操作優先）
+              // ラジオの変更は「選択状態を保持する」だけにし、iframe は切替えない
               document.addEventListener('change', (e) => {
                 if(e.target && e.target.matches(RADIO_SELECTOR)){
-                  const cand = radioToCandidate(e.target);
-                  if(cand) {
-                    setIframeToCandidate(cand);
-                    hasInitializedFromForce = true;
-                  }
+                  // 選択はそのまま許可（checked が切り替わる）しておくが、
+                  // iframe の切り替えは行わない（位置情報受信時にのみ反映）
+                  // ユーザーに小さな注意を出す（任意）
+                  console.log('ラジオ選択が変更されました。iframe の切替は位置情報受信時にのみ行われます。');
                 }
               });
           
-              // 自動タイマー起動（ただしチェック動作は hasInitializedFromForce を参照）
+              // 自動タイマー（位置取得はブラウザのバックグラウンドでは停止されるため、visibility/online で補強）
               if(!autoTimer) autoTimer = setInterval(checkAndSwitchIfNeeded, CHECK_INTERVAL_MS);
           
-              // ページ隠蔽でタイマー停止（バッテリー節約）
+              // 画面隠蔽でタイマー停止（節電）／復帰時に即取得
               document.addEventListener('visibilitychange', () => {
                 if(document.hidden){
                   if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
                 } else {
                   if(!autoTimer) autoTimer = setInterval(checkAndSwitchIfNeeded, CHECK_INTERVAL_MS);
+                  // 画面復帰時は即座に位置情報取得を試みる
+                  try { onForceReceive(); } catch(e){ console.error(e); }
                 }
               });
+          
+              // ネットワーク復帰時に即取得
+              window.addEventListener('online', () => {
+                console.log('オンライン復帰検知: 位置情報を再取得します。');
+                try { onForceReceive(); } catch(e){ console.error(e); }
+              });
             });
-          })();
-            } catch(error) {
-              window.alert(error);
-            }
-              </script>
+          })();              
+            </script>
           </div>
         </div>
 
