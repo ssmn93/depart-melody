@@ -421,7 +421,7 @@
               };
               
               function locate() {
-                navigator.geolocation.getCurrentPosition(success,fail);
+                if(!placeoff.checked) navigator.geolocation.getCurrentPosition(success,fail);
               }
 
               function success() {
@@ -429,7 +429,8 @@
                 const lng = pos.coords.longitude;  //経度を取得して定数lngに代入
               }
               
-              function fail(error){
+              function fail(error){  
+                if (error && error.code === -2) return; // ← オフ時は無視
                 window.alert('位置情報の取得に失敗しました。 以下のエラーコードを運営へ報告してください：' + error.code);
               }
             
@@ -521,7 +522,11 @@
           
             function getCurrentPositionPromise(options = { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }){
               return new Promise((resolve, reject) => {
-                if(!navigator.geolocation) return reject({ code: -1, message: 'Geolocation 非対応' });
+                if(!navigator.geolocation) return reject({ code: -1, message: 'Geolocation 非対応' });    
+                if (placeoff && placeoff.checked) {
+                // 位置情報オフ時は取得せず、すぐにresolveする（ダミー値またはnull）
+                  return reject({ code: -2, message: '位置情報オフ' });
+                }
                 navigator.geolocation.getCurrentPosition(
                   pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
                   err => reject(err),
@@ -552,7 +557,8 @@
                 if(best.cand && best.dist < currentDist){
                   setIframeToCandidate(best.cand);
                 }
-              } catch (err) {
+              } catch (err) {    
+                if (err && err.code === -2) return; // ← 位置情報オフ時は何もしない
                 // err は PositionError か任意のオブジェクト
                 const code = err && err.code !== undefined ? err.code : 'unknown';
                 const msg  = err && err.message ? err.message : JSON.stringify(err);
