@@ -476,7 +476,7 @@
               const lat = stationInfo.lat !== undefined ? stationInfo.lat : NaN;
               const lng = stationInfo.lng !== undefined ? stationInfo.lng : NaN;
               let iframeUrl;
-              if (buttonon = checked) iframeUrl = `platform/${radioId}.html/?button=false`;
+              if (buttonon.checked) iframeUrl = `platform/${radioId}.html/?button=false`;
               else iframeUrl = `platform/${radioId}.html`;
               return { radioId, stationId, platform, lat, lng, iframeUrl, radioEl: radio };
             }
