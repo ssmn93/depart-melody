@@ -673,7 +673,7 @@
           switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
-          if (!buttonon.checked) button.play();
+          if (buttonurl !== 'off' && !buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
                 audio.loop = true; // ループ再生を有効にする
@@ -684,7 +684,7 @@
           switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
-           if (!buttonon.checked) button.play();
+           if (buttonurl !== 'off' && !buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
                 audio.loop = true; // ループ再生を有効にする
@@ -711,7 +711,7 @@
         document.getElementById('offButton').addEventListener('click', function() { 
           audio.removeEventListener('ended', nishiogikubo_tojime);
           button.currentTime = 0;
-          if (!buttonon.checked) button.play();
+          if (buttonurl !== 'off' && !buttonon.checked) button.play();
             if (isPlaying) {
               if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") {
                 isPlaying = false;
@@ -737,7 +737,7 @@
         document.getElementById('offText').addEventListener('click', function() {    
           audio.removeEventListener('ended', nishiogikubo_tojime);
           button.currentTime = 0;
-          if (!buttonon.checked) button.play();
+          if (buttonurl !== 'off' && !buttonon.checked) button.play();
             if (isPlaying) {
               if (switch_method.value !== "tachikawa" && switch_method.value !== "nishiogikubo") {
                 isPlaying = false;

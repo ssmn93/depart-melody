@@ -188,7 +188,7 @@
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
           button.currentTime = 0;
-          if (!buttonon.checked) button.play();
+          if (buttonurl !== 'off' && !buttonon.checked) button.play();
               // if (!isPlaying) {
                 isPlaying = true;
                 audio.volume = 0.6;
@@ -198,7 +198,7 @@
         });
          document.getElementById('onText').addEventListener('click', function() {
           button.currentTime = 0;
-          if (!buttonon.checked) button.play();
+          if (buttonurl !== 'off' && !buttonon.checked) button.play();
               // if (!isPlaying) {
                 isPlaying = true;
                 audio.volume = 0.6;
@@ -209,7 +209,7 @@
         
         document.getElementById('offButton').addEventListener('click', function() {
           button.currentTime = 0;
-          if (!buttonon.checked) button.play();
+          if (buttonurl !== 'off' && !buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
               audio.loop = false;
@@ -221,7 +221,7 @@
         });
         document.getElementById('offText').addEventListener('click', function() {
           button.currentTime = 0;
-          if (!buttonon.checked) button.play();
+          if (buttonurl !== 'off' && !buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
               audio.loop = false;
