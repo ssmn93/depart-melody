@@ -452,6 +452,9 @@
             let lastSwitchTime = 0;
             let autoTimer = null;
             let hasInitializedFromForce = false;
+
+            const buttonon = document.getElementById("buttonon");
+            const placeoff = document.getElementById("placeoff");
           
             function toRad(v){ return v * Math.PI / 180; }
             function haversineMeters(lat1, lon1, lat2, lon2){
@@ -471,7 +474,9 @@
               const stationInfo = registeredStationsMap[stationId] || {};
               const lat = stationInfo.lat !== undefined ? stationInfo.lat : NaN;
               const lng = stationInfo.lng !== undefined ? stationInfo.lng : NaN;
-              const iframeUrl = `platform/${radioId}.html`;
+              let iframeUrl;
+              if (buttonon = checked) iframeUrl = `platform/${radioId}.html/?button=false`;
+              else iframeUrl = `platform/${radioId}.html`;
               return { radioId, stationId, platform, lat, lng, iframeUrl, radioEl: radio };
             }
           
@@ -495,7 +500,7 @@
               if(!cand) return;
               const iframe = document.querySelector(IFRAME_SELECTOR);
               if(!iframe){
-                window.alert('iframe が見つかりません: ' + IFRAME_SELECTOR);
+                window.alert('iframeが見つかりませんでした: ' + IFRAME_SELECTOR);
                 return;
               }
           
@@ -590,7 +595,7 @@
                     const cand = radioToCandidate(chosen);
                     if(cand) { setIframeToCandidate(cand); hasInitializedFromForce = true; return; }
                   } else {
-                    console.log('最寄駅に対応するラジオが見つからない:', nearest.id);
+                    console.log('最寄駅に対応するボタンが見つかりませんでした:', nearest.id);
                   }
                 }
           
@@ -647,6 +652,11 @@
           })();              
             </script>
           </div>
+          <h1>共通設定</h1>
+            <div class="buttons" id="buttons">
+              <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
+              <label><input type="checkbox" id="placeoff">位置情報オフ</label>
+            </div>
         </div>
 
         
