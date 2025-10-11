@@ -479,7 +479,7 @@
               let iframeUrl;
               const buttonon = document.getElementById("buttonon");
               const placeoff = document.getElementById("placeoff");
-              if (buttonon.checked) iframeUrl = `platform/${radioId}.html/?button=off`;
+              if (buttonon.checked) iframeUrl = `platform/${radioId}.html?button=off`;
               else iframeUrl = `platform/${radioId}.html`;
               return { radioId, stationId, platform, lat, lng, iframeUrl, radioEl: radio };
             }
