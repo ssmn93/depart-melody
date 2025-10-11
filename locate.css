@@ -383,7 +383,7 @@ tfoot td {
   }
 
   iframe {
-    width: 30vw;
+    width: 30vw !important;
   }
 }
 
