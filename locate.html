@@ -422,7 +422,11 @@
               
               function locate() {
                 const placeoff = document.getElementById("placeoff");
-                if(!placeoff.checked) navigator.geolocation.getCurrentPosition(success,fail);
+                if (placeoff && placeoff.checked) {
+                  console.log("位置情報オフのため取得をスキップしました。");
+                  return;
+                }
+                navigator.geolocation.getCurrentPosition(success,fail);
               }
 
               function success() {
@@ -530,7 +534,7 @@
                 const placeoff = document.getElementById("placeoff");
                 if (placeoff && placeoff.checked) {
                 // 位置情報オフ時は取得せず、すぐにresolveする（ダミー値またはnull）
-                  return reject({ code: -2, message: '位置情報オフ' });
+                   return resolve(null);
                 }
                 navigator.geolocation.getCurrentPosition(
                   pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
@@ -549,7 +553,11 @@
               if(autoCheckbox && !autoCheckbox.checked) return;
           
               try {
-                const pos = await getCurrentPositionPromise();
+                const pos = await getCurrentPositionPromise();    
+                if (!pos) {
+                  console.log("位置情報オフのため処理をスキップしました。");
+                  return;  // 何もせず終了
+                } 
                 const current = getCurrentIframePlatform();
                 const currentDist = (current && !Number.isNaN(current.lat) && !Number.isNaN(current.lng)) ? haversineMeters(pos.lat, pos.lng, current.lat, current.lng) : Infinity;
           
@@ -575,6 +583,10 @@
             async function onForceReceive(){
               try {
                 const pos = await getCurrentPositionPromise();
+                if (!pos) {
+                  console.log("位置情報オフのため自動切替をスキップしました。");
+                  return;
+                }
           
                 // 1) 選択済みプラットフォームの最寄りを使う
                 let candidates = getSelectedCandidates();
