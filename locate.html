@@ -97,137 +97,139 @@
           
           <div class="trains" id="trains">
             <p>②停車駅・使用ホームを選択してください。</p>
+            <button class="butt" type="button" onclick="mains();" id="mains">本線選択</button>
+            <button class="butt" type="button" onclick="deletes();" id="deletes">全消去</button>
             <div class="nambu_us lines" id="nambu_us">
               <details>
                 <summary>メニューを開く</summary>
                 <div class="stationes">
-                  <div class="tachikawa"><input type="radio" id="tachikawa_7" name="tachikawa" value="1" /><label for="tachikawa_7">(7)</label></div>
-                  <div class="tachikawa"><input type="radio" id="tachikawa_8" name="tachikawa" value="2" /><label for="tachikawa_8">(8)</label></div>
+                  <div class="tachikawa"><input type="radio" id="tachikawa_7" name="tachikawa" value="1" class="forms mains" /><label for="tachikawa_7">(7)</label></div>
+                  <div class="tachikawa"><input type="radio" id="tachikawa_8" name="tachikawa" value="2" class="forms" /><label for="tachikawa_8">(8)</label></div>
                   <div class="tachikawa"><h3>立川駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="nishikunitachi"><input type="radio" id="nishikunitachi_1" name="nishikunitachi" value="1" /><label for="nishikunitachi_1">(1)</label></div>
-                  <div class="nishikunitachi"><input type="radio" id="nishikunitachi_2" name="nishikunitachi" style="visibility: hidden;" value="2"/><label for="nishikunitachi_2">(2)</label></div>
+                  <div class="nishikunitachi"><input type="radio" id="nishikunitachi_1" name="nishikunitachi" value="1" class="forms mains" /><label for="nishikunitachi_1">(1)</label></div>
+                  <div class="nishikunitachi"><input type="radio" id="nishikunitachi_2" name="nishikunitachi" style="visibility: hidden;" value="2" class="forms" /><label for="nishikunitachi_2">(2)</label></div>
                   <div class="nishikunitachi"><h3>西国立駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="yagawa"><input type="radio" id="yagawa_1" name="yagawa" style="visibility: hidden;" value="1" /><label for="yagawa_1">(1)</label></div>
-                  <div class="yagawa"><input type="radio" id="yagawa_2" name="yagawa" value="2"/><label for="yagawa_2">(2)</label></div>
+                  <div class="yagawa"><input type="radio" id="yagawa_1" name="yagawa" style="visibility: hidden;" value="1" class="forms" /><label for="yagawa_1">(1)</label></div>
+                  <div class="yagawa"><input type="radio" id="yagawa_2" name="yagawa" value="2" class="forms mains" /><label for="yagawa_2">(2)</label></div>
                   <div class="yagawa"><h3>矢川駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="yaho"><input type="radio" id="yaho_1" name="yaho" style="visibility: hidden;" value="1" /><label for="yaho_1">(1)</label></div>
-                  <div class="yaho"><input type="radio" id="yaho_2" name="yaho" value="2"/><label for="yaho_2">(2)</label></div>
+                  <div class="yaho"><input type="radio" id="yaho_1" name="yaho" style="visibility: hidden;" value="1" class="forms" /><label for="yaho_1">(1)</label></div>
+                  <div class="yaho"><input type="radio" id="yaho_2" name="yaho" value="2" class="forms mains" /><label for="yaho_2">(2)</label></div>
                   <div class="yaho"><h3>谷保駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="nishifu"><input type="radio" id="nishifu_1" name="nishifu" value="1" /><label for="nishifu_1">(1)</label></div>
-                  <div class="nishifu"><input type="radio" id="nishifu_2" name="nishifu" style="visibility: hidden;" value="2"/><label for="nishifu_2">(2)</label></div>
+                  <div class="nishifu"><input type="radio" id="nishifu_1" name="nishifu" value="1" class="forms mains" /><label for="nishifu_1">(1)</label></div>
+                  <div class="nishifu"><input type="radio" id="nishifu_2" name="nishifu" style="visibility: hidden;" value="2" class="forms" /><label for="nishifu_2">(2)</label></div>
                   <div class="nishifu"><h3>西府駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="bubaigawara"><input type="radio" id="bubaigawara_1" name="bubaigawara" value="1" /><label for="bubaigawara_1">(1)</label></div>
-                  <div class="bubaigawara"><input type="radio" id="bubaigawara_2" name="bubaigawara" style="visibility: hidden;" value="2"/><label for="bubaigawara_2">(2)</label></div>
+                  <div class="bubaigawara"><input type="radio" id="bubaigawara_1" name="bubaigawara" value="1" class="forms mains" /><label for="bubaigawara_1">(1)</label></div>
+                  <div class="bubaigawara"><input type="radio" id="bubaigawara_2" name="bubaigawara" style="visibility: hidden;" value="2" class="forms" /><label for="bubaigawara_2">(2)</label></div>
                   <div class="bubaigawara"><h3>分倍河原駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="fuchuhommachi"><input type="radio" id="fuchuhommachi_1" name="fuchuhommachi" value="1" /><label for="fuchuhommachi_1">(1)</label></div>
-                  <div class="fuchuhommachi"><input type="radio" id="fuchuhommachi_4" name="fuchuhommachi" style="visibility: hidden;" value="2"/><label for="fuchuhommachi_4">(4)</label></div>
+                  <div class="fuchuhommachi"><input type="radio" id="fuchuhommachi_1" name="fuchuhommachi" value="1" class="forms mains" /><label for="fuchuhommachi_1">(1)</label></div>
+                  <div class="fuchuhommachi"><input type="radio" id="fuchuhommachi_4" name="fuchuhommachi" style="visibility: hidden;" value="2" class="forms" /><label for="fuchuhommachi_4">(4)</label></div>
                   <div class="fuchuhommachi"><h3>府中本町駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="minamitama"><input type="radio" id="minamitama_1" name="minamitama" style="visibility: hidden;" value="1" /><label for="minamitama_1">(1)</label></div>
-                  <div class="minamitama"><input type="radio" id="minamitama_2" name="minamitama" value="2"/><label for="minamitama_2">(2)</label></div>
+                  <div class="minamitama"><input type="radio" id="minamitama_1" name="minamitama" style="visibility: hidden;" value="1" class="forms" /><label for="minamitama_1">(1)</label></div>
+                  <div class="minamitama"><input type="radio" id="minamitama_2" name="minamitama" value="2" class="forms mains" /><label for="minamitama_2">(2)</label></div>
                   <div class="minamitama"><h3>南多摩駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="inaginaganuma"><input type="radio" id="inaginaganuma_1" name="inaginaganuma" value="1"/><label for="inaginaganuma_1">(1)</label></div>
-                  <div class="inaginaganuma"><input type="radio" id="inaginaganuma_2" name="inaginaganuma" value="2"/><label for="inaginaganuma_2">(2)</label></div>
+                  <div class="inaginaganuma"><input type="radio" id="inaginaganuma_1" name="inaginaganuma" value="1" class="forms mains" /><label for="inaginaganuma_1">(1)</label></div>
+                  <div class="inaginaganuma"><input type="radio" id="inaginaganuma_2" name="inaginaganuma" value="2" class="forms" /><label for="inaginaganuma_2">(2)</label></div>
                   <div class="inaginaganuma"><h3>稲城長沼駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="yanokuchi"><input type="radio" id="yanokuchi_1" name="yanokuchi" style="visibility: hidden;" value="1" /><label for="yanokuchi_1">(1)</label></div>
-                  <div class="yanokuchi"><input type="radio" id="yanokuchi_2" name="yanokuchi" value="2"/><label for="yanokuchi_2">(2)</label></div>
+                  <div class="yanokuchi"><input type="radio" id="yanokuchi_1" name="yanokuchi" style="visibility: hidden;" value="1" class="forms" /><label for="yanokuchi_1">(1)</label></div>
+                  <div class="yanokuchi"><input type="radio" id="yanokuchi_2" name="yanokuchi" value="2" class="forms mains" /><label for="yanokuchi_2">(2)</label></div>
                   <div class="yanokuchi"><h3>矢野口駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="inadazutsumi"><input type="radio" id="inadazutsumi_1" name="inadazutsumi"  value="1"/><label for="inadazutsumi_1">(1)</label></div>
-                  <div class="inadazutsumi"><input type="radio" id="inadazutsumi_2" name="inadazutsumi" style="visibility: hidden;" value="2"/><label for="inadazutsumi_2">(2)</label></div>
+                  <div class="inadazutsumi"><input type="radio" id="inadazutsumi_1" name="inadazutsumi"  value="1" class="forms mains" /><label for="inadazutsumi_1">(1)</label></div>
+                  <div class="inadazutsumi"><input type="radio" id="inadazutsumi_2" name="inadazutsumi" style="visibility: hidden;" value="2" class="forms" /><label for="inadazutsumi_2">(2)</label></div>
                   <div class="inadazutsumi"><h3>稲田堤駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="nakanoshima"><input type="radio" id="nakanoshima_1" name="nakanoshima" style="visibility: hidden;" value="1" /><label for="nakanoshima_1">(1)</label></div>
-                  <div class="nakanoshima"><input type="radio" id="nakanoshima_2" name="nakanoshima" value="2" /><label for="nakanoshima_2">(2)</label></div>
+                  <div class="nakanoshima"><input type="radio" id="nakanoshima_1" name="nakanoshima" style="visibility: hidden;" value="1" class="forms" /><label for="nakanoshima_1">(1)</label></div>
+                  <div class="nakanoshima"><input type="radio" id="nakanoshima_2" name="nakanoshima" value="2" class="forms mains" /><label for="nakanoshima_2">(2)</label></div>
                   <div class="nakanoshima"><h3>中野島駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="noborito"><input type="radio" id="noborito_2" name="noborito" value="1"/><label for="noborito_1">(2)</label></div>
-                  <div class="noborito"><input type="radio" id="noborito_3" name="noborito" value="2"/><label for="noborito_2">(3)</label></div>
+                  <div class="noborito"><input type="radio" id="noborito_2" name="noborito" value="1" class="forms" /><label for="noborito_1">(2)</label></div>
+                  <div class="noborito"><input type="radio" id="noborito_3" name="noborito" value="2" class="forms mains" /><label for="noborito_2">(3)</label></div>
                   <div class="noborito"><h3>登戸駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="shukugawara"><input type="radio" id="shukugawara_1" name="shukugawara" style="visibility: hidden;" value="1" /><label for="shukugawara_1">(1)</label></div>
-                  <div class="shukugawara"><input type="radio" id="shukugawara_2" name="shukugawara"  value="2"/><label for="shukugawara_2">(2)</label></div>
+                  <div class="shukugawara"><input type="radio" id="shukugawara_1" name="shukugawara" style="visibility: hidden;" value="1" class="forms" /><label for="shukugawara_1">(1)</label></div>
+                  <div class="shukugawara"><input type="radio" id="shukugawara_2" name="shukugawara"  value="2" class="forms mains" /><label for="shukugawara_2">(2)</label></div>
                   <div class="shukugawara"><h3>宿河原駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="kuji"><input type="radio" id="kuji_1" name="kuji" value="1" /><label for="kuji_1">(1)</label></div>
-                  <div class="kuji"><input type="radio" id="kuji_2" name="kuji" style="visibility: hidden;" value="2"/><label for="kuji_2">(2)</label></div>
+                  <div class="kuji"><input type="radio" id="kuji_1" name="kuji" value="1" class="forms mains" /><label for="kuji_1">(1)</label></div>
+                  <div class="kuji"><input type="radio" id="kuji_2" name="kuji" style="visibility: hidden;" value="2" class="forms" /><label for="kuji_2">(2)</label></div>
                   <div class="kuji"><h3>久地駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="tsudayama"><input type="radio" id="tsudayama_1" name="tsudayama" value="1" /><label for="tsudayama_1">(1)</label></div>
-                  <div class="tsudayama"><input type="radio" id="tsudayama_2" name="tsudayama" style="visibility: hidden;" value="2"/><label for="tsudayama_2">(2)</label></div>
+                  <div class="tsudayama"><input type="radio" id="tsudayama_1" name="tsudayama" value="1" class="forms mains" /><label for="tsudayama_1">(1)</label></div>
+                  <div class="tsudayama"><input type="radio" id="tsudayama_2" name="tsudayama" style="visibility: hidden;" value="2" class="forms" /><label for="tsudayama_2">(2)</label></div>
                   <div class="tsudayama"><h3>津田山駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="musashimizonokuchi"><input type="radio" id="musashimizonokuchi_1" name="musashimizonokuchi" value="1"/><label for="musashimizonokuchi_1">(1)</label></div>
-                  <div class="musashimizonokuchi"><input type="radio" id="musashimizonokuchi_2" name="musashimizonokuchi" style="visibility: hidden;" value="2"/><label for="musashimizonokuchi_2">(2)</label></div>
+                  <div class="musashimizonokuchi"><input type="radio" id="musashimizonokuchi_1" name="musashimizonokuchi" value="1" class="forms mains" /><label for="musashimizonokuchi_1">(1)</label></div>
+                  <div class="musashimizonokuchi"><input type="radio" id="musashimizonokuchi_2" name="musashimizonokuchi" style="visibility: hidden;" value="2" class="forms" /><label for="musashimizonokuchi_2">(2)</label></div>
                   <div class="musashimizonokuchi"><h3>武蔵溝ノ口駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="musashishinjo"><input type="radio" id="musashishinjo_1" name="musashishinjo" value="1" /><label for="musashishinjo_1">(1)</label></div>
-                  <div class="musashishinjo"><input type="radio" id="musashishinjo_2" name="musashishinjo" style="visibility: hidden;" value="2"/><label for="musashishinjo_2">(2)</label></div>
+                  <div class="musashishinjo"><input type="radio" id="musashishinjo_1" name="musashishinjo" value="1" class="forms mains" /><label for="musashishinjo_1">(1)</label></div>
+                  <div class="musashishinjo"><input type="radio" id="musashishinjo_2" name="musashishinjo" style="visibility: hidden;" value="2" class="forms" /><label for="musashishinjo_2">(2)</label></div>
                   <div class="musashishinjo"><h3>武蔵新城駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="musashinakahara"><input type="radio" id="musashinakahara_1" name="musashinakahara" value="1"/><label for="musashinakahara_1">(1)</label></div>
-                  <div class="musashinakahara"><input type="radio" id="musashinakahara_1" name="musashinakahara" value="2"/><label for="musashinakahara_1">(2)</label></div>
+                  <div class="musashinakahara"><input type="radio" id="musashinakahara_1" name="musashinakahara" value="1" class="forms mains" /><label for="musashinakahara_1">(1)</label></div>
+                  <div class="musashinakahara"><input type="radio" id="musashinakahara_1" name="musashinakahara" value="2" class="forms" /><label for="musashinakahara_1">(2)</label></div>
                   <div class="musashinakahara"><h3>武蔵中原駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="musashikosugi"><input type="radio" id="musashikosugi_1" name="musashikosugi"  value="1"/><label for="musashikosugi_1">(1)</label></div>
-                  <div class="musashikosugi"><input type="radio" id="musashikosugi_2" name="musashikosugi" style="visibility: hidden;" value="2"/><label for="musashikosugi_2">(2)</label></div>
+                  <div class="musashikosugi"><input type="radio" id="musashikosugi_1" name="musashikosugi"  value="1" class="forms mains" /><label for="musashikosugi_1">(1)</label></div>
+                  <div class="musashikosugi"><input type="radio" id="musashikosugi_2" name="musashikosugi" style="visibility: hidden;" value="2" class="forms" /><label for="musashikosugi_2">(2)</label></div>
                   <div class="musashikosugi"><h3>武蔵小杉駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="mukaigawara"><input type="radio" id="mukaigawara_1" name="mukaigawara" value="1" /><label for="mukaigawara_1">(1)</label></div>
-                  <div class="mukaigawara"><input type="radio" id="mukaigawara_2" name="mukaigawara" style="visibility: hidden;" value="2"/><label for="mukaigawara_2">(2)</label></div>
+                  <div class="mukaigawara"><input type="radio" id="mukaigawara_1" name="mukaigawara" value="1" class="forms mains" /><label for="mukaigawara_1">(1)</label></div>
+                  <div class="mukaigawara"><input type="radio" id="mukaigawara_2" name="mukaigawara" style="visibility: hidden;" value="2" class="forms" /><label for="mukaigawara_2">(2)</label></div>
                   <div class="mukaigawara"><h3>向河原駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="hirama"><input type="radio" id="hirama_1" name="hirama" value="1" /><label for="hirama_1">(1)</label></div>
-                  <div class="hirama"><input type="radio" id="hirama_2" name="hirama" style="visibility: hidden;" value="2"/><label for="hirama_2">(2)</label></div>
+                  <div class="hirama"><input type="radio" id="hirama_1" name="hirama" value="1" class="forms mains" /><label for="hirama_1">(1)</label></div>
+                  <div class="hirama"><input type="radio" id="hirama_2" name="hirama" style="visibility: hidden;" value="2" class="forms" /><label for="hirama_2">(2)</label></div>
                   <div class="hirama"><h3>平間駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="kashimada"><input type="radio" id="kashimada_1" name="kashimada"  value="1"/><label for="kashimada_1">(1)</label></div>
-                  <div class="kashimada"><input type="radio" id="kashimada_2" name="kashimada" style="visibility: hidden;" value="2"/><label for="kashimada_2">(2)</label></div>
+                  <div class="kashimada"><input type="radio" id="kashimada_1" name="kashimada"  value="1" class="forms mains" /><label for="kashimada_1">(1)</label></div>
+                  <div class="kashimada"><input type="radio" id="kashimada_2" name="kashimada" style="visibility: hidden;" value="2" class="forms"/><label for="kashimada_2">(2)</label></div>
                   <div class="kashimada"><h3>鹿島田駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="yako"><input type="radio" id="yako_1" name="yako" value="1" style="visibility: hidden;" /><label for="yako_1">(1)</label></div>
-                  <div class="yako"><input type="radio" id="yako_2" name="yako" value="2"/><label for="yako_2">(2)</label></div>
+                  <div class="yako"><input type="radio" id="yako_1" name="yako" value="1" style="visibility: hidden;" class="forms" /><label for="yako_1">(1)</label></div>
+                  <div class="yako"><input type="radio" id="yako_2" name="yako" value="2" class="forms mains" /><label for="yako_2">(2)</label></div>
                   <div class="yako"><h3>矢向駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="shitte"><input type="radio" id="shitte_1" name="shitte" value="1" /><label for="shitte_1">(1)</label></div>
-                  <div class="shitte"><input type="radio" id="shitte_2" name="shitte" style="visibility: hidden;" value="2"/><label for="shitte_2">(2)</label></div>
+                  <div class="shitte"><input type="radio" id="shitte_1" name="shitte" value="1" class="forms mains" /><label for="shitte_1">(1)</label></div>
+                  <div class="shitte"><input type="radio" id="shitte_2" name="shitte" style="visibility: hidden;" value="2" class="forms" /><label for="shitte_2">(2)</label></div>
                   <div class="shitte"><h3>尻手駅</h3></div>
                 </div>
                 <div class="stationes">
-                  <div class="kawasaki"><input type="radio" id="kawasaki_5" name="kawasaki" style="visibility: hidden;" value="1"/><label for="kawasaki_5">(5)</label></div>
-                  <div class="kawasaki"><input type="radio" id="kawasaki_6" name="kawasaki" style="visibility: hidden;" value="2"/><label for="kawasaki_6">(6)</label></div>
+                  <div class="kawasaki"><input type="radio" id="kawasaki_5" name="kawasaki" style="visibility: hidden;" value="1" class="forms" /><label for="kawasaki_5">(5)</label></div>
+                  <div class="kawasaki"><input type="radio" id="kawasaki_6" name="kawasaki" style="visibility: hidden;" value="2" class="forms" /><label for="kawasaki_6">(6)</label></div>
                   <div class="kawasaki"><h3>川崎駅</h3></div>
                 </div>
 
@@ -237,133 +239,133 @@
               <details>
                 <summary>メニューを開く</summary>
               <div class="stationes">
-                <div class="kawasaki"><input type="radio" id="kawasaki_5" name="kawasaki" value="1"/><label for="kawasaki_5">(5)</label></div>
-                <div class="kawasaki"><input type="radio" id="kawasaki_6" name="kawasaki" value="2"/><label for="kawasaki_6">(6)</label></div>
+                <div class="kawasaki"><input type="radio" id="kawasaki_5" name="kawasaki" value="1" class="forms mains" /><label for="kawasaki_5">(5)</label></div>
+                <div class="kawasaki"><input type="radio" id="kawasaki_6" name="kawasaki" value="2" class="forms" /><label for="kawasaki_6">(6)</label></div>
                 <div class="kawasaki"><h3>川崎駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="shitte"><input type="radio" id="shitte_1" name="shitte" style="visibility: hidden;" value="1" /><label for="shitte_1">(1)</label></div>
-                <div class="shitte"><input type="radio" id="shitte_2" name="shitte" value="2"/><label for="shitte_2">(2)</label></div>
+                <div class="shitte"><input type="radio" id="shitte_1" name="shitte" style="visibility: hidden;" value="1" class="forms" /><label for="shitte_1">(1)</label></div>
+                <div class="shitte"><input type="radio" id="shitte_2" name="shitte" value="2" class="forms mains" /><label for="shitte_2">(2)</label></div>
                 <div class="shitte"><h3>尻手駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="yako"><input type="radio" id="yako_1" name="yako" value="1" /><label for="yako_1">(1)</label></div>
-                <div class="yako"><input type="radio" id="yako_2" name="yako" value="2" style="visibility: hidden;"/><label for="yako_2">(2)</label></div>
+                <div class="yako"><input type="radio" id="yako_1" name="yako" value="1" class="forms mains" /><label for="yako_1">(1)</label></div>
+                <div class="yako"><input type="radio" id="yako_2" name="yako" value="2" style="visibility: hidden;" class="forms" /><label for="yako_2">(2)</label></div>
                 <div class="yako"><h3>矢向駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="kashimada"><input type="radio" id="kashimada_1" name="kashimada" style="visibility: hidden;"  value="1"/><label for="kashimada_1">(1)</label></div>
-                <div class="kashimada"><input type="radio" id="kashimada_2" name="kashimada" value="2"/><label for="kashimada_2">(2)</label></div>
+                <div class="kashimada"><input type="radio" id="kashimada_1" name="kashimada" style="visibility: hidden;" value="1" class="forms" /><label for="kashimada_1">(1)</label></div>
+                <div class="kashimada"><input type="radio" id="kashimada_2" name="kashimada" value="2" class="forms mains" /><label for="kashimada_2">(2)</label></div>
                 <div class="kashimada"><h3>鹿島田駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="hirama"><input type="radio" id="hirama_1" name="hirama" style="visibility: hidden;" value="1" /><label for="hirama_1">(1)</label></div>
-                <div class="hirama"><input type="radio" id="hirama_2" name="hirama" value="2"/><label for="hirama_2">(2)</label></div>
+                <div class="hirama"><input type="radio" id="hirama_1" name="hirama" style="visibility: hidden;" value="1" class="forms" /><label for="hirama_1">(1)</label></div>
+                <div class="hirama"><input type="radio" id="hirama_2" name="hirama" value="2" class="forms mains" /><label for="hirama_2">(2)</label></div>
                 <div class="hirama"><h3>平間駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="mukaigawara"><input type="radio" id="mukaigawara_1" name="mukaigawara" style="visibility: hidden;" value="1" /><label for="mukaigawara_1">(1)</label></div>
-                <div class="mukaigawara"><input type="radio" id="mukaigawara_2" name="mukaigawara" value="2"/><label for="mukaigawara_2">(2)</label></div>
+                <div class="mukaigawara"><input type="radio" id="mukaigawara_1" name="mukaigawara" style="visibility: hidden;" value="1" class="forms" /><label for="mukaigawara_1">(1)</label></div>
+                <div class="mukaigawara"><input type="radio" id="mukaigawara_2" name="mukaigawara" value="2" class="forms mains" /><label for="mukaigawara_2">(2)</label></div>
                 <div class="mukaigawara"><h3>向河原駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="musashikosugi"><input type="radio" id="musashikosugi_1" name="musashikosugi" style="visibility: hidden;"  value="1"/><label for="musashikosugi_1">(1)</label></div>
-                <div class="musashikosugi"><input type="radio" id="musashikosugi_2" name="musashikosugi" value="2"/><label for="musashikosugi_2">(2)</label></div>
+                <div class="musashikosugi"><input type="radio" id="musashikosugi_1" name="musashikosugi" style="visibility: hidden;" value="1" class="forms" /><label for="musashikosugi_1">(1)</label></div>
+                <div class="musashikosugi"><input type="radio" id="musashikosugi_2" name="musashikosugi" value="2" class="forms mains"/><label for="musashikosugi_2">(2)</label></div>
                 <div class="musashikosugi"><h3>武蔵小杉駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="musashinakahara"><input type="radio" id="musashinakahara_4" name="musashinakahara" value="1"/><label for="musashinakahara_4">(3)</label></div>
-                <div class="musashinakahara"><input type="radio" id="musashinakahara_4" name="musashinakahara" value="2"/><label for="musashinakahara_4">(4)</label></div>
+                <div class="musashinakahara"><input type="radio" id="musashinakahara_4" name="musashinakahara" value="1" class="forms" /><label for="musashinakahara_4">(3)</label></div>
+                <div class="musashinakahara"><input type="radio" id="musashinakahara_4" name="musashinakahara" value="2" class="forms mains" /><label for="musashinakahara_4">(4)</label></div>
                 <div class="musashinakahara"><h3>武蔵中原駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="musashishinjo"><input type="radio" id="musashishinjo_1" name="musashishinjo" style="visibility: hidden;" value="1" /><label for="musashishinjo_1">(1)</label></div>
-                <div class="musashishinjo"><input type="radio" id="musashishinjo_2" name="musashishinjo" value="2"/><label for="musashishinjo_2">(2)</label></div>
+                <div class="musashishinjo"><input type="radio" id="musashishinjo_1" name="musashishinjo" style="visibility: hidden;" value="1" class="forms" /><label for="musashishinjo_1">(1)</label></div>
+                <div class="musashishinjo"><input type="radio" id="musashishinjo_2" name="musashishinjo" value="2" class="forms mains" /><label for="musashishinjo_2">(2)</label></div>
                 <div class="musashishinjo"><h3>武蔵新城駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="musashimizonokuchi"><input type="radio" id="musashimizonokuchi_2" name="musashimizonokuchi" value="1"/><label for="musashimizonokuchi_2">(2)</label></div>
-                <div class="musashimizonokuchi"><input type="radio" id="musashimizonokuchi_3" name="musashimizonokuchi" value="2"/><label for="musashimizonokuchi_3">(3)</label></div>
+                <div class="musashimizonokuchi"><input type="radio" id="musashimizonokuchi_2" name="musashimizonokuchi" value="1" class="forms mains" /><label for="musashimizonokuchi_2">(2)</label></div>
+                <div class="musashimizonokuchi"><input type="radio" id="musashimizonokuchi_3" name="musashimizonokuchi" value="2" class="forms" /><label for="musashimizonokuchi_3">(3)</label></div>
                 <div class="musashimizonokuchi"><h3>武蔵溝ノ口駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="tsudayama"><input type="radio" id="tsudayama_1" name="tsudayama" style="visibility: hidden;" value="1" /><label for="tsudayama_1">(1)</label></div>
-                <div class="tsudayama"><input type="radio" id="tsudayama_2" name="tsudayama" value="2"/><label for="tsudayama_2">(2)</label></div>
+                <div class="tsudayama"><input type="radio" id="tsudayama_1" name="tsudayama" style="visibility: hidden;" value="1" class="forms" /><label for="tsudayama_1">(1)</label></div>
+                <div class="tsudayama"><input type="radio" id="tsudayama_2" name="tsudayama" value="2" class="forms mains" /><label for="tsudayama_2">(2)</label></div>
                 <div class="tsudayama"><h3>津田山駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="kuji"><input type="radio" id="kuji_1" name="kuji" style="visibility: hidden;" value="1" /><label for="kuji_1">(1)</label></div>
-                <div class="kuji"><input type="radio" id="kuji_2" name="kuji" value="2"/><label for="kuji_2">(2)</label></div>
+                <div class="kuji"><input type="radio" id="kuji_1" name="kuji" style="visibility: hidden;" value="1" class="forms" /><label for="kuji_1">(1)</label></div>
+                <div class="kuji"><input type="radio" id="kuji_2" name="kuji" value="2" class="forms mains" /><label for="kuji_2">(2)</label></div>
                 <div class="kuji"><h3>久地駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="shukugawara"><input type="radio" id="shukugawara_1" name="shukugawara" value="1" /><label for="shukugawara_1">(1)</label></div>
-                <div class="shukugawara"><input type="radio" id="shukugawara_2" name="shukugawara" style="visibility: hidden;"  value="2"/><label for="shukugawara_2">(2)</label></div>
+                <div class="shukugawara"><input type="radio" id="shukugawara_1" name="shukugawara" value="1" class="forms mains" /><label for="shukugawara_1">(1)</label></div>
+                <div class="shukugawara"><input type="radio" id="shukugawara_2" name="shukugawara" style="visibility: hidden;" value="2" class="forms"/><label for="shukugawara_2">(2)</label></div>
                 <div class="shukugawara"><h3>宿河原駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="noborito"><input type="radio" id="noborito_1" name="noborito" value="1"/><label for="noborito_1">(1)</label></div>
-                <div class="noborito"><input type="radio" id="noborito_2" name="noborito" style="visibility: hidden;" value="2" /><label for="noborito_2">(2)</label></div>
+                <div class="noborito"><input type="radio" id="noborito_1" name="noborito" value="1" class="forms mains" /><label for="noborito_1">(1)</label></div>
+                <div class="noborito"><input type="radio" id="noborito_2" name="noborito" style="visibility: hidden;" value="2" class="forms mains" /><label for="noborito_2">(2)</label></div>
                 <div class="noborito"><h3>登戸駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="nakanoshima"><input type="radio" id="nakanoshima_1" name="nakanoshima" value="1" /><label for="nakanoshima_1">(1)</label></div>
-                <div class="nakanoshima"><input type="radio" id="nakanoshima_2" name="nakanoshima" style="visibility: hidden;" value="2" /><label for="nakanoshima_2">(2)</label></div>
+                <div class="nakanoshima"><input type="radio" id="nakanoshima_1" name="nakanoshima" value="1" class="forms mains" /><label for="nakanoshima_1">(1)</label></div>
+                <div class="nakanoshima"><input type="radio" id="nakanoshima_2" name="nakanoshima" style="visibility: hidden;" value="2" class="forms" /><label for="nakanoshima_2">(2)</label></div>
                 <div class="nakanoshima"><h3>中野島駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="inadazutsumi"><input type="radio" id="inadazutsumi_1" name="inadazutsumi" style="visibility: hidden;"  value="1"/><label for="inadazutsumi_1">(1)</label></div>
-                <div class="inadazutsumi"><input type="radio" id="inadazutsumi_2" name="inadazutsumi" value="2"/><label for="inadazutsumi_2">(2)</label></div>
+                <div class="inadazutsumi"><input type="radio" id="inadazutsumi_1" name="inadazutsumi" style="visibility: hidden;" value="1" class="forms" /><label for="inadazutsumi_1">(1)</label></div>
+                <div class="inadazutsumi"><input type="radio" id="inadazutsumi_2" name="inadazutsumi" value="2" class="forms mains" /><label for="inadazutsumi_2">(2)</label></div>
                 <div class="inadazutsumi"><h3>稲田堤駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="yanokuchi"><input type="radio" id="yanokuchi_1" name="yanokuchi" value="1" /><label for="yanokuchi_1">(1)</label></div>
-                <div class="yanokuchi"><input type="radio" id="yanokuchi_2" name="yanokuchi" style="visibility: hidden;" value="2"/><label for="yanokuchi_2">(2)</label></div>
+                <div class="yanokuchi"><input type="radio" id="yanokuchi_1" name="yanokuchi" value="1" class="forms mains" /><label for="yanokuchi_1">(1)</label></div>
+                <div class="yanokuchi"><input type="radio" id="yanokuchi_2" name="yanokuchi" style="visibility: hidden;" value="2" class="forms"/><label for="yanokuchi_2">(2)</label></div>
                 <div class="yanokuchi"><h3>矢野口駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="inaginaganuma"><input type="radio" id="inaginaganuma_3" name="inaginaganuma" value="1"/><label for="inaginaganuma_3">(3)</label></div>
-                <div class="inaginaganuma"><input type="radio" id="inaginaganuma_4" name="inaginaganuma" value="2"/><label for="inaginaganuma_4">(4)</label></div>
+                <div class="inaginaganuma"><input type="radio" id="inaginaganuma_3" name="inaginaganuma" value="1" class="forms"/><label for="inaginaganuma_3">(3)</label></div>
+                <div class="inaginaganuma"><input type="radio" id="inaginaganuma_4" name="inaginaganuma" value="2" class="forms mains"/><label for="inaginaganuma_4">(4)</label></div>
                 <div class="inaginaganuma"><h3>稲城長沼駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="minamitama"><input type="radio" id="minamitama_1" name="minamitama" value="1" /><label for="minamitama_1">(1)</label></div>
-                <div class="minamitama"><input type="radio" id="minamitama_2" name="minamitama" style="visibility: hidden;" value="2"/><label for="minamitama_2">(2)</label></div>
+                <div class="minamitama"><input type="radio" id="minamitama_1" name="minamitama" value="1" class="forms mains" /><label for="minamitama_1">(1)</label></div>
+                <div class="minamitama"><input type="radio" id="minamitama_2" name="minamitama" style="visibility: hidden;" value="2" class="forms" /><label for="minamitama_2">(2)</label></div>
                 <div class="minamitama"><h3>南多摩駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="fuchuhommachi"><input type="radio" id="fuchuhommachi_1" name="fuchuhommachi" style="visibility: hidden;" value="1" /><label for="fuchuhommachi_1">(1)</label></div>
-                <div class="fuchuhommachi"><input type="radio" id="fuchuhommachi_4" name="fuchuhommachi" value="2"/><label for="fuchuhommachi_4">(4)</label></div>
+                <div class="fuchuhommachi"><input type="radio" id="fuchuhommachi_1" name="fuchuhommachi" style="visibility: hidden;" value="1" class="forms"  /><label for="fuchuhommachi_1">(1)</label></div>
+                <div class="fuchuhommachi"><input type="radio" id="fuchuhommachi_4" name="fuchuhommachi" value="2" class="forms mains" /><label for="fuchuhommachi_4">(4)</label></div>
                 <div class="fuchuhommachi"><h3>府中本町駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="bubaigawara"><input type="radio" id="bubaigawara_1" name="bubaigawara" style="visibility: hidden;" value="1" /><label for="bubaigawara_1">(1)</label></div>
-                <div class="bubaigawara"><input type="radio" id="bubaigawara_2" name="bubaigawara" value="2"/><label for="bubaigawara_2">(2)</label></div>
+                <div class="bubaigawara"><input type="radio" id="bubaigawara_1" name="bubaigawara" style="visibility: hidden;" value="1" class="forms" /><label for="bubaigawara_1">(1)</label></div>
+                <div class="bubaigawara"><input type="radio" id="bubaigawara_2" name="bubaigawara" value="2" class="forms mains" /><label for="bubaigawara_2">(2)</label></div>
                 <div class="bubaigawara"><h3>分倍河原駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="nishifu"><input type="radio" id="nishifu_1" name="nishifu" style="visibility: hidden;" value="1" /><label for="nishifu_1">(1)</label></div>
-                <div class="nishifu"><input type="radio" id="nishifu_2" name="nishifu" value="2"/><label for="nishifu_2">(2)</label></div>
+                <div class="nishifu"><input type="radio" id="nishifu_1" name="nishifu" style="visibility: hidden;" value="1" class="forms" /><label for="nishifu_1">(1)</label></div>
+                <div class="nishifu"><input type="radio" id="nishifu_2" name="nishifu" value="2" class="forms mains" /><label for="nishifu_2">(2)</label></div>
                 <div class="nishifu"><h3>西府駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="yaho"><input type="radio" id="yaho_1" name="yaho" value="1" /><label for="yaho_1">(1)</label></div>
-                <div class="yaho"><input type="radio" id="yaho_2" name="yaho" style="visibility: hidden;" value="2"/><label for="yaho_2">(2)</label></div>
+                <div class="yaho"><input type="radio" id="yaho_1" name="yaho" value="1" class="forms mains" /><label for="yaho_1">(1)</label></div>
+                <div class="yaho"><input type="radio" id="yaho_2" name="yaho" style="visibility: hidden;" value="2" class="forms" /><label for="yaho_2">(2)</label></div>
                 <div class="yaho"><h3>谷保駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="yagawa"><input type="radio" id="yagawa_1" name="yagawa" value="1" /><label for="yagawa_1">(1)</label></div>
-                <div class="yagawa"><input type="radio" id="yagawa_2" name="yagawa" style="visibility: hidden;" value="2"/><label for="yagawa_2">(2)</label></div>
+                <div class="yagawa"><input type="radio" id="yagawa_1" name="yagawa" value="1" class="forms mains" /><label for="yagawa_1">(1)</label></div>
+                <div class="yagawa"><input type="radio" id="yagawa_2" name="yagawa" style="visibility: hidden;" value="2" class="forms" /><label for="yagawa_2">(2)</label></div>
                 <div class="yagawa"><h3>矢川駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="nishikunitachi"><input type="radio" id="nishikunitachi_1" name="nishikunitachi" style="visibility: hidden;" value="1" /><label for="nishikunitachi_1">(1)</label></div>
-                <div class="nishikunitachi"><input type="radio" id="nishikunitachi_2" name="nishikunitachi" value="2"/><label for="nishikunitachi_2">(2)</label></div>
+                <div class="nishikunitachi"><input type="radio" id="nishikunitachi_1" name="nishikunitachi" style="visibility: hidden;" value="1" class="forms" /><label for="nishikunitachi_1">(1)</label></div>
+                <div class="nishikunitachi"><input type="radio" id="nishikunitachi_2" name="nishikunitachi" value="2" class="forms mains"/><label for="nishikunitachi_2">(2)</label></div>
                 <div class="nishikunitachi"><h3>西国立駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="tachikawa"><input type="radio" id="tachikawa_7" name="tachikawa" style="visibility: hidden;" value="1" /><label for="tachikawa_7">(7)</label></div>
-                <div class="tachikawa"><input type="radio" id="tachikawa_8" name="tachikawa" style="visibility: hidden;" value="2" /><label for="tachikawa_8">(8)</label></div>
+                <div class="tachikawa"><input type="radio" id="tachikawa_7" name="tachikawa" style="visibility: hidden;" value="1" class="forms" /><label for="tachikawa_7">(7)</label></div>
+                <div class="tachikawa"><input type="radio" id="tachikawa_8" name="tachikawa" style="visibility: hidden;" value="2" class="forms" /><label for="tachikawa_8">(8)</label></div>
                 <div class="tachikawa"><h3>立川駅</h3></div>
               </div>
               </details>
@@ -379,7 +381,18 @@
                   document.getElementById('nambu_ds').style.display = "";
                 }
               }
-            
+              
+              function mains() {
+                for (const element of document.getElementsByClassName('mains')) {
+                  element.checked = true;
+                }
+              }
+              function deletes() {
+                for (const element of document.getElementsByClassName('forms')) {
+                  element.checked = false;
+                }
+              }
+              
               window.onload = lineChange;
               
               'use strict';
