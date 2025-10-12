@@ -383,10 +383,18 @@
               }
               
               function mains() {
-                for (const element of document.getElementsByClassName('mains')) {
+                const line = document.getElementById('line').value;
+                let targetId;
+                if (line === 'jr_nambu_u') targetId = 'nambu_us';
+                if (line === 'jr_nambu_d') targetId = 'nambu_ds';
+                const target = document.getElementById(targetId);
+                const radios = target.querySelectorAll('.mains');
+              
+                for (const element of radios) {
                   element.checked = true;
                 }
               }
+              
               function deletes() {
                 for (const element of document.getElementsByClassName('forms')) {
                   element.checked = false;
