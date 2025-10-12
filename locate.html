@@ -415,9 +415,14 @@
               const registeredStations = {}
 
               async function loadStations() {
-                const response = await fetch("stations.json"); // ファイルのパスに合わせて変更
-                if (!response.ok) throw new Error("JSONの読み込みに失敗しました");
-                registeredStations = await response.json();
+                try {
+                  const response = await fetch("stations.json"); // ファイルのパスに合わせて変更
+                  if (!response.ok) throw new Error("JSONの読み込みに失敗しました");
+                  registeredStations = await response.json();
+                  console.log("駅データを読み込みました:", registeredStations);
+                } catch (error) {
+                  console.error("駅データ読み込みエラー:", error);
+                }
               }
               
               document.addEventListener("DOMContentLoaded", async () => {
