@@ -668,6 +668,38 @@
               <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
               <label><input type="checkbox" id="placeoff">位置情報オフ</label>
             </div>
+          <script>
+              document.addEventListener('DOMContentLoaded', () => {
+                const iframe = document.getElementById('station-iframe');
+                const buttonon = document.getElementById('buttonon');
+              
+                // iframe内のページが変わった時に呼ばれる
+                iframe.addEventListener('load', () => {
+                  if (!iframe.contentWindow || !iframe.src) return;
+              
+                  // チェックされている場合のみパラメータを付与
+                  if (buttonon.checked) {
+                    const url = new URL(iframe.src);
+                    if (url.searchParams.get('button') !== 'off') {
+                      url.searchParams.set('button', 'off');
+                      iframe.src = url.toString(); // 再読み込みしてパラメータを維持
+                    }
+                  }
+                });
+              
+                // 「ボタン音オフ」が切り替えられた時も即時反映
+                buttonon.addEventListener('change', () => {
+                  if (!iframe.contentWindow || !iframe.src) return;
+                  const url = new URL(iframe.src);
+                  if (buttonon.checked) {
+                    url.searchParams.set('button', 'off');
+                  } else {
+                    url.searchParams.delete('button');
+                  }
+                  iframe.src = url.toString(); // 状態を即反映
+                });
+              });
+              </script>
         </div>
 
         
