@@ -412,7 +412,7 @@
             </div>
             <script>              
               // 登録済駅座標（ラジオに座標が無い場合のフォールバック）
-              const registeredStations = {}
+              let registeredStations = {}
 
               async function loadStations() {
                 try {
