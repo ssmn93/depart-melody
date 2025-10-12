@@ -579,16 +579,21 @@
                   console.log("位置情報オフのため処理をスキップしました。");
                   return;  // 何もせず終了
                 } 
+                // ▼ 5. 現在表示中の駅情報
                 const current = getCurrentIframePlatform();
-                const currentDist = (current && !Number.isNaN(current.lat) && !Number.isNaN(current.lng)) ? haversineMeters(pos.lat, pos.lng, current.lat, current.lng) : Infinity;
-          
+                const currentDist = (current && !Number.isNaN(current.lat) && !Number.isNaN(current.lng))
+                  ? haversineMeters(pos.lat, pos.lng, current.lat, current.lng)
+                  : Infinity;
+            
+                // ▼ 6. 候補の中から最も近い駅を探す
                 let best = { cand: null, dist: Infinity };
-                for(const c of candidates){
+                for (const c of candidates) {
                   const d = haversineMeters(pos.lat, pos.lng, c.lat, c.lng);
-                  if(d < best.dist){ best = { cand: c, dist: d }; }
+                  if (d < best.dist) best = { cand: c, dist: d };
                 }
-          
-                if(best.cand && best.dist < currentDist){
+            
+                // ▼ 7. より近い駅があれば切替
+                if (best.cand && best.dist < currentDist) {
                   setIframeToCandidate(best.cand);
                 }
               } catch (err) {    
@@ -609,15 +614,18 @@
                   return;
                 }
           
-                // 1) 選択済みプラットフォームの最寄りを使う
                 let candidates = getSelectedCandidates();
-                if(candidates.length > 0){
+                if (candidates.length > 0) {
                   let best = { cand: null, dist: Infinity };
-                  for(const c of candidates){
+                  for (const c of candidates) {
                     const d = haversineMeters(pos.lat, pos.lng, c.lat, c.lng);
-                    if(d < best.dist){ best = { cand: c, dist: d }; }
+                    if (d < best.dist) best = { cand: c, dist: d };
                   }
-                  if(best.cand){ setIframeToCandidate(best.cand); hasInitializedFromForce = true; return; }
+                  if (best.cand) {
+                    setIframeToCandidate(best.cand);
+                    hasInitializedFromForce = true;
+                    return;
+                  }
                 }
           
                 // 2) 選択済みがなければ registeredStations の最寄りに紐づくラジオ最初の要素を使う
