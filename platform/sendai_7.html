@@ -182,7 +182,10 @@
       const audio = document.getElementById("melody");
       const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
-      
+      let buttonon = document.getElementById("buttonon");
+      let url = new URL(window.location.href);
+      let params = url.searchParams;
+      let buttonurl = params.get('button');      
         let isPlaying = false;
 
         // クリックイベント
