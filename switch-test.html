@@ -212,6 +212,7 @@
               <option value="nishiogikubo">西荻窪式</option>
           </select>
           <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
+          <button id="connectHardware">実機スイッチ検知</button>
         </div>
 
         
@@ -317,6 +318,199 @@
               }
             switch_method.style.pointerEvents = "auto";
             }
+        });
+        let __serialPort = null;
+        let __serialReader = null;
+        let __serialKeepReading = false;
+        let __prevSignalState = null; // 以前の DSR 状態など
+        const __POLL_MS = 120; // 制御線ポーリング間隔（ms）
+        
+        // 参照（既存のボタン要素を使う）
+        const __onButton = document.getElementById('onButton');
+        const __offButton = document.getElementById('offButton');
+        
+        // helper: programmatic click で既存ハンドラを呼ぶ（既存のロジックをそのまま利用）
+        function __doOn() {
+          if (__onButton) __onButton.click();
+        }
+        function __doOff() {
+          if (__offButton) __offButton.click();
+        }
+        
+        /* シリアルポートを開いて監視開始 */
+        async function __openAndWatchPort(port) {
+          try {
+            if (!port) return;
+            // 既に別のポートを開いていれば切る
+            if (__serialPort && __serialPort !== port) {
+              await __closePort();
+            }
+        
+            // open（open済みでなければ open）
+            if (!port.opened && !port.readable) { // 一部ブラウザ実装差を考慮
+              await port.open({ baudRate: 115200 }).catch(() => {}); // 既に open の場合は例外を無視
+            } else {
+              try { await port.open({ baudRate: 115200 }); } catch(e) { /* ignore if already open */ }
+            }
+        
+            __serialPort = port;
+            __serialKeepReading = true;
+            __prevSignalState = null;
+        
+            // テキスト読み取りストリームを作る（デバイスが "ON"/"OFF" を送る場合のフォールバック）
+            try {
+              const decoder = new TextDecoderStream();
+              // 読み取りパイプをつなぐ（ブラウザ実装差をtryで保護）
+              port.readable.pipeTo(decoder.writable).catch(() => {});
+              __serialReader = decoder.readable.getReader();
+              __readLoop().catch(e => console.warn('__readLoop error', e));
+            } catch (e) {
+              console.warn('text read setup failed', e);
+              __serialReader = null;
+            }
+        
+            // 制御線ポーリング（getSignals が使えるなら利用）
+            __pollSignalsLoop().catch(e => console.warn('__pollSignalsLoop error', e));
+        
+            // 簡易UI変化（元から UI があれば不要）
+            if (document.getElementById('hwStatus')) document.getElementById('hwStatus').textContent = '接続済み';
+          } catch (err) {
+            console.error('__openAndWatchPort error', err);
+          }
+        }
+        
+        /* ポーリングループ：getSignals() を読み DSR等の変化で ON/OFF を発火 */
+        async function __pollSignalsLoop() {
+          if (!__serialPort) return;
+          try {
+            while (__serialKeepReading && __serialPort) {
+              try {
+                // 一部実装では getSignals が存在しない → 例外になることを想定
+                const sig = await __serialPort.getSignals(); // { dataSetReady, clearToSend, dataCarrierDetect, ringIndicator }
+                // ここでは dataSetReady を DSR として利用（配線に合わせて変更してください）
+                const current = !!sig.dataSetReady;
+                if (__prevSignalState === null) __prevSignalState = current;
+                if (current !== __prevSignalState) {
+                  __prevSignalState = current;
+                  if (current) {
+                    // 信号が ON (閉) になった場合
+                    __doOn();
+                  } else {
+                    // 信号が OFF (開) になった場合
+                    __doOff();
+                  }
+                }
+              } catch (e) {
+                // getSignals がない／エラーの場合は警告一回だけ出してループを抜ける（以降はテキスト読み取りに頼る）
+                // console.warn('getSignals not available or errored:', e);
+                break;
+              }
+              await new Promise(r => setTimeout(r, __POLL_MS));
+            }
+          } catch (err) {
+            console.error('__pollSignalsLoop general error', err);
+          }
+        }
+        
+        /* テキスト読み取りループ（"ON"/"OFF" を期待する場合） */
+        async function __readLoop() {
+          if (!__serialReader) return;
+          try {
+            let buf = '';
+            while (__serialKeepReading) {
+              const { value, done } = await __serialReader.read();
+              if (done) break;
+              if (value) {
+                buf += value;
+                const lines = buf.split(/\r?\n/);
+                buf = lines.pop();
+                for (const lineRaw of lines) {
+                  const line = (lineRaw || '').trim().toUpperCase();
+                  if (line === 'ON') {
+                    __doOn();
+                  } else if (line === 'OFF') {
+                    __doOff();
+                  } else {
+                    // その他のメッセージはログのみ
+                    console.log('serial text:', line);
+                  }
+                }
+              } else {
+                // 少し待つ
+                await new Promise(r => setTimeout(r, 50));
+              }
+            }
+          } catch (e) {
+            console.error('__readLoop error', e);
+          } finally {
+            try { if (__serialReader) await __serialReader.releaseLock(); } catch(_) {}
+            __serialReader = null;
+          }
+        }
+        
+        /* ポートを閉じる（cleanup） */
+        async function __closePort() {
+          try {
+            __serialKeepReading = false;
+            __prevSignalState = null;
+            if (__serialReader) {
+              try { await __serialReader.cancel(); } catch(_) {}
+              try { await __serialReader.releaseLock(); } catch(_) {}
+              __serialReader = null;
+            }
+            if (__serialPort) {
+              try { await __serialPort.close(); } catch(e) { /* ignore close errors */ }
+              __serialPort = null;
+            }
+            if (document.getElementById('hwStatus')) document.getElementById('hwStatus').textContent = '未接続';
+          } catch (e) {
+            console.warn('__closePort error', e);
+          }
+        }
+        
+        /* 自動検出：ページロード時に既許可ポートを開く */
+        async function __tryAutoOpenAllowedPort() {
+          if (!('serial' in navigator)) return;
+          try {
+            const ports = await navigator.serial.getPorts();
+            if (ports && ports.length > 0) {
+              // 最初の許可済みポートを自動で使用（必要なら選択UIに変えてください）
+              await __openAndWatchPort(ports[0]);
+            }
+          } catch (e) {
+            console.warn('getPorts() error', e);
+          }
+        }
+        
+        /* connect / disconnect イベント対応（許可済みポートの挿抜を検出できる） */
+        if ('serial' in navigator) {
+          navigator.serial.addEventListener('connect', ev => {
+            // ev.port は許可済みのポートのみが渡されることがある
+            if (ev && ev.port) {
+              __openAndWatchPort(ev.port).catch(e => console.warn('open on connect failed', e));
+            }
+          });
+          navigator.serial.addEventListener('disconnect', ev => {
+            if (ev && ev.port && __serialPort === ev.port) {
+              __closePort().catch(e => console.warn('close on disconnect failed', e));
+            }
+          });
+          // フォールバック：一部環境で connect イベントが使えないため定期チェックも行う
+          setInterval(async () => {
+            if (!__serialPort) {
+              try {
+                const ps = await navigator.serial.getPorts();
+                if (ps && ps.length > 0) {
+                  __openAndWatchPort(ps[0]).catch(e => {});
+                }
+              } catch (e) { /* ignore */ }
+            }
+          }, 2000);
+        }
+        
+        // ページ unload 時のクリーンアップ
+        window.addEventListener('beforeunload', () => {
+          try { __closePort(); } catch(e) {}
         });
     </script>
       </div>
