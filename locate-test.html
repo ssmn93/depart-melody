@@ -578,25 +578,36 @@
               return { stationId, platform, lat: stationInfo.lat, lng: stationInfo.lng, iframeUrl: iframe.src, radioId: `${stationId}_${platform}` };
             }
           
-            function setIframeToCandidate(cand){
+            // 既存の setIframeToCandidate をこれで置き換え
+            function setIframeToCandidate(cand, force = false){
               if(!cand) return;
               const iframe = document.querySelector(IFRAME_SELECTOR);
               if(!iframe){
                 window.alert('iframeが見つかりませんでした: ' + IFRAME_SELECTOR);
                 return;
               }
-          
+            
               const now = Date.now();
-              if(now - lastSwitchTime < MIN_SWITCH_INTERVAL_MS) return;
-          
-              if(iframe.dataset.stationId === cand.stationId && iframe.dataset.platform === cand.platform) return;
-          
+              if(!force && (now - lastSwitchTime) < MIN_SWITCH_INTERVAL_MS) return;
+            
+              // --- 重要: 既に表示中の src と候補の URL が同じなら何もしない ---
+              try {
+                // URL 比較は正規化して比較（相対/絶対差を吸収）
+                const currentUrl = iframe.src ? new URL(iframe.src, location.href).toString() : '';
+                const candidateUrl = cand.iframeUrl ? new URL(cand.iframeUrl, location.href).toString() : '';
+                if(!force && currentUrl === candidateUrl) return;
+              } catch (e) {
+                // URL の比較で例外が出たら、最小限の比較を行う
+                if(!force && iframe.src === cand.iframeUrl) return;
+              }
+            
+              // 実際に差し替え
               iframe.src = cand.iframeUrl;
               iframe.dataset.stationId = cand.stationId;
               iframe.dataset.platform = cand.platform;
-          
+            
               try { if(cand.radioEl) cand.radioEl.checked = true; } catch(e){ /* ignore */ }
-          
+            
               lastSwitchTime = now;
               console.log('iframe 切替 ->', cand.radioId, cand.iframeUrl);
             }
@@ -733,6 +744,38 @@
                   console.log('ラジオ選択が変更されました。iframe の切替は位置情報受信時にのみ行われます。');
                 }
               });
+              
+              // タイムスリップ日が変わったら、表示中の駅に対応する選択済ラジオを再評価して
+              // iframe を強制更新（force = true）する。
+              const timeInput = document.getElementById('time_nambu');
+              if(timeInput){
+                timeInput.addEventListener('change', () => {
+                  try {
+                    const iframe = document.querySelector(IFRAME_SELECTOR);
+                    if(!iframe) return;
+                    const stationId = iframe.dataset.stationId || '';
+                    const platform = iframe.dataset.platform || '';
+              
+                    // 1) まず、現在表示中の駅に対応する「選択済みラジオ」を探す
+                    if(stationId){
+                      const radios = Array.from(document.querySelectorAll(`${RADIO_SELECTOR}:checked`))
+                                          .filter(r => r.id && r.id.startsWith(stationId + '_'));
+                      if(radios.length > 0){
+                        const cand = radioToCandidate(radios[0]);
+                        if(cand) { setIframeToCandidate(cand, true); return; }
+                      }
+                    }
+              
+                    // 2) 見つからなければ、選択済み候補のうち先頭のものを強制適用
+                    const candidates = getSelectedCandidates();
+                    if(candidates.length > 0){
+                      setIframeToCandidate(candidates[0], true);
+                    }
+                  } catch(e){
+                    console.error('time_nambu change handler error:', e);
+                  }
+                });
+              }
           
               // 自動タイマー（位置取得はブラウザのバックグラウンドでは停止されるため、visibility/online で補強）
               if(!autoTimer) autoTimer = setInterval(checkAndSwitchIfNeeded, CHECK_INTERVAL_MS);
