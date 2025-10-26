@@ -176,8 +176,12 @@
           <p>収録駅:立川駅3番線</p>
           <p>スピーカー:JVC横長型(日野)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="hino_1.html">JRE-IKST-016-02(首都圏8番)</option>
+          <option value="hino_1_o.html">海岸通り</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
