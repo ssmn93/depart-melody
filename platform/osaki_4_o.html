@@ -176,8 +176,12 @@
           <p>収録駅:大崎駅4番線</p>
           <p>スピーカー:ユニペックス小丸型</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="osaki_4_o.html">SF10-38</option>
+          <option value="osaki_4.html">JRE-IKST-010-05(首都圏11-3番)</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
