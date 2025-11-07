@@ -176,8 +176,12 @@
           <p>収録駅:大崎駅2番線</p>
           <p>スピーカー:ユニペックス小丸型</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="osaki_2_o.html">海の駅</option>
+          <option value="osaki_2.html">JRE-IKST-010-03(首都圏11-2番)</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
