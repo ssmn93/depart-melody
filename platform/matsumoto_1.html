@@ -220,16 +220,6 @@
         tojime.play();
         isCirclePressed = false;
       });
-    
-      // 曲が終了したとき
-      audio.addEventListener("ended", () => {
-        if (isCirclePressed) {
-          audio.currentTime = 0;
-          audio.play();
-        } else {
-          tojime.play();
-        }
-      });
     </script>
   </div>
   </div>
