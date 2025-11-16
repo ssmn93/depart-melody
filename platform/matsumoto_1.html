@@ -174,15 +174,16 @@
       const arrange = document.getElementById("arrange");
     
       let isCirclePressed = false;
-      let isClosing = false;
+      let isArrived = false;
 
       arrival.addEventListener("click", (e) => {
+        isArrived = true;
         arrive.currentTime = 0;
         arrive.play();
       });
     
       circleButton.addEventListener("touchstart", (e) => {
-        if (isClosing) {
+        if (isArrived) {
           arrive.pause();
           arrive.currentTime = 0;
         }
@@ -196,7 +197,7 @@
       
       // ボタンを押したとき
       circleButton.addEventListener("mousedown", () => {
-        if (isClosing) {
+        if (isArrived) {
           arrive.pause();
           arrive.currentTime = 0;
         }
