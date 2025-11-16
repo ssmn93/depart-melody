@@ -160,7 +160,7 @@
             <p>スピーカー:National横長型・天井型</p>     
             
             <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
-          <button id="arrival">到着放送</button>
+          <button id="arrival" style="margin-left: 20px;">到着放送</button>
           </div>
       </div>
     <script>
@@ -174,15 +174,16 @@
       const arrange = document.getElementById("arrange");
     
       let isCirclePressed = false;
-      let isClosing = false;
+      let isArrived = false;
 
-      button.addEventListener("click", (e) => {
+      arrival.addEventListener("click", (e) => {
+        isArrived = true;
         arrive.currentTime = 0;
         arrive.play();
       });
     
       circleButton.addEventListener("touchstart", (e) => {
-        if (isClosing) {
+        if (isArrived) {
           arrive.pause();
           arrive.currentTime = 0;
         }
@@ -196,7 +197,7 @@
       
       // ボタンを押したとき
       circleButton.addEventListener("mousedown", () => {
-        if (isClosing) {
+        if (isArrived) {
           arrive.pause();
           arrive.currentTime = 0;
         }
