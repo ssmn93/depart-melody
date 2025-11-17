@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -167,7 +166,7 @@
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/JR-SH6-3.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_大原1番.mp3"></audio>
+    <!-- <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_大原1番.mp3"></audio> -->
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
       
     </div>
@@ -182,7 +181,7 @@
       </div>
           <script>
       const audio = document.getElementById("melody");
-      const tojime = document.getElementById("tojime");
+      // const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
       let url = new URL(window.location.href);
@@ -218,8 +217,8 @@
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
-              tojime.currentTime = 0;
-              tojime.play();
+              // tojime.currentTime = 0;
+              // tojime.play();
             }
         });
         document.getElementById('offText').addEventListener('click', function() {
@@ -230,8 +229,8 @@
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
-              tojime.currentTime = 0;
-              tojime.play();
+              // tojime.currentTime = 0;
+              // tojime.play();
             }
         });
     </script>
