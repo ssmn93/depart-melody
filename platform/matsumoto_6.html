@@ -165,7 +165,7 @@
           <option value="matsumoto_6.html">曲名不明(松本2番)</option>
           <option value="matsumoto_6_o.html">JR-SH1-1 高音ver</option>
         </select>
-        <button id="arrival" style="margin-left: 20px; margin-top: 10px;">到着放送</button>
+        <button id="arrival" style="margin-left: 20px;">到着放送</button>
       </div>
     <script>
       const audio = document.getElementById("melody");
@@ -188,10 +188,6 @@
       let isCirclePressed = false;
     
       circleButton.addEventListener("touchstart", (e) => {
-        if (isArrived) {
-          arrive.pause();
-          arrive.currentTime = 0;
-        }
         e.preventDefault();
         isCirclePressed = true;
         button.currentTime = 0;
@@ -202,10 +198,6 @@
       
       // ボタンを押したとき
       circleButton.addEventListener("mousedown", () => {
-        if (isArrived) {
-          arrive.pause();
-          arrive.currentTime = 0;
-        }
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
