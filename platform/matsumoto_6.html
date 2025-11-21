@@ -220,6 +220,10 @@
           audio.currentTime = 0;
           audio.play();
         } else {
+          if (isArrived) {
+            arrive.pause();
+            arrive.currentTime = 0;
+          }
           tojime.play();
         }
       });
