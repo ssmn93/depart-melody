@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="松本駅4番線(旧)の発車メロディ「JR-SH1-1 高音ver」の再現ができます！">
+  <meta name="description" content="松本駅4番線の発車メロディ「曲名不明(松本1-2番)」の再現ができます！">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" />
   <link rel="stylesheet" href="matsumoto_4.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
-  <meta property="og:description" content="松本駅4番線(旧)の発車メロディ「JR-SH1-1 高音ver」の再現ができます！">
-  <meta property="og:title" content="松本駅4番線(旧)「JR-SH1-1 高音ver」｜どこでもステーションベル">
+  <meta property="og:description" content="松本駅4番線の発車メロディ「曲名不明(松本1-2番)」の再現ができます！">
+  <meta property="og:title" content="松本駅4番線「曲名不明(松本1-2番)」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="松本駅4番線(旧)「JR-SH1-1 高音ver」｜どこでもステーションベル">
-  <title>松本駅4番線(旧)「JR-SH1-1 高音ver」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="松本駅4番線「曲名不明(松本1-2番)」｜どこでもステーションベル">
+  <title>松本駅4番線「曲名不明(松本1-2番)」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -148,20 +148,24 @@
           <circle class="button" id="onButton" cx="484" cy="439.5" r="65.5" fill="#000000" stroke="#000000" stroke-width="1.0"></circle>
         </svg>
         
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/JR-SH1-1%20%E9%AB%98%E9%9F%B3ver.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E6%9D%BE%E6%9C%AC4%E7%95%AA.mp3"></audio>
-    <audio id="arrive" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E5%88%B0%E7%9D%80%E6%94%BE%E9%80%81_%E6%9D%BE%E6%9C%AC4%E7%95%AA.mp3"></audio>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%9D%BE%E6%9C%AC1-2%E7%95%AA.mp3"></audio>
+    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E5%A5%B3%E5%A3%B04%E7%95%AA%E8%8B%B1%E8%AA%9E.mp3"></audio>
+    <audio id="arrive" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E5%88%B0%E7%9D%80%E6%94%BE%E9%80%81_%E6%9D%BE%E6%9C%ACATOS.mp3"></audio>
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
       </div>    
         <div class="arrange">
           <div class="content">
-            <h1>松本駅 4番線(旧)「JR-SH1-1 高音ver」</h1>
-            <p>収録駅:松本駅1番線</p>
-            <p>スピーカー:National横長型・天井型</p>     
+            <h1>松本駅 4番線「曲名不明(松本1-2番)」</h1>
+            <p>収録駅:松本駅4番線</p>
+            <p>スピーカー:Panasonicコンパクト型・FPS・天井型</p>       
             
-            <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
           <button id="arrival" style="margin-left: 20px;">到着放送</button>
           </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="matsumoto_4.html">曲名不明(松本1-2番)</option>
+          <option value="matsumoto_4_o.html">JR-SH1-1 高音ver</option>
+        </select>
       </div>
     <script>
       const audio = document.getElementById("melody");
@@ -173,7 +177,6 @@
       const circleButton = document.getElementById("onButton");
       const arrange = document.getElementById("arrange");
     
-      let isCirclePressed = false;
       let isArrived = false;
 
       arrival.addEventListener("click", (e) => {
@@ -181,6 +184,8 @@
         arrive.currentTime = 0;
         arrive.play();
       });
+      
+      let isCirclePressed = false;
     
       circleButton.addEventListener("touchstart", (e) => {
         if (isArrived) {
@@ -210,15 +215,21 @@
     
       // ボタンを離したとき
       circleButton.addEventListener("mouseup", () => {
-        tojime.currentTime = 0;
-        tojime.play();
         isCirclePressed = false;
       });
     
       circleButton.addEventListener("touchend", () => {
-        tojime.currentTime = 0;
-        tojime.play();
         isCirclePressed = false;
+      });
+    
+      // 曲が終了したとき
+      audio.addEventListener("ended", () => {
+        if (isCirclePressed) {
+          audio.currentTime = 0;
+          audio.play();
+        } else {
+          tojime.play();
+        }
       });
     </script>
   </div>
