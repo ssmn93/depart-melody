@@ -181,7 +181,7 @@
         
         </div>
         <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
-        <select name="voice" id="voice">
+        <select name="voice" id="voice" onChange="voiceChange();">
           <option value="ogata">戸閉放送_女声(緒方)</option>
           <option value="sekine">戸閉放送_男声(関根)</option>
         </select>
@@ -193,7 +193,7 @@
       let url = new URL(window.location.href);
       let params = url.searchParams;
       let buttonurl = params.get('button');      
-      let voice = document.getElementById("voice");
+      let voice;
         let isPlaying = false;
 
         // クリックイベント
@@ -230,6 +230,8 @@
               } else if (voice === "sekine") {
                 sekine.currentTime = 0;
                 sekine.play();
+              } else {
+                console.log("声優未設定: " + voice);
               }
             }
         });
@@ -247,9 +249,15 @@
               } else if (voice === "sekine") {
                 sekine.currentTime = 0;
                 sekine.play();
+              } else {
+                console.log("声優未設定: " + voice);
               }
             }
         });
+
+        function voiceChange() {
+          voice = this.value();
+        }
     </script><!--       </div> -->
 <!--        <script>
         const audio = document.getElementById("melody");
