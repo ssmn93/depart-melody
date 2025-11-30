@@ -166,7 +166,8 @@
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/OH%E6%A8%99%E6%BA%96.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E5%A5%B3%E5%A3%B0%E5%B0%8F%E7%94%B0%E6%80%A5.mp3"></audio>
+    <audio id="ogata" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E5%A5%B3%E5%A3%B0%E5%B0%8F%E7%94%B0%E6%80%A5.mp3"></audio>
+    <audio id="sekine" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E7%94%B7%E5%A3%B0%E5%B0%8F%E7%94%B0%E6%80%A5.mp3"></audio>
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
 
     </div>
@@ -178,17 +179,21 @@
           <p>採用駅:小田急線等一部形式乗降促進 小田急線各駅</p>
           <p>おすすめ:江ノ島線各駅</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="voice" id="voice">
+          <option value="ogata">戸閉放送_女声(緒方)</option>
+          <option value="sekine">戸閉放送_男声(関根)</option>
+        </select>
           <script>
       
       const audio = document.getElementById("melody");
-      const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
       let url = new URL(window.location.href);
       let params = url.searchParams;
       let buttonurl = params.get('button');      
+      let voice = document.getElementById("voice");
         let isPlaying = false;
 
         // クリックイベント
@@ -219,8 +224,13 @@
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
-              tojime.currentTime = 0;
-              tojime.play();
+              if (voice === "ogata") {
+                ogata.currentTime = 0;
+                ogata.play();
+              } else if (voice === "sekine") {
+                sekine.currentTime = 0;
+                sekine.play();
+              }
             }
         });
         document.getElementById('offText').addEventListener('click', function() {
@@ -231,8 +241,13 @@
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
-              tojime.currentTime = 0;
-              tojime.play();
+              if (voice === "ogata") {
+                ogata.currentTime = 0;
+                ogata.play();
+              } else if (voice === "sekine") {
+                sekine.currentTime = 0;
+                sekine.play();
+              }
             }
         });
     </script><!--       </div> -->
