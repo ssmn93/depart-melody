@@ -98,6 +98,10 @@ header {
   font-weight: bold;
 }
 
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
 .background-image {
   position: relative;
   width: 100%;
