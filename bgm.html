@@ -51,9 +51,11 @@
         if (!Playing) {
           audio.muted = false;
           audio.play();
+          Playing = true;
         } else {
           audio.muted = true;
           audio.pause();
+          Playing = false;
         }
       };
       
@@ -64,6 +66,7 @@
         sp.style.display = "none";
         const unmute = document.getElementsByClassName("bgmbutton-unmute")[0];
         unmute.style.display = "block";
+        Playing = true;
       };
       
       document.getElementsByClassName("bgmbutton-unmute")[0].onclick = function() {
@@ -73,6 +76,7 @@
         unmute.style.display = "none";
         const sp = document.getElementsByClassName("bgmbutton-sp")[0];
         sp.style.display = "block";
+        Playing = false;
       };
     </script>
   </header>
