@@ -35,18 +35,18 @@
     </div>
     <nav class="nav">
       <ul class="menu-group">
-        <div class="menu-item"><li class="menu-item"><a href="search.html">検索</a></li></div>
-        <div class="menu-item-sp"><li class="menu-item-sp"><a href="search.html"><img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/e61846fe-1ff2-4b3c-b789-4426554fdcf2.image.png?v=1743074812357" alt="スマホで表示する画像"></a></li></div>
         <div class="menu-item bgmbutton"><li class="menu-item">BGM設定</li></div>
         <div class="menu-item-sp bgmbutton-sp"><li class="menu-item-sp"><img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/no_sound_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" alt="スマホで表示する画像"></li></div>
         <div class="menu-item-sp bgmbutton-unmute" style="display: none;"><li class="menu-item-sp"><img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picturepicture/volume_up_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" alt="スマホで表示する画像"></li></div>
+        <div class="menu-item"><li class="menu-item"><a href="search.html">検索</a></li></div>
+        <div class="menu-item-sp"><li class="menu-item-sp"><a href="search.html"><img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/e61846fe-1ff2-4b3c-b789-4426554fdcf2.image.png?v=1743074812357" alt="スマホで表示する画像"></a></li></div>
       </ul>
     </nav>
     <script>
       let Playing;
       let audio = document.getElementById("melody");
 
-      document.getElementsByClassName("bgmbutton").onclick = function() {
+      document.getElementsByClassName("bgmbutton")[0].onclick = function() {
         if (!Playing) {
           audio.muted = false;
           audio.play();
@@ -56,21 +56,21 @@
         }
       };
       
-      document.getElementsByClassName("bgmbutton-sp").onclick = function() {
+      document.getElementsByClassName("bgmbutton-sp")[0].onclick = function() {
         document.getElementById("melody").muted = false;
         audio.play();
-        const sp = document.getElementsByClassName("bgmbutton-sp");
+        const sp = document.getElementsByClassName("bgmbutton-sp")[0];
         sp.style.display = "none";
-        const unmute = document.getElementsByClassName("bgmbutton-unmute");
+        const unmute = document.getElementsByClassName("bgmbutton-unmute"[0]);
         unmute.style.display = "block";
       };
       
-      document.getElementsByClassName("bgmbutton-unmute").onclick = function() {
+      document.getElementsByClassName("bgmbutton-unmute")[0].onclick = function() {
         document.getElementById("melody").muted = true;
         audio.pause();
-        const unmute = document.getElementsByClassName("bgmbutton-unmute");
+        const unmute = document.getElementsByClassName("bgmbutton-unmute")[0];
         unmute.style.display = "none";
-        const sp = document.getElementsByClassName("bgmbutton-sp");
+        const sp = document.getElementsByClassName("bgmbutton-sp")[0];
         sp.style.display = "block";
       };
     </script>
