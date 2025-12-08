@@ -87,12 +87,22 @@ header {
   list-style: none;
 }
 
+.menu-item {
+  margin-left: 7.5px;
+}
+
 .menu-item-sp img {
   height: 35px;
   padding: 5px;
 }
 
 .menu-item a {
+  text-decoration: none;
+  color: #333333;
+  font-weight: bold;
+}
+
+.menu-item li {
   text-decoration: none;
   color: #333333;
   font-weight: bold;
