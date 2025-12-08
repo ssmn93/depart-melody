@@ -71,7 +71,7 @@
       let Playing;
       let audio = document.getElementById("melody");
 
-      document.getElementById("bgmbutton").onclick = function() {
+      document.getElementsByClassName("bgmbutton").onclick = function() {
         if (!Playing) {
           audio.muted = false;
           audio.play();
@@ -81,21 +81,21 @@
         }
       };
       
-      document.getElementById("bgmbutton-sp").onclick = function() {
+      document.getElementsByClassName("bgmbutton-sp").onclick = function() {
         document.getElementById("melody").muted = false;
         audio.play();
-        const sp = document.getElementById("bgmbutton-sp");
+        const sp = document.getElementsByClassName("bgmbutton-sp");
         sp.style.display = "none";
-        const unmute = document.getElementById("bgmbutton-unmute");
+        const unmute = document.getElementsByClassName("bgmbutton-unmute");
         unmute.style.display = "block";
       };
       
-      document.getElementById("bgmbutton-unmute").onclick = function() {
+      document.getElementsByClassName("bgmbutton-unmute").onclick = function() {
         document.getElementById("melody").muted = true;
         audio.pause();
-        const unmute = document.getElementById("bgmbutton-unmute");
+        const unmute = document.getElementsByClassName("bgmbutton-unmute");
         unmute.style.display = "none";
-        const sp = document.getElementById("bgmbutton-sp");
+        const sp = document.getElementsByClassName("bgmbutton-sp");
         sp.style.display = "block";
       };
     </script>
