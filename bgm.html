@@ -42,32 +42,7 @@
         <div class="menu-item-sp bgmbutton-unmute"><li class="menu-item-sp"><img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picturepicture/volume_up_24dp_5F6368_FILL0_wght400_GRAD0_opsz24.png" alt="スマホで表示する画像"></li></div>
       </ul>
     </nav>
-    <div class="dropdown">
-      <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E7%AC%AC%E4%B8%89%E3%81%AE%E7%94%B7.mp3"></audio>
-    </div>
     <script>
-      //ローディング画面の処理
-      window.addEventListener('DOMContentLoaded', function() {
-        const dropdown = document.getElementsByClassName('dropdown');
-      
-        // ローディング画面を非表示にする関数
-        function hideLoading() {
-          loadingElement.style.transition = 'opacity .6s ease, visibility .6s ease';
-          loadingElement.style.opacity = 0;
-          loadingElement.style.visibility = 'hidden';
-        }
-      
-        // ページが初回訪問かどうかをセッションストレージで確認
-        if (!sessionStorage.getItem('firstVisit')) {
-          // 初回訪問の場合、セッションストレージにフラグをセット
-          sessionStorage.setItem('firstVisit', 'true');
-      
-        } else {
-          // 初回訪問ではない場合、ローディング画面を非表示にする
-          loadingElement.style.display = 'none';
-        }
-      });
-
       let Playing;
       let audio = document.getElementById("melody");
 
