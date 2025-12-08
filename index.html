@@ -35,10 +35,50 @@
     </div>
     <nav class="nav">
       <ul class="menu-group">
+        <div class="menu-item bgmbutton"><li class="menu-item">BGM設定</li></div>
+        <div class="menu-item-sp bgmbutton-sp"><li class="menu-item-sp"><img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/no_sound_96dp_5F6368_FILL0_wght400_GRAD0_opsz48.png" alt="スマホで表示する画像"></li></div>
+        <div class="menu-item-sp bgmbutton-unmute" style="display: none;"><li class="menu-item-sp"><img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/volume_up_96dp_5F6368_FILL0_wght400_GRAD0_opsz48.png" alt="スマホで表示する画像"></li></div>
         <div class="menu-item"><li class="menu-item"><a href="search.html">検索</a></li></div>
         <div class="menu-item-sp"><li class="menu-item-sp"><a href="search.html"><img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/e61846fe-1ff2-4b3c-b789-4426554fdcf2.image.png?v=1743074812357" alt="スマホで表示する画像"></a></li></div>
       </ul>
     </nav>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E7%AC%AC%E4%B8%89%E3%81%AE%E7%94%B7.mp3"></audio>
+    <script>
+      let Playing;
+      let audio = document.getElementById("melody");
+
+      document.getElementsByClassName("bgmbutton")[0].onclick = function() {
+        if (!Playing) {
+          audio.muted = false;
+          audio.play();
+          Playing = true;
+        } else {
+          audio.muted = true;
+          audio.pause();
+          Playing = false;
+        }
+      };
+      
+      document.getElementsByClassName("bgmbutton-sp")[0].onclick = function() {
+        document.getElementById("melody").muted = false;
+        audio.play();
+        const sp = document.getElementsByClassName("bgmbutton-sp")[0];
+        sp.style.display = "none";
+        const unmute = document.getElementsByClassName("bgmbutton-unmute")[0];
+        unmute.style.display = "block";
+        Playing = true;
+      };
+      
+      document.getElementsByClassName("bgmbutton-unmute")[0].onclick = function() {
+        document.getElementById("melody").muted = true;
+        audio.pause();
+        const unmute = document.getElementsByClassName("bgmbutton-unmute")[0];
+        unmute.style.display = "none";
+        const sp = document.getElementsByClassName("bgmbutton-sp")[0];
+        sp.style.display = "block";
+        Playing = false;
+      };
+    </script>
   </header>
     <div class="background-image">
       <div class="content">
@@ -55,11 +95,11 @@
       <script>
         const messages = [
           {
-            text: "【ページ追加】2025.12.6 京浜東北線等 大井町駅･#1･#2･#1(りんかい線)･#1(りんかい線・旧)･#2(りんかい線)･#2(りんかい線・旧)・りんかい線 東雲駅･#1･#2・京急線等 上大岡駅･#2･#3",
+            text: "【機能追加】2025.12.8 トップページBGM追加：2025年12月限定曲「第三の男」",
             url: null
           },
           {
-            text: "【お知らせ】2025.12.5 当サイトにおいては、基本的にページ追加に関するご要望は受け付けておりません。特に収録時に注意があった駅については犯罪幇助に該当する場合がございますので、ご遠慮ください。",
+            text: "【ページ追加】2025.12.6 京浜東北線等 大井町駅･#1･#2･#1(りんかい線)･#1(りんかい線・旧)･#2(りんかい線)･#2(りんかい線・旧)・りんかい線 東雲駅･#1･#2・京急線等 上大岡駅･#2･#3",
             url: null
           },
           {
