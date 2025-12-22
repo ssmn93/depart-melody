@@ -4,23 +4,23 @@
   <meta charset="utf-8" />
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="成田空港駅1番線の発車メロディ「チャイム3B4(Humpty Dumpty)」の再現ができます！">
+  <meta name="description" content="成田空港駅1番線の発車メロディ「JRE-IKST-042-01(首都圏35番)」の再現ができます！">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="icon" href="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/e233yo.png" />
+  <link rel="icon" href="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" />
   <link rel="stylesheet" href="narita_airport_1.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
-  <meta property="og:description" content="成田空港駅1番線の発車メロディ「チャイム3B4(Humpty Dumpty)」の再現ができます！">
-  <meta property="og:title" content="成田空港駅1番線「チャイム3B4(Humpty Dumpty)」｜どこでもステーションベル">
+  <meta property="og:description" content="成田空港駅1番線の発車メロディ「JRE-IKST-042-01(首都圏35番)」の再現ができます！">
+  <meta property="og:title" content="成田空港駅1番線「JRE-IKST-042-01(首都圏35番)」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="成田空港駅1番線「チャイム3B4(Humpty Dumpty)」｜どこでもステーションベル">
-  <title>成田空港駅1番線「チャイム3B4(Humpty Dumpty)」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="成田空港駅1番線「JRE-IKST-042-01(首都圏35番)」｜どこでもステーションベル">
+  <title>成田空港駅1番線「JRE-IKST-042-01(首都圏35番)」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
     <div class="header-left">
       <a href="https://ssmn93.github.io/depart-melody/" class="title-link">
-        <img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/e233yo.png" alt="アイコン" class="logo">
+        <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" alt="アイコン" class="logo">
         <h1 class="title">どこでもステーションベル</h1>
       </a>
     </div>
@@ -165,19 +165,23 @@
         <rect class="button" id="offButton" x="432" y="445" width="100" height="100" fill="#e06666" stroke="#e06666" stroke-width="2"/>
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E3%83%81%E3%83%A3%E3%82%A4%E3%83%A03B4.mp3"></audio>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E9%A6%96%E9%83%BD%E5%9C%8F35%E7%95%AA.mp3"></audio>
     <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E6%88%90%E7%94%B0%E7%A9%BA%E6%B8%AF1%E7%95%AA.mp3"></audio>
     <audio id="button" src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/%E6%B1%BA%E5%AE%9A%E3%83%9C%E3%82%BF%E3%83%B3%E3%82%92%E6%8A%BC%E3%81%9931.mp3?v=1745920220591"></audio>
       
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>成田空港駅 1番線「チャイム3B4(Humpty Dumpty)」</h1>
-          <p>収録駅:空港第2ビル駅</p>
-          <p>スピーカー:National天井型</p>
+          <h1>成田空港駅 1番線「JRE-IKST-042-01(首都圏35番)」</h1>
+          <p>収録駅:佐原駅1番線</p>
+          <p>スピーカー:National天井型(成田空港)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="narita_airport_1.html">JRE-IKST-042-01(首都圏35番)</option>
+          <option value="narita_airport_1_o.html">チャイム3B4(Humpty Dumpty)</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
@@ -267,13 +271,13 @@
   <footer class="footer">
     <div class="md-flex md-justify-between">
       <a href="https://ssmn93.github.io/depart-melody" style="text-decoration:none;" class="footer__logo">
-        <img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/e233yo.png" width="40" height="40" alt=" Logo" />
+        <img src="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/9303fe23-3154-44f3-9fe7-487da4147f04.e233na%20(1).png?v=1743076679120" width="40" height="40" alt=" Logo" />
         <p class="title">どこでもステーションベル</p>
       </a>
       <ul class="footer__navi flex">
         <li><a href="https://ssmn93.github.io/depart-melody">ホーム</a></li>
         <li><a href="https://ssmn93.github.io/depart-melody/search.html">検索</a></li>
-        <li><a href="https://ssmn93.github.io/depart-melody/thanks.html">提供者一覧・二次利用</a></li>
+        <li><a href="https://ssmn93.github.io/depart-melody/thanks.html">提供者一覧</a></li>
         <li><a href="https://ssmn93.github.io/depart-melody/support.html">問い合わせ</a></li>
         <li><a href="https://ssmn93.github.io/depart-melody/ikst/ikst.html">IKST動静</a></li>
         <li><a href="https://ssmn93.github.io/depart-melody/custom.html">カスタムステーションベル</a></li>
