@@ -186,7 +186,7 @@
       </div>
           <script>
       const audio = document.getElementById("melody");
-      // const tojime = document.getElementById("tojime");
+      const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
       let url = new URL(window.location.href);
@@ -222,8 +222,8 @@
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
-              // tojime.currentTime = 0;
-              // tojime.play();
+              tojime.currentTime = 0;
+              tojime.play();
             }
         });
         document.getElementById('offText').addEventListener('click', function() {
@@ -234,8 +234,8 @@
               audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
-              // tojime.currentTime = 0;
-              // tojime.play();
+              tojime.currentTime = 0;
+              tojime.play();
             }
         });
     </script>
