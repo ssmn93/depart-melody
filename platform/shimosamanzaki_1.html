@@ -188,57 +188,77 @@
       let params = url.searchParams;
       let buttonurl = params.get('button');      
       let isPlaying = false;
+      
       const audioContext = new AudioContext();
-      const response = fetch(audios.src);
+    
+      const response = await fetch(audios.src);
       const arrayBuffer = await response.arrayBuffer();
-      const audioBuffer = audioContext.decodeAudioData(arrayBuffer);
-      const audio = audioContext.createBufferSource();
-      audio.buffer = audioBuffer;
-      audio.connect(audioContext.destination);
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    
+      let source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.loop = true;
+      source.connect(audioContext.destination);
 
         // クリックイベント
-        document.getElementById('onButton').addEventListener('click', function() {
+        document.getElementById('onButton').addEventListener("click", async function () {
           button.currentTime = 0;
-          if (buttonurl !== 'off' && !buttonon.checked) button.play();
-              if (!isPlaying) {
-                isPlaying = true;
-                audio.loop = true;
-                audio.play();
-              }
+          if (!buttonon.checked) button.play();
+      
+          if (!isPlaying) {
+            if (audioContext.state === "suspended") {
+              await audioContext.resume();
+            }
+            source.start(0);
+            isPlaying = true;
+          }
         });
-         document.getElementById('onText').addEventListener('click', function() {
+            
+        document.getElementById("onText").addEventListener("click", async function () {
           button.currentTime = 0;
-          if (buttonurl !== 'off' && !buttonon.checked) button.play();
-              if (!isPlaying) {
-                isPlaying = true;
-                audio.loop = true;
-                audio.play();
-              }
-         });
+          if (!buttonon.checked) button.play();
+      
+          if (!isPlaying) {
+            if (audioContext.state === "suspended") {
+              await audioContext.resume();
+            }
+            source.start(0);
+            isPlaying = true;
+          }
+        });
         
-        document.getElementById('offButton').addEventListener('click', function() {
+        document.getElementById('offButton').addEventListener("click", function () {
           button.currentTime = 0;
-          if (buttonurl !== 'off' && !buttonon.checked) button.play();
-            if (isPlaying) {
-              isPlaying = false;
-              audio.loop = false;
-              audio.pause();
-              audio.currentTime = 0;
-              // tojime.currentTime = 0;
-              // tojime.play();
-            }
+          if (!buttonon.checked) button.play();
+      
+          if (isPlaying) {
+            source.stop(0);
+      
+            // 🔴 ここだけ追加（再生可能に戻すため）
+            source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.loop = true;
+            source.connect(audioContext.destination);
+      
+            isPlaying = false;
+          }
         });
-        document.getElementById('offText').addEventListener('click', function() {
+            
+        document.getElementById('offText').addEventListener("click", function () {
           button.currentTime = 0;
-          if (buttonurl !== 'off' && !buttonon.checked) button.play();
-            if (isPlaying) {
-              isPlaying = false;
-              audio.loop = false;
-              audio.pause();
-              audio.currentTime = 0;
-              // tojime.currentTime = 0;
-              // tojime.play();
-            }
+          if (!buttonon.checked) button.play();
+      
+          if (isPlaying) {
+            source.stop(0);
+      
+            // 🔴 ここだけ追加（再生可能に戻すため）
+            source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.loop = true;
+            source.connect(audioContext.destination);
+      
+            isPlaying = false;
+          }
         });
     </script>
 <!--       </div> -->
