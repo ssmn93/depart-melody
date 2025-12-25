@@ -180,14 +180,21 @@
         </div>
       </div>
           <script>
-      const audio = document.getElementById("melody");
+      const audios = document.getElementById("melody");
       // const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
       let url = new URL(window.location.href);
       let params = url.searchParams;
       let buttonurl = params.get('button');      
-        let isPlaying = false;
+      let isPlaying = false;
+      const audioContext = new AudioContext();
+      const response = await fetch(audios.src);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      const audio = audioContext.createBufferSource();
+      audio.buffer = audioBuffer;
+      audio.connect(audioContext.destination);
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
@@ -195,6 +202,7 @@
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
+                audio.loop = true;
                 audio.play();
               }
         });
@@ -203,6 +211,7 @@
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
+                audio.loop = true;
                 audio.play();
               }
          });
@@ -212,6 +221,7 @@
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
+              audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
               // tojime.currentTime = 0;
@@ -223,19 +233,13 @@
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
+              audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
               // tojime.currentTime = 0;
               // tojime.play();
             }
         });
-
-      audio.addEventListener("ended", function() {
-        if (isPlaying) {
-          audio.currentTime = 0;
-          audio.play();
-        }
-      });
     </script>
 <!--       </div> -->
 <!--        <script>
