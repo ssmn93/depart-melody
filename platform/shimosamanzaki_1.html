@@ -195,7 +195,6 @@
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
-                audio.loop = true;
                 audio.play();
               }
         });
@@ -204,7 +203,6 @@
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
-                audio.loop = true;
                 audio.play();
               }
          });
@@ -214,7 +212,6 @@
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
-              audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
               // tojime.currentTime = 0;
@@ -226,13 +223,19 @@
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
             if (isPlaying) {
               isPlaying = false;
-              audio.loop = false;
               audio.pause();
               audio.currentTime = 0;
               // tojime.currentTime = 0;
               // tojime.play();
             }
         });
+
+      audio.addEventListener("ended", function() {
+        if (isPlaying) {
+          audio.currentTime = 0;
+          audio.play();
+        }
+      });
     </script>
 <!--       </div> -->
 <!--        <script>
