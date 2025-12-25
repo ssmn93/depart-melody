@@ -4,11 +4,11 @@
   <meta charset="utf-8" />
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="好きな曲を、駅メロに。自分の音声で駅メロの再現ができます！">
+  <meta name="description" content="あの思い出を、もう一度。位置情報で駅メロを蘇らせよう！">
   <link rel="icon" href="https://github.com/ssmn93/depart-melody/blob/main/picture/横須賀線アイコン.png?raw=true" />
   <link rel="stylesheet" href="locate.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
-  <meta property="og:description" content="好きな曲を、駅メロに。自分の音声で駅メロの再現ができます！">
+  <meta property="og:description" content="あの思い出を、もう一度。位置情報で駅メロを蘇らせよう！">
   <meta property="og:title" content="ここからステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
@@ -91,6 +91,8 @@
             <select name="line" id="line" onchange="lineChange();">
                 <option value="jr_nambu_u" selected>JR南武線 -上り</option>
                 <option value="jr_nambu_d">JR南武線 -下り</option>
+                <option value="jr_abiko_u">JR我孫子支線 -上り</option>
+                <option value="jr_abiko_d">JR我孫子支線 -下り</option>
             </select>
           </div>
           <!-- </div> -->
@@ -370,15 +372,143 @@
               </div>
               </details>
             </div>
+            <div class="abiko_us lines" id="abiko_us" style="display:none;">
+              <details>
+                <summary>メニューを開く</summary>
+              <div class="stationes">
+                <div class="narita"><input type="radio" id="narita_5" name="narita" value="1" class="forms" data-timelines="2009-01-18:_o,2025-11-18:" /><label for="narita_5">(5)</label></div>
+                <div class="narita"><input type="radio" id="narita_6" name="narita" value="2" class="forms mains" data-timelines="2009-01-18:_o,2025-11-18:" /><label for="narita_6">(6)</label></div>
+                <div class="narita"><h3>成田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="shimosamanzaki"><input type="radio" id="shimosamanzaki_1" name="shimosamanzaki" style="visibility: hidden;" value="1" class="forms" /><label for="shimosamanzaki_1">(1)</label></div>
+                <div class="shimosamanzaki"><input type="radio" id="shimoasmanzaki_2" name="shimosamanzaki" value="2" class="forms mains" data-timelines="1987-04-01:" /><label for="shimosamanzaki_2">(2)</label></div>
+                <div class="shimosamanzaki"><h3>下総松崎駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="ajiki"><input type="radio" id="ajiki_1" name="ajiki" value="1" style="visibility: hidden;" class="forms" /><label for="ajiki_1">(1)</label></div>
+                <div class="ajiki"><input type="radio" id="ajiki_2" name="ajiki" value="2" class="forms mains" data-timelines="2004-03-26:_o2,2023-12-25:_o1,2025-12-24:" /><label for="ajiki_2">(2)</label></div>
+                <div class="ajiki"><h3>安食駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kobayashi"><input type="radio" id="kobayashi_1" name="kobayashi" style="visibility: hidden;" value="1" class="forms" /><label for="kobayashi_1">(1)</label></div>
+                <div class="kobayashi"><input type="radio" id="kobayashi_2" name="kobayashi" value="2" class="forms mains" data-timelines="2004-03-26:_o2,2023-12-25:_o1,2025-12-24:" /><label for="kobayashi_2">(2)</label></div>
+                <div class="kobayashi"><h3>小林駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kioroshi"><input type="radio" id="kioroshi_1" name="kioroshi" style="visibility: hidden;" value="1" class="forms" /><label for="kioroshi_1">(1)</label></div>
+                <div class="kioroshi"><input type="radio" id="kioroshi_2" name="kioroshi" value="2" class="forms mains" data-timelines="2004-03-26:_o2,2023-12-25:_o1,2025-12-24:" /><label for="kioroshi_2">(2)</label></div>
+                <div class="kioroshi"><h3>木下駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="fusa"><input type="radio" id="fusa_1" name="fusa" style="visibility: hidden;" value="1" class="forms" /><label for="fusa_1">(1)</label></div>
+                <div class="fusa"><input type="radio" id="fusa_2" name="fusa" value="2" class="forms mains" data-timelines="2005-11-15:_o2,2023-10-25:_o1,2025-12-24:" /><label for="fusa_2">(2)</label></div>
+                <div class="fusa"><h3>布佐駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="araki"><input type="radio" id="araki_1_u" name="araki" value="1" class="forms mains" data-timelines="2017-02-09:_o2,2023-12-08:_o1,2025-12-24:" /><label for="araki_1_u">(1)</label></div>
+                <div class="araki"><input type="radio" id="araki_2_u" name="araki" value="2" class="forms" data-timelines="2017-02-09:_o2,2023-12-08:_o1,2025-12-24:" /><label for="araki_2_u">(2)</label></div>
+                <div class="araki"><h3>新木駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kohoku"><input type="radio" id="kohoku_1" name="kohoku" style="visibility: hidden;" value="1" class="forms" /><label for="kohoku_1">(1)</label></div>
+                <div class="kohoku"><input type="radio" id="kohoku_2" name="kohoku" value="2" class="forms mains" data-timelines="2010-01-12:_o2,2023-12-08:_o1,2025-12-24:" /><label for="kohoku_2">(2)</label></div>
+                <div class="kohoku"><h3>湖北駅</h3></div>
+              </div>              
+                <div class="stationes">
+                <div class="higashiabiko"><input type="radio" id="higashiabiko_1" name="higashiabiko" style="visibility: hidden;" value="1" class="forms" /><label for="higashiabiko_1">(1)</label></div>
+                <div class="higashiabiko"><input type="radio" id="higashiabiko_2" name="higashiabiko" value="2" class="forms mains" data-timelines="2003-10-01:_o2,2023-12-08:_o1,2025-12-24:" /><label for="higashiabiko_2">(2)</label></div>
+                <div class="higashiabiko"><h3>東我孫子駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="abiko"><input type="radio" id="abiko_2" name="abiko" value="1" class="forms mains" data-timelines="1987-04-01:" /><label for="abiko_2">(2)</label></div>
+                <div class="abiko"><input type="radio" id="abiko_4" name="abiko" value="2" class="forms" data-timelines="1987-04-01:" /><label for="abiko_3">(4)</label></div>
+                <div class="abiko"><h3>我孫子駅</h3></div>
+              </div>
+              </details>
+            </div>
+            <div class="abiko_ds lines" id="abiko_ds" style="display:none;">
+              <details>
+                <summary>メニューを開く</summary>
+              <div class="stationes">
+                <div class="abiko"><input type="radio" id="abiko_2" name="abiko" value="1" class="forms mains" data-timelines="1987-04-01:" /><label for="abiko_2">(2)</label></div>
+                <div class="abiko"><input type="radio" id="abiko_4" name="abiko" value="2" class="forms" data-timelines="1987-04-01:" /><label for="abiko_3">(4)</label></div>
+                <div class="abiko"><h3>我孫子駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="higashiabiko"><input type="radio" id="higashiabiko_1" name="higashiabiko" value="1" class="forms mains" data-timelines="2003-10-01:_o2,2023-12-08:_o1,2025-12-24:"/><label for="higashiabiko_1">(1)</label></div>
+                <div class="higashiabiko"><input type="radio" id="higashiabiko_2" name="higashiabiko" style="visibility: hidden;" value="2" class="forms" /><label for="higashiabiko_2">(2)</label></div>
+                <div class="higashiabiko"><h3>東我孫子駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kohoku"><input type="radio" id="kohoku_1" name="kohoku" value="1" class="forms mains" data-timelines="2010-01-12:_o2,2023-12-08:_o1,2025-12-24:" /><label for="kohoku_1">(1)</label></div>
+                <div class="kohoku"><input type="radio" id="kohoku_2" name="kohoku" style="visibility: hidden;" value="2" class="forms" /><label for="kohoku_2">(2)</label></div>
+                <div class="kohoku"><h3>湖北駅</h3></div>
+              </div>         
+              <div class="stationes">
+                <div class="araki"><input type="radio" id="araki_1_d" name="araki" value="1" class="forms" data-timelines="2017-02-09:_o2,2023-12-08:_o1,2025-12-24:" /><label for="araki_1_d">(1)</label></div>
+                <div class="araki"><input type="radio" id="araki_2_d" name="araki" value="2" class="forms mains" data-timelines="2017-02-09:_o2,2023-12-08:_o1,2025-12-24:" /><label for="araki_2_d">(2)</label></div>
+                <div class="araki"><h3>新木駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="fusa"><input type="radio" id="fusa_1" name="fusa" value="1" class="forms mains" data-timelines="2005-11-15:_o2,2023-10-25:_o1,2025-12-24:" /><label for="fusa_1">(1)</label></div>
+                <div class="fusa"><input type="radio" id="fusa_2" name="fusa" style="visibility: hidden;" value="2" class="forms" /><label for="fusa_2">(2)</label></div>
+                <div class="fusa"><h3>布佐駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kioroshi"><input type="radio" id="kioroshi_1" name="kioroshi" value="1" class="forms mains" data-timelines="2004-03-26:_o2,2023-12-25:_o1,2025-12-24:" /><label for="kioroshi_1">(1)</label></div>
+                <div class="kioroshi"><input type="radio" id="kioroshi_2" name="kioroshi" style="visibility: hidden;" value="2" class="forms" /><label for="kioroshi_2">(2)</label></div>
+                <div class="kioroshi"><h3>木下駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kobayashi"><input type="radio" id="kobayashi_1" name="kobayashi" value="1" class="forms mains" data-timelines="2004-03-26:_o2,2023-12-25:_o1,2025-12-24:" /><label for="kobayashi_1">(1)</label></div>
+                <div class="kobayashi"><input type="radio" id="kobayashi_2" name="kobayashi" style="visibility: hidden;" value="2" class="forms" /><label for="kobayashi_2">(2)</label></div>
+                <div class="kobayashi"><h3>小林駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="ajiki"><input type="radio" id="ajiki_1" name="ajiki" value="1" class="forms mains" data-timelines="2004-03-26:_o2,2023-12-25:_o1,2025-12-24:" /><label for="ajiki_1">(1)</label></div>
+                <div class="ajiki"><input type="radio" id="ajiki_2" name="ajiki" value="2" style="visibility: hidden;" class="forms" /><label for="ajiki_2">(2)</label></div>
+                <div class="ajiki"><h3>安食駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="shimosamanzaki"><input type="radio" id="shimosamanzaki_1" name="shimosamanzaki" value="1" class="forms mains" data-timelines="1987-04-01:" /><label for="shimosamanzaki_1">(1)</label></div>
+                <div class="shimosamanzaki"><input type="radio" id="shimoasmanzaki_2" name="shimosamanzaki" style="visibility: hidden;" value="2" class="forms" /><label for="shimosamanzaki_2">(2)</label></div>
+                <div class="shimosamanzaki"><h3>下総松崎駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="narita"><input type="radio" id="narita_5" name="narita" value="1" class="forms mains" data-timelines="2009-01-18:_o,2025-11-18:" /><label for="narita_5">(5)</label></div>
+                <div class="narita"><input type="radio" id="narita_6" name="narita" value="2" class="forms" data-timelines="2009-01-18:_o,2025-11-18:" /><label for="narita_6">(6)</label></div>
+                <div class="narita"><h3>成田駅</h3></div>
+              </div>     
+              </details>
+            </div>
             <script>
               function lineChange() {
                 const id = document.getElementById('line').value;
                 if (id == 'jr_nambu_u') {
                   document.getElementById('nambu_us').style.display = "";
                   document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('time_nambu').min = "2023-08-06";
                 } else if (id == 'jr_nambu_d') {
                   document.getElementById('nambu_us').style.display = "none";
                   document.getElementById('nambu_ds').style.display = "";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('time_nambu').min = "2023-08-06";
+                } else if (id == 'jr_abiko_u') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('time_nambu').min = "2017-02-09";
+                } else if (id == 'jr_abiko_d') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "";
+                  document.getElementById('time_nambu').min = "2017-02-09";
                 }
               }
               
@@ -387,6 +517,8 @@
                 let targetId;
                 if (line === 'jr_nambu_u') targetId = 'nambu_us';
                 if (line === 'jr_nambu_d') targetId = 'nambu_ds';
+                if (line === 'jr_abiko_u') targetId = 'abiko_us';
+                if (line === 'jr_abiko_d') targetId = 'abiko_ds';
                 const target = document.getElementById(targetId);
                 const radios = target.querySelectorAll('.mains');
               
@@ -455,6 +587,16 @@
                 'yagawa': { lat: 35.6850, lng: 139.4314 },
                 'nishikunitachi': { lat: 35.6938, lng: 139.4239 },
                 'tachikawa': { lat: 35.6978, lng: 139.4137 },
+                'narita': { lat: 35.7777, lng: 140.3153 },
+                'shimosamanzaki': { lat: 35.8078, lng: 140.2775 },
+                'ajiki': { lat: 35.8357, lng: 140.2422 },
+                'kobayashi': { lat: 35.8306, lng: 140.1933 },
+                'kioroshi': { lat: 35.8389, lng: 140.1479 },
+                'fusa': { lat: 35.8493, lng: 140.1330 },
+                'araki': { lat: 35.8624, lng: 140.1072 },
+                'kohoku': { lat: 35.8672, lng: 140.0780 },
+                'higashiabiko': { lat: 35.8690, lng: 140.0476 },
+                'abiko': { lat: 35.8728, lng: 140.0106 }
               };
               
               function locate() {
