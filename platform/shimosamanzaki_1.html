@@ -189,8 +189,8 @@
       let buttonurl = params.get('button');      
       let isPlaying = false;
       const audioContext = new AudioContext();
-      const response = fetch(audios.src);
-      const arrayBuffer = response.arrayBuffer();
+      const response = await fetch(audios.src);
+      const arrayBuffer = await response.arrayBuffer();
       const audioBuffer = audioContext.decodeAudioData(arrayBuffer);
       const audio = audioContext.createBufferSource();
       audio.buffer = audioBuffer;
