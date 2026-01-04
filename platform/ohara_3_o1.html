@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="大原駅3番線の発車メロディ「Water Crown エンドレスver」の再現ができます！">
+  <meta name="description" content="大原駅3番線(旧)の発車メロディ「Water Crown エンドレスver」の再現ができます！">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/e233yo.png" />
   <link rel="stylesheet" href="ohara_3.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
-  <meta property="og:description" content="大原駅3番線の発車メロディ「Water Crown エンドレスver」の再現ができます！">
-  <meta property="og:title" content="大原駅3番線「Water Crown エンドレスver」｜どこでもステーションベル">
+  <meta property="og:description" content="大原駅3番線(旧)の発車メロディ「Water Crown エンドレスver」の再現ができます！">
+  <meta property="og:title" content="大原駅3番線(旧)「Water Crown エンドレスver」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="大原駅3番線「Water Crown エンドレスver」｜どこでもステーションベル">
-  <title>大原駅3番線「Water Crown エンドレスver」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="大原駅3番線(旧)「Water Crown エンドレスver」｜どこでもステーションベル">
+  <title>大原駅3番線(旧)「Water Crown エンドレスver」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -172,12 +172,18 @@
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>大原駅 3番線「Water Crown エンドレスver」</h1>
-          <p>収録駅:大原駅3番線</p>
-          <p>スピーカー:新型小丸VOSS</p>
+          <h1>大原駅 3番線(旧)「Water Crown エンドレスver」</h1>
+          <p>収録駅:小山駅8番線</p>
+          <p>スピーカー:新型小丸VOSS(大原)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="ohara_3_o1.html">Water Crown エンドレスver</option>
+          <option value="ohara_3.html">JRE-IKST-027-02(首都圏33番)</option>
+          <option value="ohara_3_o2.html">Bellの響き</option>
+          <option value="ohara_3_o3.html">ベル</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
