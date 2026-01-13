@@ -93,6 +93,8 @@
                 <option value="jr_nambu_d">JR南武線 -下り</option>
                 <option value="jr_abiko_u">JR我孫子支線 -上り</option>
                 <option value="jr_abiko_d">JR我孫子支線 -下り</option>
+                <option value="jr_sotobo_u">JR外房線 -上り</option>
+                <option value="jr_sotobo_d">JR外房線 -下り</option>
             </select>
           </div>
           <!-- </div> -->
@@ -481,6 +483,311 @@
                 <div class="narita"><h3>成田駅</h3></div>
               </div>     
               </details>
+            </div>            
+            <div class="sotobo_us lines" id="sotobo_us" style="display:none;">
+              <details>
+                <summary>メニューを開く</summary>
+              <div class="stationes">
+                <div class="awakamogawa"><input type="radio" id="awakamogawa_1" name="awakamogawa" value="1" class="forms mains"  data-timelines="2008-11-21:_o,2025-12-15:" /><label for="awakamogawa_1">(1)</label></div>
+                <div class="awakamogawa"><input type="radio" id="awakamogawa_2_3" name="awakamogawa" value="2" class="forms" data-timelines="2008-11-21:_o,2025-12-15:" />
+                    <select onchange="syncRadioId(this)">
+                        <option value="awakamogawa_2">(2)</option>
+                        <option value="awakamogawa_3">(3)</option>
+                    </select>
+                </div>
+                <div class="awakamogawa"><h3>安房鴨川駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="awaamatsu"><input type="radio" id="awaamatsu_1" name="awaamatsu" style="visibility: hidden;" value="1" class="forms" /><label for="awaamatsu_1">(1)</label></div>
+                <div class="awaamatsu"><input type="radio" id="awaamatsu_2" name="awaamatsu" style="visibility: hidden;" value="2" class="forms" /><label for="awaamatsu_2">(2)</label></div>
+                <div class="awaamatsu"><h3>安房天津駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="awakominato"><input type="radio" id="awakominato_1" name="awakominato" style="visibility: hidden;" value="1" class="forms" /><label for="awakominato_1">(1)</label></div>
+                <div class="awakominato"><input type="radio" id="awakominato_3" name="awakominato" style="visibility: hidden;" value="2" class="forms" /><label for="awakominato_3">(3)</label></div>
+                <div class="awakominato"><h3>安房小湊駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="namegawa_island"><input type="radio" id="namegawa_island_u" name="namegawa_island" style="visibility: hidden;" value="2" class="forms" /><label for="namegawa_island_u">(u)</label></div>
+                <div class="namegawa_island"><input type="radio" id="namegawa_island_d" name="namegawa_island" style="visibility: hidden;" value="1" class="forms" /><label for="namegawa_island_d">(d)</label></div>
+                <div class="namegawa_island"><h3>行川アイランド駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kazusaokitsu"><input type="radio" id="kazusaokitsu_1" name="kazusaokitsu" style="visibility: hidden;" value="1" class="forms" /><label for="kazusaokitsu_1">(1)</label></div>
+                <div class="kazusaokitsu"><input type="radio" id="kazusaokitsu_2" name="kazusaokitsu" style="visibility: hidden;" value="2" class="forms" /><label for="kazusaokitsu_2">(2)</label></div>
+                <div class="kazusaokitsu"><h3>上総興津駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="ubara"><input type="radio" id="ubara_u" name="ubara" style="visibility: hidden;" value="2" class="forms" /><label for="ubara_u">(u)</label></div>
+                <div class="ubara"><input type="radio" id="ubara_d" name="ubara" style="visibility: hidden;" value="1" class="forms" /><label for="ubara_d">(d)</label></div>
+                <div class="ubara"><h3>鵜原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="katsuura"><input type="radio" id="katsuura_3" name="katsuura" value="1" class="forms mains" data-timelines="2009-02-27:_o,2025-11-18:" /><label for="katsuura_3">(3)</label></div>
+                <div class="katsuura"><input type="radio" id="katsuura_1_2" name="katsuura" value="2" class="forms" data-timelines="2009-02-27:_o,2025-11-18:" />
+                    <select onchange="syncRadioId(this)">
+                        <option value="katsuura_1">(1)</option>
+                        <option value="katsuura_2">(2)</option>
+                    </select>
+                </div>
+                <div class="katsuura"><h3>勝浦駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="onjuku"><input type="radio" id="onjuku_1" name="onjuku" style="visibility: hidden;" value="1" class="forms" /><label for="onjuku_1">(1)</label></div>
+                <div class="onjuku"><input type="radio" id="onjuku_2" name="onjuku" style="visibility: hidden;" value="2" class="forms" /><label for="onjuku_2">(2)</label></div>
+                <div class="onjuku"><h3>御宿駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="namihana"><input type="radio" id="namihana_1" name="namihana" style="visibility: hidden;" value="1" class="forms" /><label for="namihana_1">(1)</label></div>
+                <div class="namihana"><input type="radio" id="namihana_2" name="namihana" style="visibility: hidden;" value="2" class="forms" /><label for="namihana_2">(2)</label></div>
+                <div class="namihana"><h3>浪花駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="ohara"><input type="radio" id="ohara_1" name="ohara" value="1" class="forms mains" data-timelines="1990-01-01:_o3,2011-10-26:_o2,2024-07-13:_o1,2025-11-18:" /><label for="ohara_1">(1)</label></div>
+                <div class="ohara"><input type="radio" id="ohara_2" name="ohara" value="2" class="forms" data-timelines="1990-01-01:_o3,2011-10-26:_o2,2024-07-13:_o1,2025-11-18:" /><label for="ohara_2">(2)</label></div>
+                <div class="ohara"><h3>大原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="mikado"><input type="radio" id="mikado_d" name="mikado" style="visibility: hidden;" value="1" class="forms" /><label for="mikado_d">(d)</label></div>
+                <div class="mikado"><input type="radio" id="mikado_u" name="mikado" style="visibility: hidden;" value="2" class="forms" /><label for="mikado_u">(u)</label></div>
+                <div class="mikado"><h3>三門駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="chojamachi"><input type="radio" id="chojamachi_1" name="chojamachi" style="visibility: hidden;" value="1" class="forms" /><label for="chojamachi_1">(1)</label></div>
+                <div class="chojamachi"><input type="radio" id="chojamachi_3" name="chojamachi" style="visibility: hidden;" value="2" class="forms" /><label for="chojamachi_3">(3)</label></div>
+                <div class="chojamachi"><h3>長者町駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="taito"><input type="radio" id="taito_1" name="taito" style="visibility: hidden;" value="1" class="forms" /><label for="taito_1">(1)</label></div>
+                <div class="taito"><input type="radio" id="taito_2" name="taito" style="visibility: hidden;" value="2" class="forms" /><label for="taito_2">(2)</label></div>
+                <div class="taito"><h3>太東駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="torami"><input type="radio" id="torami_1" name="torami" style="visibility: hidden;" value="1" class="forms" /><label for="torami_1">(1)</label></div>
+                <div class="torami"><input type="radio" id="torami_2" name="torami" style="visibility: hidden;" value="2" class="forms" /><label for="torami_2">(2)</label></div>
+                <div class="torami"><h3>東浪見駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kazusaichinomiya"><input type="radio" id="kazusaichinomiya_2" name="kazusaichinomiya" value="1" class="forms" data-timelines="1990-01-01:_o2,2013-03-17:_o1,2025-10-22:" /><label for="kazusaichinomiya_2">(2)</label></div>
+                <div class="kazusaichinomiya"><input type="radio" id="kazusaichinomiya_3" name="kazusaichinomiya" value="2" class="forms mains" data-timelines="1990-01-01:_o2,2013-03-17:_o1,2025-10-22:" /><label for="kazusaichinomiya_3">(3)</label></div>
+                <div class="kazusaichinomiya"><h3>上総一ノ宮駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="yatsumi"><input type="radio" id="yatsumi_1" name="yatsumi" style="visibility: hidden;" value="1" class="forms" /><label for="yatsumi_1">(1)</label></div>
+                <div class="yatsumi"><input type="radio" id="yatsumi_2" name="yatsumi" value="2" class="forms mains" data-timelines="2004-03-01:_o,2025-10-22:" /><label for="yatsumi_2">(2)</label></div>
+                <div class="yatsumi"><h3>八積駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="mobara"><input type="radio" id="mobara_1" name="mobara" value="1" class="forms" data-timelines="2003-01-10:_o1,2024-05-26:_o2,2025-05-27:_o1,2025-10-22:" /><label for="mobara_1">(1)</label></div>
+                <div class="mobara"><input type="radio" id="mobara_2" name="mobara" value="2" class="forms mains" data-timelines="2003-01-10:_o1,2024-05-26:_o2,2025-05-27:_o1,2025-10-22:" /><label for="mobara_2">(2)</label></div>
+                <div class="mobara"><h3>茂原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="shimmobara"><input type="radio" id="shimmobara_1" name="shimmobara" style="visibility: hidden;" value="1" class="forms" /><label for="shimmobara_1">(1)</label></div>
+                <div class="shimmobara"><input type="radio" id="shimmobara_2" name="shimmobara" value="2" class="forms mains" data-timelines="2018-02-21:" /><label for="shimmobara_2">(2)</label></div>
+                <div class="shimmobara"><h3>新茂原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="honno"><input type="radio" id="honno_1" name="honno" style="visibility: hidden;" value="1" class="forms" /><label for="honno_1">(1)</label></div>
+                <div class="honno"><input type="radio" id="honno_2" name="honno" value="2" class="forms mains" data-timelines="1990-01-01:_o2,2011-06-29:_o1,2025-10-22:" /><label for="honno_2">(2)</label></div>
+                <div class="honno"><h3>本納駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nagata"><input type="radio" id="nagata_1" name="nagata" style="visibility: hidden;" value="1" class="forms" /><label for="nagata_1">(1)</label></div>
+                <div class="nagata"><input type="radio" id="nagata_2" name="nagata" value="2" class="forms mains" data-timelines="2018-02-21:" /><label for="nagata_2">(2)</label></div>
+                <div class="nagata"><h3>永田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="oami"><input type="radio" id="oami_1" name="oami" value="1" class="forms mains" data-timelines="2002-11-01:_o2,2025-10-22:_o1,2025-10-29:" /><label for="oami_1">(1)</label></div>
+                <div class="oami"><input type="radio" id="oami_2" name="oami" style="visibility: hidden;" value="2" class="forms" /><label for="oami_2">(2)</label></div>
+                <div class="oami"><h3>大網駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="toke"><input type="radio" id="toke_1" name="toke" style="visibility: hidden;" value="1" class="forms" /><label for="toke_1">(1)</label></div>
+                <div class="toke"><input type="radio" id="toke_2" name="toke" value="2" class="forms mains" data-timelines="2002-11-01:_o,2025-10-22:" /><label for="toke_2">(2)</label></div>
+                <div class="toke"><h3>土気駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="honda"><input type="radio" id="honda_2" name="honda" value="1" class="forms" data-timelines="2002-11-01:_o2,2023-12-14:_o1,2025-12-15:" /><label for="honda_2">(2)</label></div>
+                <div class="honda"><input type="radio" id="honda_3" name="honda" value="2" class="forms mains" data-timelines="2002-11-01:_o2,2023-12-14:_o1,2025-12-15:" /><label for="honda_3">(3)</label></div>
+                <div class="honda"><h3>誉田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kamatori"><input type="radio" id="kamatori_1" name="kamatori" style="visibility: hidden;" value="1" class="forms" /><label for="kamatori_1">(1)</label></div>
+                <div class="kamatori"><input type="radio" id="kamatori_2" name="kamatori" value="2" class="forms mains" data-timelines="2017-03-14:_o,2025-10-20:" /><label for="kamatori_2">(2)</label></div>
+                <div class="kamatori"><h3>鎌取駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="soga"><input type="radio" id="soga_1" name="soga" value="1" class="forms" data-timelines="2007-11-17:" /><label for="soga_1">(1)</label></div>
+                <div class="soga"><input type="radio" id="soga_2" name="soga" value="2" class="forms mains" data-timelines="2007-11-17:" /><label for="soga_2">(2)</label></div>
+                <div class="soga"><h3>蘇我駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="honchiba"><input type="radio" id="honchiba_1" name="honchiba" value="1" style="visibility: hidden;" class="forms" /><label for="honchiba_1">(1)</label></div>
+                <div class="honchiba"><input type="radio" id="honchiba_2" name="honchiba" value="2" class="forms mains" data-timelines="2018-11-20:_o,2025-10-20:" /><label for="honchiba_2">(2)</label></div>
+                <div class="honchiba"><h3>本千葉駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="chiba"><input type="radio" id="chiba_5" name="chiba" style="visibility: hidden;" value="1" class="forms" /><label for="chiba_5">(5)</label></div>
+                <div class="chiba"><input type="radio" id="chiba_6" name="chiba" style="visibility: hidden;" value="2" class="forms" /><label for="chiba_6">(6)</label></div>
+                <div class="chiba"><h3>千葉駅</h3></div>
+              </div>
+              </details>
+            </div>
+            <div class="sotobo_ds lines" id="sotobo_ds" style="display:none;">
+              <details>
+                <summary>メニューを開く</summary>
+              <div class="stationes">
+                <div class="chiba"><input type="radio" id="chiba_5" name="chiba" style="visibility: hidden;" value="1" class="forms" /><label for="chiba_5">(5)</label></div>
+                <div class="chiba"><input type="radio" id="chiba_6" name="chiba" style="visibility: hidden;" value="2" class="forms" /><label for="chiba_6">(6)</label></div>
+                <div class="chiba"><h3>千葉駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="honchiba"><input type="radio" id="honchiba_1" name="honchiba" value="1" class="forms mains" data-timelines="2018-11-20:_o,2025-10-20:" /><label for="honchiba_1">(1)</label></div>
+                <div class="honchiba"><input type="radio" id="honchiba_2" name="honchiba" value="2" style="visibility: hidden;" class="forms" /><label for="honchiba_2">(2)</label></div>
+                <div class="honchiba"><h3>本千葉駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="soga"><input type="radio" id="soga_5" name="soga" value="1" class="forms" data-timelines="2007-11-17:" /><label for="soga_5">(5)</label></div>
+                <div class="soga"><input type="radio" id="soga_6" name="soga" value="2" class="forms mains" data-timelines="2007-11-17:" /><label for="soga_6">(6)</label></div>
+                <div class="soga"><h3>蘇我駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kamatori"><input type="radio" id="kamatori_1" name="kamatori" value="1" class="forms mains" data-timelines="2017-03-14:_o,2025-10-20:" /><label for="kamatori_1">(1)</label></div>
+                <div class="kamatori"><input type="radio" id="kamatori_2" name="kamatori" style="visibility: hidden;" value="2" class="forms" /><label for="kamatori_2">(2)</label></div>
+                <div class="kamatori"><h3>鎌取駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="honda"><input type="radio" id="honda_1" name="honda" value="1" class="forms mains" data-timelines="2002-11-01:_o2,2023-12-14:_o1,2025-12-15:" /><label for="honda_1">(1)</label></div>
+                <div class="honda"><input type="radio" id="honda_2" name="honda" value="2" class="forms" data-timelines="2002-11-01:_o2,2023-12-14:_o1,2025-12-15:" /><label for="honda_2">(2)</label></div>
+                <div class="honda"><h3>誉田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="toke"><input type="radio" id="toke_1" name="toke" value="1" class="forms mains" data-timelines="2002-11-01:_o,2025-10-22:" /><label for="fusa_1">(1)</label></div>
+                <div class="toke"><input type="radio" id="toke_2" name="toke" style="visibility: hidden;" value="2" class="forms" /><label for="toke_2">(2)</label></div>
+                <div class="toke"><h3>土気駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="oami"><input type="radio" id="oami_1" name="oami" style="visibility: hidden;" value="1" class="forms" /><label for="oami_1">(1)</label></div>
+                <div class="oami"><input type="radio" id="oami_2" name="oami" value="2" class="forms mains" data-timelines="2002-11-01:_o2,2025-10-22:_o1,2025-10-29:" /><label for="oami_2">(2)</label></div>
+                <div class="oami"><h3>大網駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nagata"><input type="radio" id="nagata_1" name="nagata" value="1" class="forms mains" data-timelines="2018-02-21:" /><label for="nagata_1">(1)</label></div>
+                <div class="nagata"><input type="radio" id="nagata_2" name="nagata" style="visibility: hidden;" value="2" class="forms" /><label for="nagata_2">(2)</label></div>
+                <div class="nagata"><h3>永田駅</h3></div>
+              </div>              
+                <div class="stationes">
+                <div class="honno"><input type="radio" id="honno_1" name="honno" value="1" class="forms mains" data-timelines="1990-01-01:_o2,2011-06-29:_o1,2025-10-22:" /><label for="honno_1">(1)</label></div>
+                <div class="honno"><input type="radio" id="honno_2" name="honno" style="visibility: hidden;" value="2" class="forms" /><label for="honno_2">(2)</label></div>
+                <div class="honno"><h3>本納駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="shimmobara"><input type="radio" id="shimmobara_1" name="shimmobara" value="1" class="forms mains" data-timelines="2018-02-21:" /><label for="shimmobara_1">(1)</label></div>
+                <div class="shimmobara"><input type="radio" id="shimmobara_2" name="shimmobara" style="visibility: hidden;" value="2" class="forms" /><label for="shimmobara_2">(2)</label></div>
+                <div class="shimmobara"><h3>新茂原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="mobara"><input type="radio" id="shimmobara_3" name="shimmobara" value="1" class="forms mains" data-timelines="2003-01-10:_o1,2024-05-26:_o2,2025-05-27:_o1,2025-10-22:" /><label for="mobara_3">(3)</label></div>
+                <div class="mobara"><input type="radio" id="shimmobara_4" name="shimmobara" value="2" class="forms" data-timelines="2003-01-10:_o1,2024-05-26:_o2,2025-05-27:_o1,2025-10-22:" /><label for="mobara_4">(4)</label></div>
+                <div class="mobara"><h3>茂原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="yatsumi"><input type="radio" id="yatsumi_1" name="yatsumi" value="1" class="forms mains" data-timelines="2004-03-01:_o,2025-10-22:" /><label for="yatsumi_1">(1)</label></div>
+                <div class="yatsumi"><input type="radio" id="yatsumi_2" name="yatsumi" style="visibility: hidden;" value="2" class="forms" /><label for="yatsumi_2">(2)</label></div>
+                <div class="yatsumi"><h3>八積駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kazusaichinomiya"><input type="radio" id="kazusaichinomiya_1" name="kazusaichinomiya" value="1" class="forms mains" data-timelines="1990-01-01:_o2,2013-03-17:_o1,2025-10-22:" /><label for="kazusaichinomiya_1">(1)</label></div>
+                <div class="kazusaichinomiya"><input type="radio" id="kazusaichinomiya_2_3" name="kazusaichinomiya" value="2" class="forms" data-timelines="1990-01-01:_o2,2013-03-17:_o1,2025-10-22:" />
+                    <select onchange="syncRadioId(this)">
+                        <option value="kazusaichinomiya_2">(2)</option>
+                        <option value="kazusaichinomiya_3">(3)</option>
+                    </select>
+                </div>
+                <div class="kazusaichinomiya"><h3>上総一ノ宮駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="torami"><input type="radio" id="torami_1" name="torami" style="visibility: hidden;" value="1" class="forms" /><label for="torami_1">(1)</label></div>
+                <div class="torami"><input type="radio" id="torami_2" name="torami" style="visibility: hidden;" value="2" class="forms" /><label for="torami_2">(2)</label></div>
+                <div class="torami"><h3>東浪見駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="taito"><input type="radio" id="taito_1" name="taito" style="visibility: hidden;" value="1" class="forms" /><label for="taito_1">(1)</label></div>
+                <div class="taito"><input type="radio" id="taito_2" name="taito" style="visibility: hidden;" value="2" class="forms" /><label for="taito_2">(2)</label></div>
+                <div class="taito"><h3>太東駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="chojamachi"><input type="radio" id="chojamachi_1" name="chojamachi" style="visibility: hidden;" value="1" class="forms" /><label for="chojamachi_1">(1)</label></div>
+                <div class="chojamachi"><input type="radio" id="chojamachi_3" name="chojamachi" style="visibility: hidden;" value="2" class="forms" /><label for="chojamachi_3">(3)</label></div>
+                <div class="chojamachi"><h3>長者町駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="mikado"><input type="radio" id="mikado_d" name="mikado" style="visibility: hidden;" value="1" class="forms" /><label for="mikado_d">(d)</label></div>
+                <div class="mikado"><input type="radio" id="mikado_u" name="mikado" style="visibility: hidden;" value="2" class="forms" /><label for="mikado_u">(u)</label></div>
+                <div class="mikado"><h3>三門駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="ohara"><input type="radio" id="ohara_1" name="ohara" value="1" class="forms mains" data-timelines="1990-01-01:_o3,2011-10-26:_o2,2024-07-13:_o1,2025-11-18:" /><label for="ohara_1">(1)</label></div>
+                <div class="ohara"><input type="radio" id="ohara_3" name="ohara" value="2" class="forms" data-timelines="1990-01-01:_o3,2011-10-26:_o2,2024-07-13:_o1,2025-11-18:" /><label for="ohara_3">(3)</label></div>
+                <div class="ohara"><h3>大原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="namihana"><input type="radio" id="namihana_1" name="namihana" style="visibility: hidden;" value="1" class="forms" /><label for="namihana_1">(1)</label></div>
+                <div class="namihana"><input type="radio" id="namihana_2" name="namihana" style="visibility: hidden;" value="2" class="forms" /><label for="namihana_2">(2)</label></div>
+                <div class="namihana"><h3>浪花駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="onjuku"><input type="radio" id="onjuku_1" name="onjuku" style="visibility: hidden;" value="1" class="forms" /><label for="onjuku_1">(1)</label></div>
+                <div class="onjuku"><input type="radio" id="onjuku_2" name="onjuku" style="visibility: hidden;" value="2" class="forms" /><label for="onjuku_2">(2)</label></div>
+                <div class="onjuku"><h3>御宿駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="katsuura"><input type="radio" id="katsuura_2" name="katsuura" value="2" class="forms mains" data-timelines="2009-02-27:_o,2025-11-18:" /><label for="katsuura_2">(2)</label></div>
+                <div class="katsuura"><input type="radio" id="katsuura_1_3" name="katsuura" value="2" class="forms" data-timelines="2009-02-27:_o,2025-11-18:" />
+                    <select onchange="syncRadioId(this)">
+                        <option value="katsuura_1">(1)</option>
+                        <option value="katsuura_3">(3)</option>
+                    </select>
+                </div>
+                <div class="katsuura"><h3>勝浦駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="ubara"><input type="radio" id="ubara_d" name="ubara" style="visibility: hidden;" value="1" class="forms" /><label for="ubara_d">(d)</label></div>
+                <div class="ubara"><input type="radio" id="ubara_u" name="ubara" style="visibility: hidden;" value="2" class="forms" /><label for="ubara_u">(u)</label></div>
+                <div class="ubara"><h3>鵜原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kazusaokitsu"><input type="radio" id="kazusaokitsu_1" name="kazusaokitsu" style="visibility: hidden;" value="1" class="forms" /><label for="kazusaokitsu_1">(1)</label></div>
+                <div class="kazusaokitsu"><input type="radio" id="kazusaokitsu_2" name="kazusaokitsu" style="visibility: hidden;" value="2" class="forms" /><label for="kazusaokitsu_2">(2)</label></div>
+                <div class="kazusaokitsu"><h3>上総興津駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="namegawa_island"><input type="radio" id="namegawa_island_d" name="namegawa_island" style="visibility: hidden;" value="1" class="forms" /><label for="namegawa_island_d">(d)</label></div>
+                <div class="namegawa_island"><input type="radio" id="namegawa_island_u" name="namegawa_island" style="visibility: hidden;" value="2" class="forms" /><label for="namegawa_island_u">(u)</label></div>
+                <div class="namegawa_island"><h3>行川アイランド駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="awakominato"><input type="radio" id="awakominato_1" name="awakominato" style="visibility: hidden;" value="1" class="forms" /><label for="awakominato_1">(1)</label></div>
+                <div class="awakominato"><input type="radio" id="awakominato_3" name="awakominato" style="visibility: hidden;" value="2" class="forms" /><label for="awakominato_3">(3)</label></div>
+                <div class="awakominato"><h3>安房小湊駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="awaamatsu"><input type="radio" id="awaamatsu_1" name="awaamatsu" style="visibility: hidden;" value="1" class="forms" /><label for="awaamatsu_1">(1)</label></div>
+                <div class="awaamatsu"><input type="radio" id="awaamatsu_2" name="awaamatsu" style="visibility: hidden;" value="2" class="forms" /><label for="awaamatsu_2">(2)</label></div>
+                <div class="awaamatsu"><h3>安房天津駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="awakamogawa"><input type="radio" id="awakamogawa_1" name="awakamogawa" style="visibility: hidden;" value="1" class="forms" data-timelines="2008-11-21:_o,2025-12-15:" /><label for="awakamogawa_1">(1)</label></div>
+                <div class="awakamogawa"><input type="radio" id="awakamogawa_2_3" name="awakamogawa" style="visibility: hidden;" value="2" class="forms" data-timelines="2008-11-21:_o,2025-12-15:" />
+                    <select onchange="syncRadioId(this)">
+                        <option value="awakamogawa_2">(2)</option>
+                        <option value="awakamogawa_3">(3)</option>
+                    </select>
+                </div>
+                <div class="awakamogawa"><h3>安房鴨川駅</h3></div>
+              </div>
+              </details>
             </div>
             <script>
               function lineChange() {
@@ -490,25 +797,49 @@
                   document.getElementById('nambu_ds').style.display = "none";
                   document.getElementById('abiko_us').style.display = "none";
                   document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2023-08-06";
                 } else if (id == 'jr_nambu_d') {
                   document.getElementById('nambu_us').style.display = "none";
                   document.getElementById('nambu_ds').style.display = "";
                   document.getElementById('abiko_us').style.display = "none";
                   document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2023-08-06";
                 } else if (id == 'jr_abiko_u') {
                   document.getElementById('nambu_us').style.display = "none";
                   document.getElementById('nambu_ds').style.display = "none";
                   document.getElementById('abiko_us').style.display = "";
                   document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-09";
                 } else if (id == 'jr_abiko_d') {
                   document.getElementById('nambu_us').style.display = "none";
                   document.getElementById('nambu_ds').style.display = "none";
                   document.getElementById('abiko_us').style.display = "none";
                   document.getElementById('abiko_ds').style.display = "";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-09";
+                } else if (id == 'jr_sotobo_u') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "";
+                  document.getElementById('sotobo_ds').style.display = "none";
+                  document.getElementById('time_nambu').min = "2018-11-20";
+                } else if (id == 'jr_sotobo_d') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "";
+                  document.getElementById('time_nambu').min = "2018-11-20";
                 }
               }
               
@@ -519,6 +850,8 @@
                 if (line === 'jr_nambu_d') targetId = 'nambu_ds';
                 if (line === 'jr_abiko_u') targetId = 'abiko_us';
                 if (line === 'jr_abiko_d') targetId = 'abiko_ds';
+                if (line === 'jr_sotobo_u') targetId = 'sotobo_us';
+                if (line === 'jr_sotobo_d') targetId = 'sotobo_ds';
                 const target = document.getElementById(targetId);
                 const radios = target.querySelectorAll('.mains');
               
@@ -530,6 +863,27 @@
               function deletes() {
                 for (const element of document.getElementsByClassName('forms')) {
                   element.checked = false;
+                }
+              }
+
+              function syncRadioId(selectEl) {
+                // 同じブロック内の radio を探す
+                const container = selectEl.closest('div');
+                if (!container) return;
+              
+                const radio = container.querySelector('input[type="radio"]');
+                if (!radio) return;
+              
+                const oldId = radio.id;
+                const newId = selectEl.value;
+              
+                // id を変更
+                radio.id = newId;
+              
+                // 対応する label があれば for も更新
+                const label = document.querySelector('label[for="' + oldId + '"]');
+                if (label) {
+                  label.htmlFor = newId;
                 }
               }
               
