@@ -176,8 +176,12 @@
           <p>収録駅:西立川駅1番線</p>
           <p>スピーカー:JVC横長型・小丸VOSS・小VOSS</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="nishitachikawa_1_o.html">雨のステイション verB</option>
+          <option value="nishitachikawa_1.html">曲名不明(首都圏41番)</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
