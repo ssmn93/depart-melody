@@ -176,8 +176,12 @@
           <p>収録駅:館林駅1番線</p>
           <p>スピーカー:PATLITE</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="tobu_nikko_1_s.html">色・ホワイトブレンド</option>
+          <option value="tobu_nikko_1.html">Stream 東武日光ver</option>
+        </select>
       </div>
       <script type="module">
       const audios = document.getElementById("melody");
