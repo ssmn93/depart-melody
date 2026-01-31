@@ -178,18 +178,24 @@
         
           <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
-
-      
+        <button id="departure" style="margin-left: 20px;">予告放送</button>
+        
       </div>
     <script>
       const audio = document.getElementById("melody");
       // const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
+      const departure = document.getElementById("departure");
       let url = new URL(window.location.href);
       let params = url.searchParams;
       let buttonurl = params.get('button');      
         let isPlaying = false;
+      
+      departure.addEventListener("click", (e) => {
+        depart.currentTime = 0;
+        depart.play();
+      });
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
