@@ -252,9 +252,9 @@
         depart.play();
       });
 
-      if (!isLast) {
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
+          if (!isLast) {
           button.currentTime = 0;
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
               if (!isPlaying) {
@@ -265,41 +265,7 @@
                 audio.currentTime = 0;
                 audio.play();
               }
-        });
-         // document.getElementById('onText').addEventListener('click', function() {
-         //   button.play();
-         //      // if (!isPlaying) {
-         //        // isPlaying = true;
-         //        // audio.loop = true; // ループ再生を有効にする
-         //        audio.play();
-         //      // }
-         // });
-        
-        // document.getElementById('offButton').addEventListener('click', function() {
-        //   button.play();
-        //     if (isPlaying) {
-        //       isPlaying = false;
-        //       audio.loop = false;
-        //       audio.pause();
-        //       audio.currentTime = 0;
-        //       // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-        //       tojime.play();
-        //     }
-        // });
-        // document.getElementById('offText').addEventListener('click', function() {
-        //   button.play();
-        //     if (isPlaying) {
-        //       isPlaying = false;
-        //       audio.loop = false;
-        //       audio.pause();
-        //       audio.currentTime = 0;
-        //       // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-        //       tojime.play();
-        //     }
-        // });
-        } else {
-          // クリックイベント
-          document.getElementById('onButton').addEventListener('click', function() {
+          } else {
             button.currentTime = 0;
             if (buttonurl !== 'off' && !buttonon.checked) button.play();
                 if (!isPlaying) {
@@ -307,7 +273,10 @@
                   final.loop = true;
                   final.play();
                 }
-          });
+          }
+        });
+      
+          // クリックイベント
           document.getElementById('onText').addEventListener('click', function() {
             button.currentTime = 0;
             if (buttonurl !== 'off' && !buttonon.checked) button.play();
