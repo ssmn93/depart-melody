@@ -229,19 +229,19 @@
 
         last.addEventListener("click", (e) => {
           if (!isLast) {
-            for(var i = 0; i < normals.length; i++) {
-              normals[i].style.display = "none";
-            }
-            for(var i = 0; i < finals.length; i++) {
-              normals[i].style.display = "block";
-            }
+            normals.forEach(btn => {
+              btn.style.display = "none";
+            });
+            finals.forEach(btn => {
+              btn.style.display = "block";
+            });
           } else {
-            for(var i = 0; i < normals.length; i++) {
-              normals[i].style.display = "block";
-            }
-            for(var i = 0; i < finals.length; i++) {
-              normals[i].style.display = "none";
-            }
+            normals.forEach(btn => {
+              btn.style.display = "block";
+            });
+            finals.forEach(btn => {
+              btn.style.display = "none";
+            });
           }
         });
                               
