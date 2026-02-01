@@ -219,8 +219,8 @@
       let buttonon = document.getElementById("buttonon");
       const last = document.getElementById("last");
       const departure = document.getElementById("departure");
-      const normals = document.getElementsByClassName("normal");
-      const finals = document.getElementsByClassName("final");
+      const normals = document.querySelectorAll(".normal");
+      const finals = document.querySelectorAll(".final");
       let url = new URL(window.location.href);
       let params = url.searchParams;
       let buttonurl = params.get('button');      
