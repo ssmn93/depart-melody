@@ -311,6 +311,11 @@
                 // tojime.play();
               }
           });
+      
+        // 曲が終了したとき
+        audio.addEventListener("ended", () => {
+          if (isPlaying) isPlaying = false;
+        });
     </script>
 
 <!--       </div> -->
