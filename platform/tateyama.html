@@ -222,6 +222,10 @@
           button.currentTime = 0;
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
         });
+            
+        audio.addEventListener("ended", () => {
+          isPlaying = false;
+        });
     </script>
 <!--       </div> -->
 <!--        <script>
