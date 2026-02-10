@@ -174,10 +174,14 @@
         <div class="content">
           <h1>南船橋駅 4番線(旧)「幸福の銀レール」</h1>
           <p>収録駅:幕張駅4番線</p>
-          <p>スピーカー:FPS・JVC横長型(南船橋)</p>
+          <p>スピーカー:JVC横長型・JVC横長新型・FPS(南船橋)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="minamifunabashi_4_o1.html">幸福の銀レール</option>
+          <option value="minamifunabashi_4.html">JRE-IKST-001-01(首都圏15-1番)</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
