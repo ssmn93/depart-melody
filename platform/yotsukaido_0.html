@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="四街道駅0番線の発車メロディ「Verde Rayo 標準遅テンポver」の再現ができます！">
+  <meta name="description" content="四街道駅0番線の発車メロディ「JRE-IKST-039-01(首都圏34-1番)」の再現ができます！">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/e233yo.png" />
   <link rel="stylesheet" href="yotsukaido_0.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
-  <meta property="og:description" content="四街道駅0番線の発車メロディ「Verde Rayo 標準遅テンポver」の再現ができます！">
-  <meta property="og:title" content="四街道駅0番線「Verde Rayo 標準遅テンポver」｜どこでもステーションベル">
+  <meta property="og:description" content="四街道駅0番線の発車メロディ「JRE-IKST-039-01(首都圏34-1番)」の再現ができます！">
+  <meta property="og:title" content="四街道駅0番線「JRE-IKST-039-01(首都圏34-1番)」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="四街道駅0番線「Verde Rayo 標準遅テンポver」｜どこでもステーションベル">
-  <title>四街道駅0番線「Verde Rayo 標準遅テンポver」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="四街道駅0番線「JRE-IKST-039-01(首都圏34-1番)」｜どこでもステーションベル">
+  <title>四街道駅0番線「JRE-IKST-039-01(首都圏34-1番)」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -165,19 +165,24 @@
         <rect class="button" id="offButton" x="432" y="445" width="100" height="100" fill="#e06666" stroke="#e06666" stroke-width="2"/>
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/Verde%20Rayo%20%E6%A8%99%E6%BA%96ver.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E6%97%AD%E5%9E%8B%E5%9B%9B%E8%A1%97%E9%81%930%E7%95%AA.mp3"></audio>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏34-1番.mp3"></audio>
+    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_旭型四街道0番.mp3"></audio>
     <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
       
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>四街道駅 0番線「Verde Rayo 標準遅テンポver」</h1>
+          <h1>四街道駅 0番線「JRE-IKST-039-01(首都圏34-1番)」</h1>
           <p>収録駅:君津駅1番線</p>
           <p>スピーカー:小丸VOSS(四街道)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="yotsukaido_0.html">JRE-IKST-039-01(首都圏34-1番)</option>
+          <option value="yotsukaido_0_o1.html">Verde Rayo 標準遅テンポver</option>
+          <option value="yotsukaido_0_o2.html">Verde Rayo</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
