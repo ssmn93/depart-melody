@@ -188,66 +188,88 @@
         <button id="departure" style="margin-left: 20px;">発車放送</button>
       </div>
     
-    <script>
-      
-      const audio = document.getElementById("melody");
-      const depart = document.getElementById("depart");
+
+      <script type="module">
+      const audios = document.getElementById("melody");
+      // const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
-      const departure = document.getElementById("departure");
       let url = new URL(window.location.href);
       let params = url.searchParams;
       let buttonurl = params.get('button');      
-        let isPlaying = false;
-                              
-      departure.addEventListener("click", (e) => {
-        depart.currentTime = 0;
-        depart.play();
-      });
+      let isPlaying = false;
       
-          document.getElementById('onButton').addEventListener('click', function() {
-            button.currentTime = 0;
-            if (buttonurl !== 'off' && !buttonon.checked) button.play();
-                if (!isPlaying) {
-                  isPlaying = true;
-                  audio.loop = true;
-                  audio.play();
-                }
-          });
-          document.getElementById('onText').addEventListener('click', function() {
-            button.currentTime = 0;
-            if (buttonurl !== 'off' && !buttonon.checked) button.play();
-                if (!isPlaying) {
-                  isPlaying = true;
-                  audio.loop = true;
-                  audio.play();
-                }
-           });
-          
-          document.getElementById('offButton').addEventListener('click', function() {
-            button.currentTime = 0;
-            if (buttonurl !== 'off' && !buttonon.checked) button.play();
-              if (isPlaying) {
-                isPlaying = false;
-                audio.loop = false;
-                audio.pause();
-                audio.currentTime = 0;
-                // tojime.currentTime = 0;
-                // tojime.play();
-              }
-          });
-          document.getElementById('offText').addEventListener('click', function() {
-            button.currentTime = 0;
-            if (buttonurl !== 'off' && !buttonon.checked) button.play();
-              if (isPlaying) {
-                isPlaying = false;
-                audio.loop = false;
-                audio.pause();
-                audio.currentTime = 0;
-                // tojime.currentTime = 0;
-                // tojime.play();
-              }
-          });
+      const audioContext = new AudioContext();
+    
+      const response = await fetch(audios.src);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    
+      let source = audioContext.createBufferSource();
+      source.buffer = audioBuffer;
+      source.loop = true;
+      source.connect(audioContext.destination);
+
+        // クリックイベント
+        document.getElementById('onButton').addEventListener("click", async function () {
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
+      
+          if (!isPlaying) {
+            if (audioContext.state === "suspended") {
+              await audioContext.resume();
+            }
+            source.start(0);
+            isPlaying = true;
+          }
+        });
+            
+        document.getElementById("onText").addEventListener("click", async function () {
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
+      
+          if (!isPlaying) {
+            if (audioContext.state === "suspended") {
+              await audioContext.resume();
+            }
+            source.start(0);
+            isPlaying = true;
+          }
+        });
+        
+        document.getElementById('offButton').addEventListener("click", function () {
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
+      
+          if (isPlaying) {
+            source.stop(0);
+      
+            // 🔴 ここだけ追加（再生可能に戻すため）
+            source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.loop = true;
+            source.connect(audioContext.destination);
+      
+            isPlaying = false;
+          }
+        });
+            
+        document.getElementById('offText').addEventListener("click", function () {
+          button.currentTime = 0;
+          if (!buttonon.checked) button.play();
+      
+          if (isPlaying) {
+            source.stop(0);
+      
+            // 🔴 ここだけ追加（再生可能に戻すため）
+            source = audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.loop = true;
+            source.connect(audioContext.destination);
+      
+            isPlaying = false;
+          }
+        });
     </script>
 
 <!--       </div> -->
