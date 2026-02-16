@@ -340,7 +340,6 @@
         /* シリアルポートを開いて監視開始 */
         async function __openAndWatchPort(port) {
           try {
-            if (!port) return;
             // 既に別のポートを開いていれば切る
             if (__serialPort && __serialPort !== port) {
               await __closePort();
