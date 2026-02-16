@@ -351,6 +351,24 @@
             } else {
               try { await port.open({ baudRate: 115200 }); } catch(e) { /* ignore if already open */ }
             }
+            
+            try {
+              const sig = await port.getSignals();
+              const current = !!sig.dataSetReady;
+            
+              console.log('[初期状態]', current ? 'ON' : 'OFF');
+            
+              __prevSignalState = current;
+            
+              if (current) {
+                __doOn();
+              } else {
+                __doOff();
+              }
+            } catch (e) {
+              console.warn('初期状態の取得に失敗', e);
+              __prevSignalState = null;
+            }
         
             __serialPort = port;
             __serialKeepReading = true;
@@ -378,36 +396,50 @@
           }
         }
         
-        /* ポーリングループ：getSignals() を読み DSR等の変化で ON/OFF を発火 */
         async function __pollSignalsLoop() {
           if (!__serialPort) return;
+        
           try {
             while (__serialKeepReading && __serialPort) {
               try {
-                // 一部実装では getSignals が存在しない → 例外になることを想定
-                const sig = await __serialPort.getSignals(); // { dataSetReady, clearToSend, dataCarrierDetect, ringIndicator }
-                // ここでは dataSetReady を DSR として利用（配線に合わせて変更してください）
+                const sig = await __serialPort.getSignals();
                 const current = !!sig.dataSetReady;
-                if (__prevSignalState === null) __prevSignalState = current;
-                if (current !== __prevSignalState) {
+        
+                // 初回（未定義）ならそのまま状態反映
+                if (__prevSignalState === null) {
+                  console.log('[初回状態]', current ? 'ON' : 'OFF');
+        
                   __prevSignalState = current;
+        
                   if (current) {
-                    // 信号が ON (閉) になった場合
                     __doOn();
                   } else {
-                    // 信号が OFF (開) になった場合
                     __doOff();
                   }
                 }
+                // 状態が変化したときだけ反応
+                else if (current !== __prevSignalState) {
+                  console.log('[変化]', __prevSignalState, '→', current);
+        
+                  __prevSignalState = current;
+        
+                  if (current) {
+                    __doOn();
+                  } else {
+                    __doOff();
+                  }
+                }
+        
               } catch (e) {
-                // getSignals がない／エラーの場合は警告一回だけ出してループを抜ける（以降はテキスト読み取りに頼る）
-                // console.warn('getSignals not available or errored:', e);
-                break;
+                console.warn('getSignalsエラー（再試行）', e);
+                await new Promise(r => setTimeout(r, 500));
+                continue;
               }
-              await new Promise(r => setTimeout(r, __POLL_MS));
+        
+              await new Promise(r => setTimeout(r, 100));
             }
           } catch (err) {
-            console.error('__pollSignalsLoop general error', err);
+            console.error('__pollSignalsLoop エラー', err);
           }
         }
         
