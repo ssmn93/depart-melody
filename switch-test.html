@@ -329,24 +329,42 @@
         const __onButton = document.getElementById('onButton');
         const __offButton = document.getElementById('offButton');
         
-        // helper: programmatic click で既存ハンドラを呼ぶ（既存のロジックをそのまま利用）
-        function __doOn() {
-          console.log('ON検知');
+        function __triggerSvgClick(el) {
+            if (!el) {
+                console.error("要素が取得できていません");
+                return;
+            }
         
-          if (__onButton && typeof __onButton.click === 'function') {
-            __onButton.click();
-          } else {
-            console.warn('__onButtonが不正です', __onButton);
-          }
+            // SVGでも動くクリックイベントを生成
+            const evt = new MouseEvent("click", {
+                view: window,
+                bubbles: true,
+                cancelable: true
+            });
+        
+            el.dispatchEvent(evt);
         }
-        function __doOff() {
-          console.log('OFF検知');
         
-          if (__offButton && typeof __offButton.click === 'function') {
-            __offButton.click();
-          } else {
-            console.warn('__offButtonが不正です', __offButton);
-          }
+        function __doOn() {
+            console.log("ON検知");
+        
+            if (!__onButton || typeof __onButton.dispatchEvent !== "function") {
+                console.error("__onButtonが不正です", __onButton);
+                return;
+            }
+        
+            __triggerSvgClick(__onButton);
+        }
+        
+        function __doOff() {
+            console.log("OFF検知");
+        
+            if (!__offButton || typeof __offButton.dispatchEvent !== "function") {
+                console.error("__offButtonが不正です", __offButton);
+                return;
+            }
+        
+            __triggerSvgClick(__offButton);
         }
         
         /* シリアルポートを開いて監視開始 */
