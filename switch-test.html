@@ -340,10 +340,10 @@
         /* シリアルポートを開いて監視開始 */
         async function __openAndWatchPort(port) {
           try {
-            // 既に別のポートを開いていれば切る
-            if (__serialPort && __serialPort !== port) {
-              await __closePort();
-            }
+            // // 既に別のポートを開いていれば切る
+            // if (__serialPort && __serialPort !== port) {
+            //   await __closePort();
+            // }
         
             // open（open済みでなければ open）
             if (!port.opened && !port.readable) { // 一部ブラウザ実装差を考慮
