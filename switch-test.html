@@ -511,6 +511,40 @@
         window.addEventListener('beforeunload', () => {
           try { __closePort(); } catch(e) {}
         });
+  (function(){
+    const btn = document.getElementById('connectHardware');
+    if (!btn) return;
+
+    btn.addEventListener('click', async () => {
+      // Web Serial API 非対応チェック
+      if (!('serial' in navigator)) {
+        alert('このブラウザは Web Serial API に対応していません。Chrome/Edge（HTTPS または localhost）で実行してください。');
+        return;
+      }
+
+      try {
+        // ユーザーにポート選択ダイアログを表示
+        // filters を必要に応じて指定可能（例: { usbVendorId: xxxx, usbProductId: yyyy }）
+        const port = await navigator.serial.requestPort(); // ユーザーがキャンセルすると例外になる
+        // 既存の監視開始関数に渡す（ファイル内で定義されている __openAndWatchPort を利用）
+        if (typeof __openAndWatchPort === 'function') {
+          await __openAndWatchPort(port);
+          console.log('port opened and watching');
+          // optional: 簡易ステータス表示
+          const s = document.getElementById('hwStatus');
+          if (s) s.textContent = '接続済み';
+        } else {
+          console.warn('__openAndWatchPort が定義されていません');
+        }
+      } catch (err) {
+        // ユーザーがキャンセルした場合やエラー時
+        console.warn('requestPort failed or canceled', err);
+        // 必要なら UI に反映
+        const s = document.getElementById('hwStatus');
+        if (s) s.textContent = '未接続';
+      }
+    });
+  })();
     </script>
       </div>
   <!-- <script>
