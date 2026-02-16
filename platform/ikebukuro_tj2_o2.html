@@ -194,9 +194,14 @@
       // const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
+      const departure = document.getElementById("departure");
       let url = new URL(window.location.href);
       let params = url.searchParams;
-      let buttonurl = params.get('button');      
+      let buttonurl = params.get('button');       
+      departure.addEventListener("click", (e) => {
+        depart.currentTime = 0;
+        depart.play();
+      });  
       let isPlaying = false;
       
       const audioContext = new AudioContext();
