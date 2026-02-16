@@ -331,10 +331,22 @@
         
         // helper: programmatic click で既存ハンドラを呼ぶ（既存のロジックをそのまま利用）
         function __doOn() {
-          if (__onButton) __onButton.click();
+          console.log('ON検知');
+        
+          if (__onButton && typeof __onButton.click === 'function') {
+            __onButton.click();
+          } else {
+            console.warn('__onButtonが不正です', __onButton);
+          }
         }
         function __doOff() {
-          if (__offButton) __offButton.click();
+          console.log('OFF検知');
+        
+          if (__offButton && typeof __offButton.click === 'function') {
+            __offButton.click();
+          } else {
+            console.warn('__offButtonが不正です', __offButton);
+          }
         }
         
         /* シリアルポートを開いて監視開始 */
