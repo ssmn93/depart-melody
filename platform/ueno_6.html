@@ -176,8 +176,12 @@
           <p>収録駅:東京駅8番線</p>
           <p>スピーカー:JVC横長型・天井型(上野)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="ueno_6.html">JRE-IKST-013-02(首都圏12番)</option>
+          <option value="ueno_6_o1.html">シンコペーション</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
