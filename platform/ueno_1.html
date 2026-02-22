@@ -176,8 +176,12 @@
           <p>収録駅:東京駅3番線</p>
           <p>スピーカー:JVC横長型(上野)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="ueno_1.html">JRE-IKST-007-01(首都圏1-1番)</option>
+          <option value="ueno_1_o1.html">ベル</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
