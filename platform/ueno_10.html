@@ -176,8 +176,12 @@
           <p>収録駅:上野駅10番線</p>
           <p>スピーカー:JVC横長型</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="ueno_10.html">JRE-IKST-005-02(首都圏13-1番)</option>
+          <option value="ueno_10_o1.html">遠い青空V1</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
