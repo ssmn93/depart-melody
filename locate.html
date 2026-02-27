@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -76,8 +77,8 @@
                 <option value="jr_sotobo_d">JR外房線 -下り</option>
                 <option value="jr_keiyo_u">JR京葉線 -上り</option>
                 <option value="jr_keiyo_d">JR京葉線 -下り</option>
-                <option value="jr_senseki_u">JR仙石線 -上り</option>
-                <option value="jr_senseki_d">JR仙石線 -下り</option>
+                <!-- <option value="jr_senseki_u">JR仙石線 -上り</option>
+                <option value="jr_senseki_d">JR仙石線 -下り</option> -->
             </select>
           </div>
           
@@ -999,7 +1000,7 @@
               <div class="stationes">
                 <div class="ishinomaki"><input type="radio" id="ishinomaki_2" name="ishinomaki" value="1" class="forms mains"  data-timelines="2002-02-02:" /><label for="ishinomaki_2">(2)</label></div>
                 <div class="ishinomaki"><input type="radio" id="ishinomaki_1" name="ishinomaki" value="2" class="forms" data-timelines="2002-02-02:" />
-                    <select onchange="syncRadioIdI(this)">
+                    <select onchange="syncRadioId(this)">
                         <option value="ishinomaki_1">(1)</option>
                         <option value="ishinomaki_3">(3)</option>
                         <option value="ishinomaki_4">(4)</option>
@@ -1316,7 +1317,7 @@
               <div class="stationes">
                 <div class="ishinomaki"><input type="radio" id="ishinomaki_2" name="ishinomaki" style="visibility: hidden;" value="1" class="forms" /><label for="ishinomaki_2">(2)</label></div>
                 <div class="ishinomaki"><input type="radio" id="ishinomaki_1" name="ishinomaki" style="visibility: hidden;" value="2" class="forms" />
-                    <select onchange="syncRadioIdI(this)">
+                    <select onchange="syncRadioId(this)">
                         <option value="ishinomaki_1">(1)</option>
                         <option value="ishinomaki_3">(3)</option>
                         <option value="ishinomaki_4">(4)</option>
@@ -1520,57 +1521,6 @@
                   label.htmlFor = newId;
                 }
               }
-
-              function updateIshinomakiIds() {
-                const timeInput = document.getElementById('time_nambu');
-                // 未選択の場合は今日の日付を使用
-                const d = timeInput && timeInput.value ? new Date(timeInput.value) : new Date();
-                
-                // 土曜日(6)と日曜日(0)を休日(_h)として判定
-                // ※日本の「祝日」を厳密に判定する場合は、別途祝日リストの判定ロジックが必要です
-                const suffix = (d.getDay() === 0 || d.getDay() === 6) ? "_h" : "_w";
-              
-                // 石巻駅のラジオボタンを一括更新
-                document.querySelectorAll('.ishinomaki input[type="radio"]').forEach(radio => {
-                  let baseId = radio.getAttribute('data-base-id');
-                  if (!baseId) {
-                    // 初回実行時に元のベースIDを保存（_wや_hが付く前）
-                    baseId = radio.id.replace(/_w$/, '').replace(/_h$/, '');
-                    radio.setAttribute('data-base-id', baseId);
-                  }
-                  const oldId = radio.id;
-                  const newId = baseId + suffix;
-                  
-                  if (oldId !== newId) {
-                    radio.id = newId;
-                    const label = document.querySelector(`label[for="${oldId}"]`);
-                    if (label) label.htmlFor = newId;
-                  }
-                });
-              }
-              
-              // 石巻駅専用のセレクトボックス変更時処理
-              function syncRadioIdI(selectEl) {
-                const container = selectEl.closest('div');
-                if (!container) return;
-              
-                const radio = container.querySelector('input[type="radio"]');
-                if (!radio) return;
-              
-                const oldId = radio.id;
-                const newBaseId = selectEl.value;
-                radio.setAttribute('data-base-id', newBaseId); // ベースIDを更新
-              
-                const timeInput = document.getElementById('time_nambu');
-                const d = timeInput && timeInput.value ? new Date(timeInput.value) : new Date();
-                const suffix = (d.getDay() === 0 || d.getDay() === 6) ? "_h" : "_w";
-              
-                const newId = newBaseId + suffix;
-                radio.id = newId;
-              
-                const label = document.querySelector(`label[for="${oldId}"]`);
-                if (label) label.htmlFor = newId;
-              }
               
               window.onload = lineChange;
               
@@ -1585,13 +1535,6 @@
                               if(state[this.name] === this.value) state[this.name] = this.checked = false;
                               else state[this.name] = this.value;
                           });
-                      }
-                    
-                      updateIshinomakiIds(); // 初期ロード時の曜日判定
-                      
-                      const timeInput = document.getElementById('time_nambu');
-                      if (timeInput) {
-                        timeInput.addEventListener('change', updateIshinomakiIds); // 日付変更時に連動
                       }
                   });
             </script>
