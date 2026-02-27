@@ -76,6 +76,8 @@
                 <option value="jr_sotobo_d">JR外房線 -下り</option>
                 <option value="jr_keiyo_u">JR京葉線 -上り</option>
                 <option value="jr_keiyo_d">JR京葉線 -下り</option>
+                <option value="jr_senseki_u">JR仙石線 -上り</option>
+                <option value="jr_senseki_d">JR仙石線 -下り</option>
             </select>
           </div>
           
@@ -990,6 +992,340 @@
                 <div class="soga"><h3>蘇我駅</h3></div>
               </div>
               </details>
+            </div>            
+            <div class="senseki_us lines" id="senseki_us" style="display:none;">
+              <details>
+                <summary>メニューを開く</summary>
+              <div class="stationes">
+                <div class="ishinomaki"><input type="radio" id="ishinomaki_2" name="ishinomaki" value="1" class="forms mains"  data-timelines="2002-02-02:" /><label for="ishinomaki_2">(2)</label></div>
+                <div class="ishinomaki"><input type="radio" id="ishinomaki_1" name="ishinomaki" value="2" class="forms" data-timelines="2002-02-02:" />
+                    <select onchange="syncRadioId(this)">
+                        <option value="ishinomaki_1">(1)</option>
+                        <option value="ishinomaki_3">(3)</option>
+                        <option value="ishinomaki_4">(4)</option>
+                        <option value="ishinomaki_5">(5)</option>
+                    </select>
+                </div>
+                <div class="ishinomaki"><h3>石巻駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenyamashita"><input type="radio" id="rikuzenyamashita_1" name="awaamatsu" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenyamashita_1">(1)</label></div>
+                <div class="rikuzenyamashita"><input type="radio" id="rikuzenyamashita_2" name="awaamatsu" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenyamashita_2">(2)</label></div>
+                <div class="rikuzenyamashita"><h3>陸前山下駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="hebita"><input type="radio" id="hebita_u" name="hebita" style="visibility: hidden;" value="2" class="forms" /><label for="hebita_u">(u)</label></div>
+                <div class="hebita"><input type="radio" id="hebita_d" name="hebita" style="visibility: hidden;" value="1" class="forms" /><label for="hebita_d">(d)</label></div>
+                <div class="hebita"><h3>蛇田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="ishinomakiayumino"><input type="radio" id="ishinomakiayumino_u" name="ishinomakiayumino" style="visibility: hidden;" value="2" class="forms" /><label for="ishinomakiayumino_u">(u)</label></div>
+                <div class="ishinomakiayumino"><input type="radio" id="ishinomakiayumino_d" name="ishinomakiayumino" style="visibility: hidden;" value="1" class="forms" /><label for="ishinomakiayumino_d">(d)</label></div>
+                <div class="ishinomakiayumino"><h3>石巻あゆみ野駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenakai"><input type="radio" id="rikuzenakai_1" name="rikuzenakai" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenakai_1">(1)</label></div>
+                <div class="rikuzenakai"><input type="radio" id="rikuzenakai_2" name="rikuzenakai" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenakai_2">(2)</label></div>
+                <div class="rikuzenakai"><h3>陸前赤井駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="higashiyamoto"><input type="radio" id="higashiyamoto_u" name="higashiyamoto" style="visibility: hidden;" value="1" class="forms" /><label for="higashiyamoto_u">(u)</label></div>
+                <div class="higashiyamoto"><input type="radio" id="higashiyamoto_d" name="higashiyamoto" style="visibility: hidden;" value="2" class="forms" /><label for="higashiyamoto_d">(d)</label></div>
+                <div class="higashiyamoto"><h3>東矢本駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="yamoto"><input type="radio" id="yamoto_1" name="yamoto" style="visibility: hidden;" value="1" class="forms" /><label for="yamoto_1">(1)</label></div>
+                <div class="yamoto"><input type="radio" id="yamoto_2" name="yamoto" style="visibility: hidden;" value="2" class="forms" /><label for="yamoto_2">(2)</label></div>
+                <div class="yamoto"><h3>矢本駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kazuma"><input type="radio" id="kazuma_u" name="kazuma" style="visibility: hidden;" value="1" class="forms" /><label for="kazuma_u">(u)</label></div>
+                <div class="kazuma"><input type="radio" id="kazuma_d" name="kazuma" style="visibility: hidden;" value="2" class="forms" /><label for="kazuma_d">(d)</label></div>
+                <div class="kazuma"><h3>鹿妻駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenono"><input type="radio" id="rikuzenono_1" name="rikuzenono" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenono_1">(1)</label></div>
+                <div class="rikuzenono"><input type="radio" id="rikuzenono_2" name="rikuzenono" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenono_2">(2)</label></div>
+                <div class="rikuzenono"><h3>陸前小野駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nobiru"><input type="radio" id="nobiru_1" name="nobiru" style="visibility: hidden;" value="1" class="forms" /><label for="nobiru_1">(1)</label></div>
+                <div class="nobiru"><input type="radio" id="nobiru_2" name="nobiru" style="visibility: hidden;" value="2" class="forms" /><label for="nobiru_2">(2)</label></div>
+                <div class="nobiru"><h3>野蒜駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="tona"><input type="radio" id="tona_u" name="tona" style="visibility: hidden;" value="2" class="forms" /><label for="tona_u">(u)</label></div>
+                <div class="tona"><input type="radio" id="tona_d" name="tona" style="visibility: hidden;" value="1" class="forms" /><label for="tona_d">(d)</label></div>
+                <div class="tona"><h3>東名駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenotsuka"><input type="radio" id="rikuzenotsuka_1" name="rikuzenotsuka" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenotsuka_1">(1)</label></div>
+                <div class="rikuzenotsuka"><input type="radio" id="rikuzenotsuka_2" name="rikuzenotsuka" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenotsuka_2">(2)</label></div>
+                <div class="rikuzenotsuka"><h3>陸前大塚駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzentoyama"><input type="radio" id="rikuzentoyama_u" name="rikuzentoyama" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzentoyama_u">(u)</label></div>
+                <div class="rikuzentoyama"><input type="radio" id="rikuzentoyama_d" name="rikuzentoyama" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzentoyama_d">(d)</label></div>
+                <div class="rikuzentoyama"><h3>陸前富山駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="tetaru"><input type="radio" id="tetaru_u" name="tetaru" style="visibility: hidden;" value="1" class="forms" /><label for="tetaru_u">(u)</label></div>
+                <div class="tetaru"><input type="radio" id="tetaru_d" name="tetaru" style="visibility: hidden;" value="2" class="forms" /><label for="tetaru_d">(d)</label></div>
+                <div class="tetaru"><h3>手樽駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="takagimachi"><input type="radio" id="takagimachi_1" name="takagimachi" style="visibility: hidden;" value="1" class="forms" /><label for="takagimachi_1">(1)</label></div>
+                <div class="takagimachi"><input type="radio" id="takagimachi_2" name="takagimachi" style="visibility: hidden;" value="2" class="forms" /><label for="takagimachi_2">(2)</label></div>
+                <div class="takagimachi"><h3>高城町駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="matsushimakaigan"><input type="radio" id="matsushimakaigan_1" name="matsushimakaigan" style="visibility: hidden;" value="1" class="forms" /><label for="matsushimakaigan_1">(1)</label></div>
+                <div class="matsushimakaigan"><input type="radio" id="matsushimakaigan_2" name="matsushimakaigan" style="visibility: hidden;" value="2" class="forms" /><label for="matsushimakaigan_2">(2)</label></div>
+                <div class="matsushimakaigan"><h3>松島海岸駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenhamada"><input type="radio" id="rikuzenhamada_u" name="rikuzenhamada" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenhamada_u">(u)</label></div>
+                <div class="rikuzenhamada"><input type="radio" id="rikuzenhamada_d" name="rikuzenhamada" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenhamada_d">(d)</label></div>
+                <div class="rikuzenhamada"><h3>陸前浜田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="higashishiogama"><input type="radio" id="higashishiogama_1" name="higashishiogama" style="visibility: hidden;" value="1" class="forms" /><label for="higashishiogama_1">(1)</label></div>
+                <div class="higashishiogama"><input type="radio" id="higashishiogama_2" name="higashishiogama" style="visibility: hidden;" value="2" class="forms" /><label for="higashishiogama_2">(2)</label></div>
+                <div class="higashishiogama"><h3>東塩釜駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="honshiogama"><input type="radio" id="honshiogama_1" name="honshiogama" style="visibility: hidden;" value="1" class="forms" /><label for="honshiogama_1">(1)</label></div>
+                <div class="honshiogama"><input type="radio" id="honshiogama_2" name="honshiogama" style="visibility: hidden;" value="2" class="forms" /><label for="honshiogama_2">(2)</label></div>
+                <div class="honshiogama"><h3>本塩釜駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nishishiogama"><input type="radio" id="nishishiogama_1" name="nishishiogama" style="visibility: hidden;" value="1" class="forms" /><label for="nishishiogama_1">(1)</label></div>
+                <div class="nishishiogama"><input type="radio" id="nishishiogama_2" name="nishishiogama" style="visibility: hidden;" value="2" class="forms" /><label for="nishishiogama_2">(2)</label></div>
+                <div class="nishishiogama"><h3>西塩釜駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="tagajo"><input type="radio" id="tagajo_1" name="tagajo" value="1" class="forms" data-timelines="1990-01-01:" /><label for="tagajo_1">(1)</label></div>
+                <div class="tagajo"><input type="radio" id="tagajo_2" name="tagajo" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="tagajo_2">(2)</label></div>
+                <div class="tagajo"><h3>多賀城駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nakanosakae"><input type="radio" id="nakanosakae_1" name="nakanosakae" style="visibility: hidden;" value="1" class="forms" /><label for="nakanosakae_1">(1)</label></div>
+                <div class="nakanosakae"><input type="radio" id="nakanosakae_2" name="nakanosakae" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="nakanosakae_2">(2)</label></div>
+                <div class="nakanosakae"><h3>中野栄駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzentakasago"><input type="radio" id="rikuzentakasago_1" name="rikuzentakasago" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="rikuzentakasago_1">(1)</label></div>
+                <div class="rikuzentakasago"><input type="radio" id="rikuzentakasago_2" name="rikuzentakasago" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzentakasago_2">(2)</label></div>
+                <div class="rikuzentakasago"><h3>陸前高砂駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="fukudamachi"><input type="radio" id="fukudamachi_1" name="fukudamachi" style="visibility: hidden;" value="1" class="forms" /><label for="fukudamachi_1">(1)</label></div>
+                <div class="fukudamachi"><input type="radio" id="fukudamachi_2" name="fukudamachi" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="fukudamachi_2">(2)</label></div>
+                <div class="fukudamachi"><h3>福田町駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kozurushinden"><input type="radio" id="kozurushinden_1" name="kozurushinden" style="visibility: hidden;" value="1" class="forms" /><label for="kozurushinden_1">(1)</label></div>
+                <div class="kozurushinden"><input type="radio" id="kozurushinden_2" name="kozurushinden" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="kozurushinden_2">(2)</label></div>
+                <div class="kozurushinden"><h3>小鶴新田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nigatake"><input type="radio" id="nigatake_1" name="nigatake" style="visibility: hidden;" value="1" class="forms" /><label for="nigatake_1">(1)</label></div>
+                <div class="nigatake"><input type="radio" id="nigatake_2" name="nigatake" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="nigatake_2">(2)</label></div>
+                <div class="nigatake"><h3>苦竹駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenharanomachi"><input type="radio" id="rikuzenharanomachi_1" name="rikuzenharanomachi" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenharanomachi_1">(1)</label></div>
+                <div class="rikuzenharanomachi"><input type="radio" id="rikuzenharanomachi_2" name="rikuzenharanomachi" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="rikuzenharanomachi_2">(2)</label></div>
+                <div class="rikuzenharanomachi"><h3>陸前原ノ町駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="miyaginohara"><input type="radio" id="miyaginohara_1" name="miyaginohara" style="visibility: hidden;" value="1" class="forms" /><label for="miyaginohara_1">(1)</label></div>
+                <div class="miyaginohara"><input type="radio" id="miyaginohara_2" name="miyaginohara" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="miyaginohara_2">(2)</label></div>
+                <div class="miyaginohara"><h3>宮城野原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="tsutsujigaoka"><input type="radio" id="tsutsujigaoka_1" name="tsutsujigaoka" style="visibility: hidden;" value="1" class="forms" /><label for="tsutsujigaoka_1">(1)</label></div>
+                <div class="tsutsujigaoka"><input type="radio" id="tsutsujigaoka_2" name="tsutsujigaoka" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="tsutsujigaoka_2">(2)</label></div>
+                <div class="tsutsujigaoka"><h3>榴ヶ岡駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="sendai"><input type="radio" id="sendai_9" name="sendai" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="sendai_9">(9)</label></div>
+                <div class="sendai"><input type="radio" id="sendai_10" name="sendai" style="visibility: hidden;" value="2" class="forms" /><label for="sendai_10">(10)</label></div>
+                <div class="sendai"><h3>仙台駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="aobadori"><input type="radio" id="aobadori_1" name="aobadori" value="1" style="visibility: hidden;" class="forms" /><label for="aobadori_1">(1)</label></div>
+                <div class="aobadori"><input type="radio" id="aobadori_2" name="aobadori" value="2" style="visibility: hidden;" class="forms" /><label for="aobadori_2">(2)</label></div>
+                <div class="aobadori"><h3>あおば通駅</h3></div>
+              </div>
+              </details>
+            </div>
+            <div class="senseki_ds lines" id="senseki_ds" style="display:none;">
+            <details>
+            <summary>メニューを開く</summary>
+              <div class="stationes">
+                <div class="aobadori"><input type="radio" id="aobadori_1" name="aobadori" value="1" class="forms mains" data-timelines="2011-05-20:" /><label for="aobadori_1">(1)</label></div>
+                <div class="aobadori"><input type="radio" id="aobadori_2" name="aobadori" value="2" class="forms" data-timelines="2011-05-20:" /><label for="aobadori_2">(2)</label></div>
+                <div class="aobadori"><h3>あおば通駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="sendai"><input type="radio" id="sendai_9" name="sendai" style="visibility: hidden;" value="1" class="forms" /><label for="sendai_9">(9)</label></div>
+                <div class="sendai"><input type="radio" id="sendai_10" name="sendai" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="sendai_10">(10)</label></div>
+                <div class="sendai"><h3>仙台駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="tsutsujigaoka"><input type="radio" id="tsutsujigaoka_1" name="tsutsujigaoka" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="tsutsujigaoka_1">(1)</label></div>
+                <div class="tsutsujigaoka"><input type="radio" id="tsutsujigaoka_2" name="tsutsujigaoka" style="visibility: hidden;" value="2" class="forms" /><label for="tsutsujigaoka_2">(2)</label></div>
+                <div class="tsutsujigaoka"><h3>榴ヶ岡駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="miyaginohara"><input type="radio" id="miyaginohara_1" name="miyaginohara" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="miyaginohara_1">(1)</label></div>
+                <div class="miyaginohara"><input type="radio" id="miyaginohara_2" name="miyaginohara" style="visibility: hidden;" value="2" class="forms" /><label for="miyaginohara_2">(2)</label></div>
+                <div class="miyaginohara"><h3>宮城野原駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenharanomachi"><input type="radio" id="rikuzenharanomachi_1" name="rikuzenharanomachi" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="rikuzenharanomachi_1">(1)</label></div>
+                <div class="rikuzenharanomachi"><input type="radio" id="rikuzenharanomachi_2" name="rikuzenharanomachi" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenharanomachi_2">(2)</label></div>
+                <div class="rikuzenharanomachi"><h3>陸前原ノ町駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nigatake"><input type="radio" id="nigatake_1" name="nigatake" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="nigatake_1">(1)</label></div>
+                <div class="nigatake"><input type="radio" id="nigatake_2" name="nigatake" style="visibility: hidden;" value="2" class="forms" /><label for="nigatake_2">(2)</label></div>
+                <div class="nigatake"><h3>苦竹駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kozurushinden"><input type="radio" id="kozurushinden_1" name="kozurushinden" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="kozurushinden_1">(1)</label></div>
+                <div class="kozurushinden"><input type="radio" id="kozurushinden_2" name="kozurushinden" style="visibility: hidden;" value="2" class="forms" /><label for="kozurushinden_2">(2)</label></div>
+                <div class="kozurushinden"><h3>小鶴新田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="fukudamachi"><input type="radio" id="fukudamachi_1" name="fukudamachi" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="fukudamachi_1">(1)</label></div>
+                <div class="fukudamachi"><input type="radio" id="fukudamachi_2" name="fukudamachi" style="visibility: hidden;" value="2" class="forms" /><label for="fukudamachi_2">(2)</label></div>
+                <div class="fukudamachi"><h3>福田町駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzentakasago"><input type="radio" id="rikuzentakasago_1" name="rikuzentakasago" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzentakasago_1">(1)</label></div>
+                <div class="rikuzentakasago"><input type="radio" id="rikuzentakasago_2" name="rikuzentakasago" value="2" class="forms mains" data-timelines="1990-01-01:" /><label for="rikuzentakasago_2">(2)</label></div>
+                <div class="rikuzentakasago"><h3>陸前高砂駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nakanosakae"><input type="radio" id="nakanosakae_1" name="nakanosakae" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="nakanosakae_1">(1)</label></div>
+                <div class="nakanosakae"><input type="radio" id="nakanosakae_2" name="nakanosakae" style="visibility: hidden;" value="2" class="forms" /><label for="nakanosakae_2">(2)</label></div>
+                <div class="nakanosakae"><h3>中野栄駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="tagajo"><input type="radio" id="tagajo_1" name="tagajo" value="1" class="forms mains" data-timelines="1990-01-01:" /><label for="tagajo_1">(1)</label></div>
+                <div class="tagajo"><input type="radio" id="tagajo_2" name="tagajo" value="2" class="forms" data-timelines="1990-01-01:" /><label for="tagajo_2">(2)</label></div>
+                <div class="tagajo"><h3>多賀城駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nishishiogama"><input type="radio" id="nishishiogama_1" name="nishishiogama" style="visibility: hidden;" value="1" class="forms" /><label for="nishishiogama_1">(1)</label></div>
+                <div class="nishishiogama"><input type="radio" id="nishishiogama_2" name="nishishiogama" style="visibility: hidden;" value="2" class="forms" /><label for="nishishiogama_2">(2)</label></div>
+                <div class="nishishiogama"><h3>西塩釜駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="honshiogama"><input type="radio" id="honshiogama_1" name="honshiogama" style="visibility: hidden;" value="1" class="forms" /><label for="honshiogama_1">(1)</label></div>
+                <div class="honshiogama"><input type="radio" id="honshiogama_2" name="honshiogama" style="visibility: hidden;" value="2" class="forms" /><label for="honshiogama_2">(2)</label></div>
+                <div class="honshiogama"><h3>本塩釜駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="higashishiogama"><input type="radio" id="higashishiogama_1" name="higashishiogama" style="visibility: hidden;" value="1" class="forms" /><label for="higashishiogama_1">(1)</label></div>
+                <div class="higashishiogama"><input type="radio" id="higashishiogama_2" name="higashishiogama" style="visibility: hidden;" value="2" class="forms" /><label for="higashishiogama_2">(2)</label></div>
+                <div class="higashishiogama"><h3>東塩釜駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenhamada"><input type="radio" id="rikuzenhamada_u" name="rikuzenhamada" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenhamada_u">(u)</label></div>
+                <div class="rikuzenhamada"><input type="radio" id="rikuzenhamada_d" name="rikuzenhamada" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenhamada_d">(d)</label></div>
+                <div class="rikuzenhamada"><h3>陸前浜田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="matsushimakaigan"><input type="radio" id="matsushimakaigan_1" name="matsushimakaigan" style="visibility: hidden;" value="1" class="forms" /><label for="matsushimakaigan_1">(1)</label></div>
+                <div class="matsushimakaigan"><input type="radio" id="matsushimakaigan_2" name="matsushimakaigan" style="visibility: hidden;" value="2" class="forms" /><label for="matsushimakaigan_2">(2)</label></div>
+                <div class="matsushimakaigan"><h3>松島海岸駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="takagimachi"><input type="radio" id="takagimachi_1" name="takagimachi" style="visibility: hidden;" value="1" class="forms" /><label for="takagimachi_1">(1)</label></div>
+                <div class="takagimachi"><input type="radio" id="takagimachi_2" name="takagimachi" style="visibility: hidden;" value="2" class="forms" /><label for="takagimachi_2">(2)</label></div>
+                <div class="takagimachi"><h3>高城町駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="tetaru"><input type="radio" id="tetaru_u" name="tetaru" style="visibility: hidden;" value="1" class="forms" /><label for="tetaru_u">(u)</label></div>
+                <div class="tetaru"><input type="radio" id="tetaru_d" name="tetaru" style="visibility: hidden;" value="2" class="forms" /><label for="tetaru_d">(d)</label></div>
+                <div class="tetaru"><h3>手樽駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzentoyama"><input type="radio" id="rikuzentoyama_u" name="rikuzentoyama" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzentoyama_u">(u)</label></div>
+                <div class="rikuzentoyama"><input type="radio" id="rikuzentoyama_d" name="rikuzentoyama" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzentoyama_d">(d)</label></div>
+                <div class="rikuzentoyama"><h3>陸前富山駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenotsuka"><input type="radio" id="rikuzenotsuka_1" name="rikuzenotsuka" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenotsuka_1">(1)</label></div>
+                <div class="rikuzenotsuka"><input type="radio" id="rikuzenotsuka_2" name="rikuzenotsuka" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenotsuka_2">(2)</label></div>
+                <div class="rikuzenotsuka"><h3>陸前大塚駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="tona"><input type="radio" id="tona_u" name="tona" style="visibility: hidden;" value="2" class="forms" /><label for="tona_u">(u)</label></div>
+                <div class="tona"><input type="radio" id="tona_d" name="tona" style="visibility: hidden;" value="1" class="forms" /><label for="tona_d">(d)</label></div>
+                <div class="tona"><h3>東名駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="nobiru"><input type="radio" id="nobiru_1" name="nobiru" style="visibility: hidden;" value="1" class="forms" /><label for="nobiru_1">(1)</label></div>
+                <div class="nobiru"><input type="radio" id="nobiru_2" name="nobiru" style="visibility: hidden;" value="2" class="forms" /><label for="nobiru_2">(2)</label></div>
+                <div class="nobiru"><h3>野蒜駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenono"><input type="radio" id="rikuzenono_1" name="rikuzenono" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenono_1">(1)</label></div>
+                <div class="rikuzenono"><input type="radio" id="rikuzenono_2" name="rikuzenono" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenono_2">(2)</label></div>
+                <div class="rikuzenono"><h3>陸前小野駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="kazuma"><input type="radio" id="kazuma_u" name="kazuma" style="visibility: hidden;" value="1" class="forms" /><label for="kazuma_u">(u)</label></div>
+                <div class="kazuma"><input type="radio" id="kazuma_d" name="kazuma" style="visibility: hidden;" value="2" class="forms" /><label for="kazuma_d">(d)</label></div>
+                <div class="kazuma"><h3>鹿妻駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="yamoto"><input type="radio" id="yamoto_1" name="yamoto" style="visibility: hidden;" value="1" class="forms" /><label for="yamoto_1">(1)</label></div>
+                <div class="yamoto"><input type="radio" id="yamoto_2" name="yamoto" style="visibility: hidden;" value="2" class="forms" /><label for="yamoto_2">(2)</label></div>
+                <div class="yamoto"><h3>矢本駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="higashiyamoto"><input type="radio" id="higashiyamoto_u" name="higashiyamoto" style="visibility: hidden;" value="1" class="forms" /><label for="higashiyamoto_u">(u)</label></div>
+                <div class="higashiyamoto"><input type="radio" id="higashiyamoto_d" name="higashiyamoto" style="visibility: hidden;" value="2" class="forms" /><label for="higashiyamoto_d">(d)</label></div>
+                <div class="higashiyamoto"><h3>東矢本駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenakai"><input type="radio" id="rikuzenakai_1" name="rikuzenakai" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenakai_1">(1)</label></div>
+                <div class="rikuzenakai"><input type="radio" id="rikuzenakai_2" name="rikuzenakai" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenakai_2">(2)</label></div>
+                <div class="rikuzenakai"><h3>陸前赤井駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="ishinomakiayumino"><input type="radio" id="ishinomakiayumino_u" name="ishinomakiayumino" style="visibility: hidden;" value="2" class="forms" /><label for="ishinomakiayumino_u">(u)</label></div>
+                <div class="ishinomakiayumino"><input type="radio" id="ishinomakiayumino_d" name="ishinomakiayumino" style="visibility: hidden;" value="1" class="forms" /><label for="ishinomakiayumino_d">(d)</label></div>
+                <div class="ishinomakiayumino"><h3>石巻あゆみ野駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="hebita"><input type="radio" id="hebita_u" name="hebita" style="visibility: hidden;" value="2" class="forms" /><label for="hebita_u">(u)</label></div>
+                <div class="hebita"><input type="radio" id="hebita_d" name="hebita" style="visibility: hidden;" value="1" class="forms" /><label for="hebita_d">(d)</label></div>
+                <div class="hebita"><h3>蛇田駅</h3></div>
+              </div>
+              <div class="stationes">
+                <div class="rikuzenyamashita"><input type="radio" id="rikuzenyamashita_1" name="awaamatsu" style="visibility: hidden;" value="1" class="forms" /><label for="rikuzenyamashita_1">(1)</label></div>
+                <div class="rikuzenyamashita"><input type="radio" id="rikuzenyamashita_2" name="awaamatsu" style="visibility: hidden;" value="2" class="forms" /><label for="rikuzenyamashita_2">(2)</label></div>
+                <div class="rikuzenyamashita"><h3>陸前山下駅</h3></div>
+              </div>
+              <div class="stationes"><div class="stationes">
+                <div class="ishinomaki"><input type="radio" id="ishinomaki_2" name="ishinomaki" style="visibility: hidden;" value="1" class="forms" /><label for="ishinomaki_2">(2)</label></div>
+                <div class="ishinomaki"><input type="radio" id="ishinomaki_1" name="ishinomaki" style="visibility: hidden;" value="2" class="forms" />
+                    <select onchange="syncRadioId(this)">
+                        <option value="ishinomaki_1">(1)</option>
+                        <option value="ishinomaki_3">(3)</option>
+                        <option value="ishinomaki_4">(4)</option>
+                        <option value="ishinomaki_5">(5)</option>
+                    </select>
+                </div>
+                <div class="ishinomaki"><h3>石巻駅</h3></div>
+              </div>
+            </details>
             </div>
             <script>
               function lineChange() {
@@ -1003,6 +1339,8 @@
                   document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2023-08-06";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
@@ -1015,6 +1353,8 @@
                   document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2023-08-06";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
@@ -1027,6 +1367,8 @@
                   document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-09";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
@@ -1039,6 +1381,8 @@
                   document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-09";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
@@ -1051,6 +1395,8 @@
                   document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2018-11-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
@@ -1063,6 +1409,8 @@
                   document.getElementById('sotobo_ds').style.display = "";
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2018-11-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
@@ -1075,6 +1423,8 @@
                   document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('keiyo_us').style.display = "";
                   document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2016-09-25";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
@@ -1087,9 +1437,39 @@
                   document.getElementById('sotobo_ds').style.display = "none";
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2016-09-25";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
+                } else if (id == 'jr_senseki_u') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
+                  document.getElementById('keiyo_us').style.display = "none";
+                  document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "";
+                  document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('time_nambu').min = "2011-05-20";
+                  document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
+                  document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
+                } else if (id == 'jr_senseki_d') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
+                  document.getElementById('keiyo_us').style.display = "none";
+                  document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "";
+                  document.getElementById('time_nambu').min = "2011-05-20";
+                  document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
+                  document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
                 }
               }
               
@@ -1104,6 +1484,8 @@
                 if (line === 'jr_sotobo_d') targetId = 'sotobo_ds';
                 if (line === 'jr_keiyo_u') targetId = 'keiyo_us';
                 if (line === 'jr_keiyo_d') targetId = 'keiyo_ds';
+                if (line === 'jr_senseki_u') targetId = 'senseki_us';
+                if (line === 'jr_senseki_d') targetId = 'senseki_ds';
                 const target = document.getElementById(targetId);
                 const radios = target.querySelectorAll('.mains');
               
@@ -1246,7 +1628,39 @@
                 'kaihimmakuhari': { lat: 35.6485, lng: 140.0419 },
                 'kemigawahama' : { lat: 35.6732, lng: 140.0591 },
                 'inagekaigan': { lat: 35.9295, lng: 140.0738 },
-                'chibaminato': { lat: 35.6069, lng: 140.1026 }
+                'chibaminato': { lat: 35.6069, lng: 140.1026 },
+                'aobadori': { lat: 38.2608, lng: 140.8784 },
+                'sendai': { lat: 38.2604, lng: 140.8838 },
+                'tsutsujigaoka': { lat: 38.2589, lng: 140.8933 },
+                'miyaginohara': { lat: 38.2607, lng: 140.9047 },
+                'rikuzenharanomachi': { lat: 38.2661, lng: 140.9108 },
+                'nigatake': { lat: 38.2688, lng: 140.9190 },
+                'kozurushinden': { lat: 38.2734, lng: 140.9352 },
+                'fukudamachi': { lat: 38.2750, lng: 140.9582 },
+                'rikuzentakasago': { lat: 38.2735, lng: 140.9676 },
+                'nakanosakae': { lat: 38.2805, lng: 140.9848},
+                'tagajo': { lat: 38.2918, lng: 141.0058 },
+                'geba': { lat: 38.3059, lng: 141.0150 },
+                'nishishiogama': { lat: 38.3119, lng: 141.0185 },
+                'honshiogama': { lat: 38.3177, lng: 141.0225 },
+                'higashishiogama': { lat: 38.3256, lng: 141.0317 },
+                'rikuzenhamada': { lat: 38.3510, lng: 141.0420 },
+                'matsushimakaigan': { lat: 38.3684, lng: 141.0587 },
+                'takagimachi': { lat: 38.3829, lng: 141.0735 },
+                'tetaru': { lat: 38.3871, lng: 141.0927 },
+                'rikuzentoyama': { lat: 38.3863, lng: 141.1073 },
+                'rikuzenotsuka': { lat: 38.3793, lng: 141.1286 },
+                'tona': { lat: 38.3753, lng: 141.1442 },
+                'nobiru': { lat: 38.3790, lng: 141.1568 },
+                'rikuzenono': { lat: 38.3960, lng: 141.1747 },
+                'kazuma': { lat: 38.4033, lng: 141.1900 },
+                'yamoto': { lat: 38.4205, lng: 141.2092 },
+                'higashiyamoto': { lat: 38.4280, lng: 141.2225 },
+                'rikuzenakai': { lat: 38.4325, lng: 141.2390 },
+                'ishinomakiayumino': { lat: 38.4360, lng: 141.2592 },
+                'hebita': { lat: 38.4382, lng: 141.2777 },
+                'rikuzenyamashita': { lat: 38.4375, lng: 141.2880 },
+                'ishinomaki': { lat: 38.4354, lng: 141.3037 }
               };
               
               function locate() {
