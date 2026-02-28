@@ -76,8 +76,8 @@
                 <option value="jr_sotobo_d">JR外房線 -下り</option>
                 <option value="jr_keiyo_u">JR京葉線 -上り</option>
                 <option value="jr_keiyo_d">JR京葉線 -下り</option>
-                <!-- <option value="jr_senseki_u">JR仙石線 -上り</option>
-                <option value="jr_senseki_d">JR仙石線 -下り</option> -->
+                <option value="jr_senseki_u">JR仙石線 -上り</option>
+                <option value="jr_senseki_d">JR仙石線 -下り</option>
             </select>
           </div>
           
@@ -1317,12 +1317,12 @@
                 <div class="rikuzenyamashita"><h3>陸前山下駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="ishinomaki"><input type="radio" id="ishinomaki_1" name="ishinomaki" value="1" class="forms mains"  data-timelines="holiday:_h,weekday:_w" /></div>
+                <div class="ishinomaki"><input type="radio" id="ishinomaki_1" name="ishinomaki"b style="visibility: hidden;" value="1" class="forms" /></div>
                     <select onchange="syncRadioId(this)">
                         <option value="ishinomaki_1">(1)</option>
                         <option value="ishinomaki_2">(2)</option>
                     </select>
-                <div class="ishinomaki"><input type="radio" id="ishinomaki_3" name="ishinomaki" value="2" class="forms" data-timelines="holiday:_h,weekday:_w" />
+                <div class="ishinomaki"><input type="radio" id="ishinomaki_3" name="ishinomaki" value="2" class="forms mains" data-timelines="1990-01-01:" />
                     <select onchange="syncRadioId(this)">
                         <option value="ishinomaki_3">(3)</option>
                         <option value="ishinomaki_4">(4)</option>
@@ -1720,24 +1720,64 @@
               return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             }
           
-            // ヘルパー：data-timelines を解析して、その日付にマッチする suffix を返す
+            // 置き換え用：data-timelines を解析して、その日付にマッチする suffix を返す
             function suffixForRadioByDate(radio, date) {
               // date: Date オブジェクト
               const tl = radio.dataset.timelines;
               if (!tl) return ''; // デフォルトなし
             
-              // 例: "2023-08-06:_o,2025-03-15:" を分解
-              const entries = tl.split(',').map(s => s.trim()).filter(Boolean).map(pair => {
-                const [d, suf] = pair.split(':');
-                return { date: new Date(d + 'T00:00:00'), suffix: (suf === undefined ? '' : suf) };
-              });
+              // 分解（例: "2023-08-06:_o,2025-03-15:,weekday:_w,holiday:_h"）
+              const rawEntries = tl.split(',').map(s => s.trim()).filter(Boolean);
             
-              // entries は古い順で書くことを期待。日付以上の最後のエントリを使う
-              let chosen = '';
-              for (const e of entries) {
-                if (!isNaN(e.date) && date >= e.date) chosen = e.suffix;
+              // 日付エントリ（{date:, suffix:}）は従来どおり処理し、
+              // weekday/holiday は separate に保持する
+              const dateEntries = [];
+              let weekdaySuffix = null;
+              let holidaySuffix = null;
+            
+              for (const pair of rawEntries) {
+                const [key, suf = ''] = pair.split(':'); // key は日付文字列か 'weekday'/'holiday'
+                const k = key && key.trim();
+                const s = suf === undefined ? '' : suf;
+            
+                // 日付らしい形式 (YYYY-MM-DD) なら日付エントリとして扱う
+                if (/^\d{4}-\d{2}-\d{2}$/.test(k)) {
+                  const d = new Date(k + 'T00:00:00');
+                  if (!isNaN(d)) dateEntries.push({ date: d, suffix: s });
+                  continue;
+                }
+            
+                // weekday / holiday の特殊キー
+                if (k === 'weekday') {
+                  weekdaySuffix = s;
+                  continue;
+                }
+                if (k === 'holiday') {
+                  holidaySuffix = s;
+                  continue;
+                }
+            
+                // それ以外（安全に無視するか、将来の拡張用にログ）
+                // console.log('Unknown timeline key:', k);
               }
-              return chosen || '';
+            
+              // 日付エントリは「選択日 >= エントリ日」の最後の suffix を使う（従来ロジック）
+              dateEntries.sort((a, b) => a.date - b.date); // 安全のためソート
+              let chosen = '';
+              for (const e of dateEntries) {
+                if (date >= e.date) chosen = e.suffix;
+              }
+              if (chosen) return chosen;
+            
+              // 日付エントリが無ければ weekday/holiday を使う
+              // ここでは簡易に土日を休日扱い（0 = 日曜, 6 = 土曜）
+              const dow = date.getDay();
+              const isWeekend = (dow === 0 || dow === 6);
+            
+              if (isWeekend && holidaySuffix !== null) return holidaySuffix || '';
+              if (!isWeekend && weekdaySuffix !== null) return weekdaySuffix || '';
+            
+              return '';
             }
             
             // radioToCandidate を上書き（あなたの元の実装とほぼ同じで、iframeUrl 作成だけ差し替え）
