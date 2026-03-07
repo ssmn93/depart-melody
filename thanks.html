@@ -116,12 +116,15 @@
                   if (!isPlaying1) {
                     sound1.play();
                     isPlaying1 = true;
-                  }
-                  if (isPlaying1) {
+                  } else {
                     sound1.pause();
                     isPlaying1 = false;
                   }
                 });
+
+                sound1.addEventListener("ended", () => {
+                  isPlaying1 = false;
+                };
               </script>
             </td>
           </tr>
@@ -285,12 +288,15 @@
                   if (!isPlaying2) {
                     sound2.play();
                     isPlaying2 = true;
-                  }
-                  if (isPlaying2) {
+                  } else {
                     sound2.pause();
                     isPlaying2 = false;
                   }
                 });
+
+                sound2.addEventListener("ended", () => {
+                  isPlaying2 = false;
+                };
               </script>
             </td>
           </tr>    
@@ -375,12 +381,15 @@
                   if (!isPlaying3) {
                     sound3.play();
                     isPlaying3 = true;
-                  }
-                  if (isPlaying3) {
+                  } else {
                     sound3.pause();
                     isPlaying3 = false;
                   }
-                });              
+                });
+
+                sound3.addEventListener("ended", () => {
+                  isPlaying3 = false;
+                };         
               </script>
             </td>
           </tr>
@@ -399,12 +408,15 @@
                   if (!isPlaying4) {
                     sound4.play();
                     isPlaying4 = true;
-                  }
-                  if (isPlaying4) {
+                  } else {
                     sound4.pause();
                     isPlaying4 = false;
                   }
                 });
+
+                sound4.addEventListener("ended", () => {
+                  isPlaying4 = false;
+                };
               </script>
             </td>
           </tr>
@@ -423,12 +435,15 @@
                   if (!isPlaying5) {
                     sound5.play();
                     isPlaying5 = true;
-                  }
-                  if (isPlaying5) {
+                  } else {
                     sound5.pause();
                     isPlaying5 = false;
                   }
                 });
+
+                sound5.addEventListener("ended", () => {
+                  isPlaying5 = false;
+                };
               </script>
             </td>
           </tr>
@@ -447,12 +462,15 @@
                   if (!isPlaying6) {
                     sound6.play();
                     isPlaying6 = true;
-                  }
-                  if (isPlaying6) {
+                  } else {
                     sound6.pause();
                     isPlaying6 = false;
                   }
                 });
+
+                sound6.addEventListener("ended", () => {
+                  isPlaying6 = false;
+                };
               </script>
             </td>
           </tr>
