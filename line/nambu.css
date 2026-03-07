@@ -241,3 +241,19 @@ header {
 .footer p {
   margin: 0;
 }
+
+.background-image .car {
+  position: absolute;
+  bottom: 20px;   /* 下からの距離 */
+  right: 30px;    /* 右からの距離 */
+  z-index: 3;     /* 背景より前面 */
+  display: flex;
+  gap: 15px;      /* 画像同士の間隔 */
+  align-items: flex-end;
+}
+
+/* car 内の画像サイズ調整 */
+.background-image .car img {
+  height: 60px;   /* お好みで調整 */
+  width: auto;
+}
