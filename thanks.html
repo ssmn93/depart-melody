@@ -110,9 +110,17 @@
               <script>
                 const button1 = document.getElementById("play_sound1");
                 const sound1 = document.getElementById("sound1");
+                let isPlaying1 = false;
 
                 button1.addEventListener("click", (e) => {
-                  sound1.play();
+                  if (!isPlaying1) {
+                    sound1.play();
+                    isPlaying1 = true;
+                  }
+                  if (isPlaying1) {
+                    sound1.pause();
+                    isPlaying1 = false;
+                  }
                 });
               </script>
             </td>
@@ -271,9 +279,17 @@
               <script>
                 const button2 = document.getElementById("play_sound2");
                 const sound2 = document.getElementById("sound2");
+                let isPlaying2 = false;
 
                 button2.addEventListener("click", (e) => {
-                  sound2.play();
+                  if (!isPlaying2) {
+                    sound2.play();
+                    isPlaying2 = true;
+                  }
+                  if (isPlaying2) {
+                    sound2.pause();
+                    isPlaying2 = false;
+                  }
                 });
               </script>
             </td>
@@ -353,10 +369,18 @@
               <script>
                 const button3 = document.getElementById("play_sound3");
                 const sound3 = document.getElementById("sound3");
+                let isPlaying3 = false;
 
                 button3.addEventListener("click", (e) => {
-                  sound3.play();
-                });
+                  if (!isPlaying3) {
+                    sound3.play();
+                    isPlaying3 = true;
+                  }
+                  if (isPlaying3) {
+                    sound3.pause();
+                    isPlaying3 = false;
+                  }
+                });              
               </script>
             </td>
           </tr>
@@ -369,9 +393,17 @@
               <script>
                 const button4 = document.getElementById("play_sound4");
                 const sound4 = document.getElementById("sound4");
+                let isPlaying4 = false;
 
                 button4.addEventListener("click", (e) => {
-                  sound4.play();
+                  if (!isPlaying4) {
+                    sound4.play();
+                    isPlaying4 = true;
+                  }
+                  if (isPlaying4) {
+                    sound4.pause();
+                    isPlaying4 = false;
+                  }
                 });
               </script>
             </td>
@@ -385,9 +417,17 @@
               <script>
                 const button5 = document.getElementById("play_sound5");
                 const sound5 = document.getElementById("sound5");
+                let isPlaying5 = false;
 
                 button5.addEventListener("click", (e) => {
-                  sound5.play();
+                  if (!isPlaying5) {
+                    sound5.play();
+                    isPlaying5 = true;
+                  }
+                  if (isPlaying5) {
+                    sound5.pause();
+                    isPlaying5 = false;
+                  }
                 });
               </script>
             </td>
@@ -401,9 +441,17 @@
               <script>
                 const button6 = document.getElementById("play_sound6");
                 const sound6 = document.getElementById("sound6");
+                let isPlaying6 = false;
 
                 button6.addEventListener("click", (e) => {
-                  sound6.play();
+                  if (!isPlaying6) {
+                    sound6.play();
+                    isPlaying6 = true;
+                  }
+                  if (isPlaying6) {
+                    sound6.pause();
+                    isPlaying6 = false;
+                  }
                 });
               </script>
             </td>
