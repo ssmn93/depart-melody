@@ -174,10 +174,14 @@
         <div class="content">
           <h1>東神奈川駅 2番線(旧)「窓の花飾り」</h1>
           <p>収録駅:東神奈川駅2番線</p>
-          <p>スピーカー:TOAコンパクト</p>
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
+          <p>スピーカー:TOAコンパクト</p> 
+          
         </div>
-
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="higashikanagawa_2_o1.html">窓の花飾り</option>
+          <option value="higashikanagawa_2.html">JRE-IKST-017-01(首都圏2-1番)</option>
+        </select>
       </div>
     <script>
       const audio = document.getElementById("melody");
