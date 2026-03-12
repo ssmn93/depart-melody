@@ -78,6 +78,8 @@
                 <option value="jr_keiyo_d">JR京葉線 -下り</option>
                 <option value="jr_senseki_u">JR仙石線 -上り</option>
                 <option value="jr_senseki_d">JR仙石線 -下り</option>
+                <option value="jr_yokohama_u">JR横浜線 -上り</option>
+                <option value="jr_yokohama_d">JR横浜線 -下り</option>
             </select>
           </div>
           
@@ -1317,12 +1319,12 @@
                 <div class="rikuzenyamashita"><h3>陸前山下駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="ishinomaki"><input type="radio" id="ishinomaki_1" name="ishinomaki" value="1" class="forms mains"  data-timelines="holiday:_h,weekday:_w" /></div>
+                <div class="ishinomaki"><input type="radio" id="ishinomaki_1" name="ishinomaki"b style="visibility: hidden;" value="1" class="forms" /></div>
                     <select onchange="syncRadioId(this)">
                         <option value="ishinomaki_1">(1)</option>
                         <option value="ishinomaki_2">(2)</option>
                     </select>
-                <div class="ishinomaki"><input type="radio" id="ishinomaki_3" name="ishinomaki" value="2" class="forms" data-timelines="holiday:_h,weekday:_w" />
+                <div class="ishinomaki"><input type="radio" id="ishinomaki_3" name="ishinomaki" value="2" class="forms mains" data-timelines="1990-01-01:" />
                     <select onchange="syncRadioId(this)">
                         <option value="ishinomaki_3">(3)</option>
                         <option value="ishinomaki_4">(4)</option>
@@ -1347,6 +1349,8 @@
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2023-08-06";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
@@ -1361,6 +1365,8 @@
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2023-08-06";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
@@ -1375,6 +1381,8 @@
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-09";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
@@ -1389,6 +1397,8 @@
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-09";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
@@ -1403,6 +1413,8 @@
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2018-11-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
@@ -1417,6 +1429,8 @@
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2018-11-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
@@ -1431,6 +1445,8 @@
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2016-09-25";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
@@ -1445,6 +1461,8 @@
                   document.getElementById('keiyo_ds').style.display = "";
                   document.getElementById('senseki_us').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2016-09-25";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
@@ -1459,6 +1477,8 @@
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "";
                   document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2011-05-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
@@ -1472,10 +1492,44 @@
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('senseki_ds').style.display = "";
                   document.getElementById('time_nambu').min = "2011-05-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
+                } else if (id == 'jr_yokohama_u') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
+                  document.getElementById('keiyo_us').style.display = "none";
+                  document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "";
+                  document.getElementById('yokohama_ds').style.display = "none";
+                  document.getElementById('time_nambu').min = "2017-02-07";
+                  document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/横浜線.png";
+                  document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/横浜線.png";
+                } else if (id == 'jr_yokohama_d') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
+                  document.getElementById('keiyo_us').style.display = "none";
+                  document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "";
+                  document.getElementById('time_nambu').min = "2017-02-07";
+                  document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/横浜線.png";
+                  document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/横浜線.png";
                 }
               }
               
@@ -1491,7 +1545,9 @@
                 if (line === 'jr_keiyo_u') targetId = 'keiyo_us';
                 if (line === 'jr_keiyo_d') targetId = 'keiyo_ds';
                 if (line === 'jr_senseki_u') targetId = 'senseki_us';
-                if (line === 'jr_senseki_d') targetId = 'senseki_ds';
+                if (line === 'jr_senseki_d') targetId = 'senseki_ds';                
+                if (line === 'jr_yokohama_u') targetId = 'yokohama_us';
+                if (line === 'jr_yokohama_d') targetId = 'yokohama_ds';
                 const target = document.getElementById(targetId);
                 const radios = target.querySelectorAll('.mains');
               
@@ -1666,7 +1722,9 @@
                 'ishinomakiayumino': { lat: 38.4360, lng: 141.2592 },
                 'hebita': { lat: 38.4382, lng: 141.2777 },
                 'rikuzenyamashita': { lat: 38.4375, lng: 141.2880 },
-                'ishinomaki': { lat: 38.4354, lng: 141.3037 }
+                'ishinomaki': { lat: 38.4354, lng: 141.3037 },
+                'hachioji': { lat: 35.6555, lng: 139.3391 },
+                'katakura': { lat: 35.
               };
               
               function locate() {
