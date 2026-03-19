@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="下総松崎駅2番線の発車ベルの再現ができます！">
+  <meta name="description" content="下総松崎駅2番線(旧)の発車ベルの再現ができます！">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/e233yo.png" />
   <link rel="stylesheet" href="shimosamanzaki_2.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
-  <meta property="og:description" content="下総松崎駅2番線の発車ベルの再現ができます！">
-  <meta property="og:title" content="下総松崎駅2番線「ベル」｜どこでもステーションベル">
+  <meta property="og:description" content="下総松崎駅2番線(旧)の発車ベルの再現ができます！">
+  <meta property="og:title" content="下総松崎駅2番線(旧)「ベル」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="下総松崎駅2番線「ベル」｜どこでもステーションベル">
-  <title>下総松崎駅2番線「ベル」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="下総松崎駅2番線(旧)「ベル」｜どこでもステーションベル">
+  <title>下総松崎駅2番線(旧)「ベル」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -172,11 +172,15 @@
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>下総松崎駅 2番線「ベル」</h1>
+          <h1>下総松崎駅 2番線(旧)「ベル」</h1>
           <p>収録駅:南酒々井駅2番線</p>
           <p>スピーカー:電子電鈴</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="shimosamanzaki_2_o1.html">ベル</option>
+          <option value="shimosamanzaki_2.html">JRE-IKST-042-01(首都圏35番)</option>
+        </select>
         </div>
       </div>
       <script type="module">
