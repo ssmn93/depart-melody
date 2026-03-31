@@ -483,6 +483,33 @@
               </script>
             </td>
           </tr>
+          <tr>
+            <td>【限定】2026/04/01~2026/04/30「ハナミズキ」</td>
+            <td>運営収録</td>
+            <td>
+              <button id="play_sound7">聴く</button>
+              <audio id="sound7" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/ハナミズキ.mp3"></audio>
+              <script>
+                const button7 = document.getElementById("play_sound7");
+                const sound7 = document.getElementById("sound7");
+                let isPlaying7 = false;
+
+                button6.addEventListener("click", (e) => {
+                  if (!isPlaying7) {
+                    sound7.play();
+                    isPlaying7 = true;
+                  } else {
+                    sound7.pause();
+                    isPlaying7 = false;
+                  }
+                });
+
+                sound7.addEventListener("ended", () => {
+                  isPlaying7 = false;
+                });
+              </script>
+            </td>
+          </tr>
         </tbody>
       </table>
       <h1>音声提供</h1>      
