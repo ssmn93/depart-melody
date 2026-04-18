@@ -71,7 +71,8 @@
         // クリックイベント
         document.getElementById('approach').addEventListener('click', function() {
               if (!isPlaying) {
-                approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/千里丘_2番_接近中.gif";
+                let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/千里丘_2番_接近中.gif";
+                if (approach.src != approaching) approach.src = approaching;
                 announce.play();
               } else {
                 isPlaying = false;
