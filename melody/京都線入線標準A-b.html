@@ -50,12 +50,23 @@
           <p>収録駅:千里丘駅2番線</p>
         </div>
       </div>
-          <script>
+      <script type="module">
         const announce = document.getElementById("announce");
         const audio = document.getElementById("melody");
         const approach = document.getElementById("approach");
       
         let isPlaying = false;
+      
+        const audioContext = new AudioContext();
+      
+        const response = await fetch(audio.src);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      
+        let source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.loop = true;
+        source.connect(audioContext.destination);
 
         // クリックイベント
         document.getElementById('approach').addEventListener('click', function() {
@@ -65,18 +76,24 @@
               } else {
                 isPlaying = false;
                 approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/千里丘_2番_到着前.gif";
-                audio.loop = false;
-                audio.pause();
-                audio.currentTime = 0;
+                
+                source.stop(0);
+                source = audioContext.createBufferSource();
+                source.buffer = audioBuffer;
+                source.loop = true;
+                source.connect(audioContext.destination);
               }
         });
 
         announce.addEventListener('ended', () => {
           if (!isPlaying) {
+            if (audioContext.state === "suspended") {
+              await audioContext.resume();
+            }
             announce.currentTime = 0;
             isPlaying = true;
             audio.loop = true;
-            audio.play();
+            source.start(0);
           }
         });
     </script>
