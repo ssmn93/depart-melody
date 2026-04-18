@@ -86,7 +86,7 @@
               }
         });
 
-        announce.addEventListener('ended', () => {
+        announce.addEventListener('ended', async () => {
           if (!isPlaying) {
             if (audioContext.state === "suspended") {
               await audioContext.resume();
