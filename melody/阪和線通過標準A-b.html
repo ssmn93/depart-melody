@@ -39,7 +39,7 @@
     <div class="main">
     <div class="melody">
       <div class="arrange">
-        <img id="approach" src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/山中渓_1番_到着前.gif" />
+        <img id="approach" src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/山中渓_1番_通過前.gif" />
       </div>
     <audio id="announce" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/通過放送_山中渓1番.mp3"></audio>
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/阪和線通過標準A-b.mp3"></audio>
@@ -75,12 +75,12 @@
         // クリックイベント
         document.getElementById('approach').addEventListener('click', function() {
               if (!isPlaying) {
-                let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/山中渓_1番_接近中.gif";
+                let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/山中渓_1番_通過中.gif";
                 if (approach.src != approaching) approach.src = approaching;
                 announce.play();
               } else {
                 isPlaying = false;
-                approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/山中渓_1番_到着前.gif";
+                approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/山中渓_1番_通過前.gif";
                 
                 source.stop(0);
                 source = audioContext.createBufferSource();
