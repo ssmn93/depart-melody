@@ -41,7 +41,7 @@
       <div class="arrange">
         <img id="approach" src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/新白島_1番_到着前.gif" />
       </div>
-    <audio id="announce" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/接近放送_新白島1番.mp3"></audio>
+    <!-- <audio id="announce" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/接近放送_新白島1番.mp3"></audio> -->
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/広島地区入線標準A-a.mp3"></audio>
       
       <div class="arrange">
@@ -51,7 +51,7 @@
         </div>
       </div>
       <script type="module">
-        const announce = document.getElementById("announce");
+        // const announce = document.getElementById("announce");
         const audio = document.getElementById("melody");
         const approach = document.getElementById("approach");
       
@@ -73,7 +73,14 @@
               if (!isPlaying) {
                 let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/新白島_1番_接近中.gif";
                 if (approach.src != approaching) approach.src = approaching;
-                announce.play();
+                if (!isPlaying) {
+                  if (audioContext.state === "suspended") {
+                    await audioContext.resume();
+                  }
+                  isPlaying = true;
+                  audio.loop = true;
+                  source.start(0);
+                }
               } else {
                 isPlaying = false;
                 approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/新白島_1番_到着前.gif";
@@ -84,18 +91,6 @@
                 source.loop = true;
                 source.connect(audioContext.destination);
               }
-        });
-
-        announce.addEventListener('ended', async () => {
-          if (!isPlaying) {
-            if (audioContext.state === "suspended") {
-              await audioContext.resume();
-            }
-            announce.currentTime = 0;
-            isPlaying = true;
-            audio.loop = true;
-            source.start(0);
-          }
         });
     </script>
 <!--       </div> -->
