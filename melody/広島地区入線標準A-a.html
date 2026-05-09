@@ -73,14 +73,12 @@
               if (!isPlaying) {
                 let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/新白島_1番_接近中.gif";
                 if (approach.src != approaching) approach.src = approaching;
-                if (!isPlaying) {
-                  if (audioContext.state === "suspended") {
-                    await audioContext.resume();
-                  }
-                  isPlaying = true;
-                  audio.loop = true;
-                  source.start(0);
+                if (audioContext.state === "suspended") {
+                  await audioContext.resume();
                 }
+                isPlaying = true;
+                audio.loop = true;
+                source.start(0);
               } else {
                 isPlaying = false;
                 approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/新白島_1番_到着前.gif";
