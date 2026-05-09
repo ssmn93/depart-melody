@@ -74,7 +74,7 @@
                 let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/新白島_1番_接近中.gif";
                 if (approach.src != approaching) approach.src = approaching;
                 if (audioContext.state === "suspended") {
-                  await audioContext.resume();
+                  audioContext.resume();
                 }
                 isPlaying = true;
                 audio.loop = true;
