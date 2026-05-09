@@ -10,11 +10,11 @@
   <link rel="stylesheet" href="ML-18.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png?v=1743405036680">
   <meta property="og:description" content="このサイトでは、発車メロディを再現することができます！">
-  <meta property="og:title" content="「ML-18(広島2番)」｜どこでもステーションベル">
+  <meta property="og:title" content="「ML-18(広島4番)」｜どこでもステーションベル">
   <meta property="og:url" content="https://ssmn93.github.io/depart-melody">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="「ML-18(広島2番)」｜どこでもステーションベル">
-  <title>「ML-18(広島2番)」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="「ML-18(広島4番)」｜どこでもステーションベル">
+  <title>「ML-18(広島4番)」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -33,7 +33,7 @@
   </header>
     <div class="background-image">
       <div class="content">
-        <h1>「ML-18(広島2番)」</h1>
+        <h1>「ML-18(広島4番)」</h1>
       </div>
     </div>
     <div class="main">
@@ -41,17 +41,17 @@
       <div class="arrange">
         <img id="approach" src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/徳山_1番_到着前.gif" />
       </div>
-    <audio id="announce" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/接近放送_徳山1番.mp3"></audio>
+    <!-- <audio id="announce" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/接近放送_徳山1番.mp3"></audio> -->
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/ML-18.mp3"></audio>
       
       <div class="arrange">
         <div class="content">
-          <h1>「ML-18(広島2番)」</h1>
+          <h1>「ML-18(広島4番)」</h1>
           <p>収録駅:徳山駅1番線</p>
         </div>
       </div>
       <script type="module">
-        const announce = document.getElementById("announce");
+        // const announce = document.getElementById("announce");
         const audio = document.getElementById("melody");
         const approach = document.getElementById("approach");
       
@@ -73,7 +73,12 @@
               if (!isPlaying) {
                 let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/徳山_1番_接近中.gif";
                 if (approach.src != approaching) approach.src = approaching;
-                announce.play();
+                if (audioContext.state === "suspended") {
+                  await audioContext.resume();
+                }
+                isPlaying = true;
+                audio.loop = true;
+                source.start(0);
               } else {
                 isPlaying = false;
                 approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/徳山_1番_到着前.gif";
@@ -84,18 +89,6 @@
                 source.loop = true;
                 source.connect(audioContext.destination);
               }
-        });
-
-        announce.addEventListener('ended', async () => {
-          if (!isPlaying) {
-            if (audioContext.state === "suspended") {
-              await audioContext.resume();
-            }
-            announce.currentTime = 0;
-            isPlaying = true;
-            audio.loop = true;
-            source.start(0);
-          }
         });
     </script>
 <!--       </div> -->
