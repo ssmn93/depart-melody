@@ -73,11 +73,20 @@
         source.connect(audioContext.destination);
 
         // クリックイベント
-        document.getElementById('approach').addEventListener('click', function() {
+        document.getElementById('approach').addEventListener('click', async function() {
               if (!isPlaying) {
                 let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/ユニバーサルシティ_1番_接近中.gif";
                 if (approach.src != approaching) approach.src = approaching;
-                announce.play();
+
+                if (audioContext.state === "suspended") {
+                  await audioContext.resume();
+                }
+
+                try {
+                  await announce.play();
+                } catch (e) {
+                  console.error("announce.play() failed:", e);
+                }
               } else {
                 isPlaying = false;
                 approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/ユニバーサルシティ_1番_到着前.gif";
@@ -90,11 +99,8 @@
               }
         });
 
-        announce.addEventListener('ended', async () => {
+        announce.addEventListener('ended', () => {
           if (!isPlaying) {
-            if (audioContext.state === "suspended") {
-              await audioContext.resume();
-            }
             announce.currentTime = 0;
             isPlaying = true;
             audio.loop = true;
