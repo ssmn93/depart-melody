@@ -71,12 +71,12 @@
         // クリックイベント
         document.getElementById('approach').addEventListener('click', function() {
               if (!isPlaying) {
-        <img id="approach" src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/列車に注意_接近中.gif" />
+                let approaching = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/列車に注意_接近中.gif";
                 if (approach.src != approaching) approach.src = approaching;
                 announce.play();
               } else {
                 isPlaying = false;
-        <img id="approach" src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/列車に注意_到着前.png" />
+                approach.src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/列車に注意_到着前.png";
                 
                 source.stop(0);
                 source = audioContext.createBufferSource();
