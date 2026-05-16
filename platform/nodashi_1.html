@@ -125,6 +125,7 @@
 
       let melodySource = null;
       let departSource = null;
+      let tojimeSource = null;
 
       const timeData = new Uint8Array(2048);
 
@@ -271,10 +272,16 @@
 
       async function playTojime() {
         await initAudio();
-
-        const tojimeSource = createSource(tojimeBuffer);
+      
+        stopTojimeSource();
+      
+        tojimeSource = createSource(tojimeBuffer);
         tojimeSource.connect(audioContext.destination);
         tojimeSource.start(audioContext.currentTime + 0.01);
+      
+        tojimeSource.onended = () => {
+          tojimeSource = null;
+        };
       }
 
       // クリックイベント
