@@ -195,7 +195,13 @@
       }
 
       function stopTojimeSource() {
-        try { if (tojimeSource) tojimeSource.stop(); } catch (e) {}
+        try {
+          if (tojimeSource) {
+            tojimeSource.stop();
+            tojimeSource.disconnect();
+          }
+        } catch (e) {}
+      
         tojimeSource = null;
       }
 
