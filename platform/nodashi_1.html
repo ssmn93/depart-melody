@@ -209,11 +209,11 @@
           audio.pause();
           audio.currentTime = 0;
 
-          depart.pause();
-          depart.currentTime = 0;
 
           if (!departReachedThreshold) {
             tojime.currentTime = 0;
+            depart.pause();
+            depart.currentTime = 0;
             try {
               await tojime.play();
             } catch (e) {}
