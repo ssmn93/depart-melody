@@ -85,10 +85,10 @@
             <circle class="button" id="onButton" cx="480" cy="190" r="90" fill="#ffffff" fill-opacity="0" stroke="none" style="cursor:pointer;pointer-events:all;" />
             <circle class="button" id="offButton" cx="480" cy="528" r="90" fill="#ffffff" fill-opacity="0" stroke="none" style="cursor:pointer;pointer-events:all;" />
         </svg>
-    <audio id="melody" preload="auto" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/The%20Day%201番線ver.mp3"></audio>
-    <audio id="depart" preload="auto" crossorigin="anonymous" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_野田市1番.mp3"></audio>
-    <audio id="tojime" preload="auto" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_野田市1番.mp3"></audio>
-    <audio id="button" preload="auto" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/The%20Day%201番線ver.mp3"></audio>
+    <audio id="depart" crossorigin="anonymous" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_野田市1番.mp3"></audio>
+    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_野田市1番.mp3"></audio>
+    <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
       
     </div>
       <div class="arrange">
@@ -109,6 +109,7 @@
       const url = new URL(window.location.href);
       const params = url.searchParams;
       const buttonurl = params.get('button');
+
       let isPlaying = false;
       let departReachedThreshold = false;
 
@@ -116,31 +117,70 @@
 
       let audioContext = null;
       let analyser = null;
-      let sourceNode = null;
       let monitorId = null;
+
+      let melodyBuffer = null;
+      let departBuffer = null;
+      let tojimeBuffer = null;
+
+      let melodySource = null;
+      let departSource = null;
+
       const timeData = new Uint8Array(2048);
 
-      async function setupAnalyser() {
+      async function initAudio() {
         if (!audioContext) {
           audioContext = new (window.AudioContext || window.webkitAudioContext)();
-          sourceNode = audioContext.createMediaElementSource(depart);
-          analyser = audioContext.createAnalyser();
-          analyser.fftSize = 2048;
-
-          sourceNode.connect(analyser);
-          analyser.connect(audioContext.destination);
         }
 
         if (audioContext.state === "suspended") {
           await audioContext.resume();
         }
+
+        if (!melodyBuffer || !departBuffer || !tojimeBuffer) {
+          const [melodyRes, departRes, tojimeRes] = await Promise.all([
+            fetch("https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/The%20Day%201番線ver.mp3"),
+            fetch("https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_野田市1番.mp3"),
+            fetch("https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_野田市1番.mp3")
+          ]);
+
+          const [melodyArr, departArr, tojimeArr] = await Promise.all([
+            melodyRes.arrayBuffer(),
+            departRes.arrayBuffer(),
+            tojimeRes.arrayBuffer()
+          ]);
+
+          [melodyBuffer, departBuffer, tojimeBuffer] = await Promise.all([
+            audioContext.decodeAudioData(melodyArr),
+            audioContext.decodeAudioData(departArr),
+            audioContext.decodeAudioData(tojimeArr)
+          ]);
+        }
+
+        if (!analyser) {
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 2048;
+          analyser.connect(audioContext.destination);
+        }
+      }
+
+      function stopSources() {
+        try { if (melodySource) melodySource.stop(); } catch (e) {}
+        try { if (departSource) departSource.stop(); } catch (e) {}
+        melodySource = null;
+        departSource = null;
+      }
+
+      function stopMonitoring() {
+        if (monitorId) cancelAnimationFrame(monitorId);
+        monitorId = null;
       }
 
       function startMonitoring() {
         departReachedThreshold = false;
 
         const tick = () => {
-          if (!isPlaying || depart.paused || depart.ended) return;
+          if (!isPlaying || !departSource) return;
 
           analyser.getByteTimeDomainData(timeData);
 
@@ -159,13 +199,51 @@
           monitorId = requestAnimationFrame(tick);
         };
 
-        if (monitorId) cancelAnimationFrame(monitorId);
+        stopMonitoring();
         tick();
       }
 
-      function stopMonitoring() {
-        if (monitorId) cancelAnimationFrame(monitorId);
-        monitorId = null;
+      function createSource(buffer) {
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        return source;
+      }
+
+      async function playTogether() {
+        await initAudio();
+
+        stopSources();
+        stopMonitoring();
+
+        melodySource = createSource(melodyBuffer);
+        departSource = createSource(departBuffer);
+
+        melodySource.connect(audioContext.destination);
+        departSource.connect(analyser);
+
+        const startTime = audioContext.currentTime + 0.05;
+
+        melodySource.start(startTime);
+        departSource.start(startTime);
+
+        isPlaying = true;
+        startMonitoring();
+
+        melodySource.onended = () => {
+          if (isPlaying) {
+            isPlaying = false;
+            stopMonitoring();
+            stopSources();
+          }
+        };
+      }
+
+      async function playTojime() {
+        await initAudio();
+
+        const tojimeSource = createSource(tojimeBuffer);
+        tojimeSource.connect(audioContext.destination);
+        tojimeSource.start(audioContext.currentTime + 0.01);
       }
 
       // クリックイベント
@@ -178,19 +256,7 @@
         }
 
         if (!isPlaying) {
-          isPlaying = true;
-          audio.currentTime = 0;
-          depart.currentTime = 0;
-          departReachedThreshold = false;
-
-          try {
-            await setupAnalyser();
-            await Promise.all([
-              audio.play(),
-              depart.play()
-            ]);
-            startMonitoring();
-          } catch (e) {}
+          await playTogether();
         }
       });
 
@@ -205,26 +271,14 @@
         if (isPlaying) {
           isPlaying = false;
           stopMonitoring();
-
-          audio.pause();
-          audio.currentTime = 0;
-
+          stopSources();
 
           if (!departReachedThreshold) {
-            tojime.currentTime = 0;
-            depart.pause();
-            depart.currentTime = 0;
             try {
-              await tojime.play();
+              await playTojime();
             } catch (e) {}
           }
         }
-      });
-    
-      // 曲が終了したとき
-      audio.addEventListener("ended", () => {
-        audio.currentTime = 0;
-        isPlaying = false;
       });
     </script>
   </div>
