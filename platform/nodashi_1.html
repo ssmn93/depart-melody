@@ -139,9 +139,9 @@
 
         if (!melodyBuffer || !departBuffer || !tojimeBuffer) {
           const [melodyRes, departRes, tojimeRes] = await Promise.all([
-            fetch("https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/The%20Day%201番線ver.mp3"),
-            fetch("https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_野田市1番.mp3"),
-            fetch("https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_野田市1番.mp3")
+            fetch(audio.src),
+            fetch(depart.src),
+            fetch(tojime.src)
           ]);
 
           const [melodyArr, departArr, tojimeArr] = await Promise.all([
@@ -164,11 +164,9 @@
         }
       }
 
-      function stopSources() {
+      function stopMelodySource() {
         try { if (melodySource) melodySource.stop(); } catch (e) {}
-        try { if (departSource) departSource.stop(); } catch (e) {}
         melodySource = null;
-        departSource = null;
       }
 
       function stopMonitoring() {
@@ -212,7 +210,7 @@
       async function playTogether() {
         await initAudio();
 
-        stopSources();
+        stopMelodySource();
         stopMonitoring();
 
         melodySource = createSource(melodyBuffer);
@@ -233,8 +231,12 @@
           if (isPlaying) {
             isPlaying = false;
             stopMonitoring();
-            stopSources();
+            stopMelodySource();
           }
+        };
+
+        departSource.onended = () => {
+          departSource = null;
         };
       }
 
@@ -271,7 +273,7 @@
         if (isPlaying) {
           isPlaying = false;
           stopMonitoring();
-          stopSources();
+          stopMelodySource();
 
           if (!departReachedThreshold) {
             try {
