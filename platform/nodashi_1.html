@@ -188,6 +188,11 @@
         melodySource = null;
       }
 
+      function stopDepartSource() {
+        try { if (departSource) departSource.stop(); } catch (e) {}
+        departSource = null;
+      }
+
       function stopMonitoring() {
         if (monitorId) cancelAnimationFrame(monitorId);
         monitorId = null;
@@ -297,6 +302,7 @@
           if (!departReachedThreshold) {
             try {
               await playTojime();
+              await stopDepartSource();
             } catch (e) {}
           }
         }
