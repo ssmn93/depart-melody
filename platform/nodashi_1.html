@@ -193,6 +193,11 @@
         departSource = null;
       }
 
+      function stopTojimeSource() {
+        try { if (tojimeSource) tojimeSource.stop(); } catch (e) {}
+        tojimeSource = null;
+      }
+
       function stopMonitoring() {
         if (monitorId) cancelAnimationFrame(monitorId);
         monitorId = null;
@@ -301,6 +306,7 @@
 
           if (!departReachedThreshold) {
             try {
+              await stopTojimeSource();
               await playTojime();
               await stopDepartSource();
             } catch (e) {}
