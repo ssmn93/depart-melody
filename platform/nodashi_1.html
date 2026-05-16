@@ -86,7 +86,8 @@
             <circle class="button" id="offButton" cx="480" cy="528" r="90" fill="#ffffff" fill-opacity="0" stroke="none" style="cursor:pointer;pointer-events:all;" />
         </svg>
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/The%20Day%201番線ver.mp3"></audio>
-    <audio id="depart" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_野田市1番.mp3"></audio>
+    <audio id="depart" crossorigin="anonymous" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_野田市1番.mp3"></audio>
+    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_野田市1番.mp3"></audio>
     <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
       
     </div>
@@ -102,83 +103,124 @@
     <script>
       const audio = document.getElementById("melody");
       const depart = document.getElementById("depart");
+      const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
-      let buttonon = document.getElementById("buttonon");
-      let url = new URL(window.location.href);
-      let params = url.searchParams;
-      let buttonurl = params.get('button');      
-        let isPlaying = false;
+      const buttonon = document.getElementById("buttonon");
+      const url = new URL(window.location.href);
+      const params = url.searchParams;
+      const buttonurl = params.get('button');
+      let isPlaying = false;
+      let departReachedThreshold = false;
 
-        // クリックイベント
-        document.getElementById('onButton').addEventListener('click', function() {
+      const THRESHOLD = 0.12;
+
+      let audioContext = null;
+      let analyser = null;
+      let sourceNode = null;
+      let monitorId = null;
+      const timeData = new Uint8Array(2048);
+
+      async function setupAnalyser() {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          sourceNode = audioContext.createMediaElementSource(depart);
+          analyser = audioContext.createAnalyser();
+          analyser.fftSize = 2048;
+
+          sourceNode.connect(analyser);
+          analyser.connect(audioContext.destination);
+        }
+
+        if (audioContext.state === "suspended") {
+          await audioContext.resume();
+        }
+      }
+
+      function startMonitoring() {
+        departReachedThreshold = false;
+
+        const tick = () => {
+          if (!isPlaying || depart.paused || depart.ended) return;
+
+          analyser.getByteTimeDomainData(timeData);
+
+          let sum = 0;
+          for (let i = 0; i < timeData.length; i++) {
+            const v = (timeData[i] - 128) / 128;
+            sum += v * v;
+          }
+
+          const rms = Math.sqrt(sum / timeData.length);
+
+          if (rms >= THRESHOLD) {
+            departReachedThreshold = true;
+          }
+
+          monitorId = requestAnimationFrame(tick);
+        };
+
+        if (monitorId) cancelAnimationFrame(monitorId);
+        tick();
+      }
+
+      function stopMonitoring() {
+        if (monitorId) cancelAnimationFrame(monitorId);
+        monitorId = null;
+      }
+
+      // クリックイベント
+      document.getElementById('onButton').addEventListener('click', async function() {
+        if (buttonurl !== 'off' && !buttonon.checked) {
           button.currentTime = 0;
-          if (buttonurl !== 'off' && !buttonon.checked) button.play();
-            if (!isPlaying) {
-              isPlaying = true;
-              audio.currentTime = 0;
-              audio.play();
-              depart.play();
-            }
-        });
-         // document.getElementById('onText').addEventListener('click', function() {
-         //   button.play();
-         //      // if (!isPlaying) {
-         //        // isPlaying = true;
-         //        // audio.loop = true; // ループ再生を有効にする
-         //        audio.play();
-         //      // }
-         // });
-        
-        document.getElementById('offButton').addEventListener('click', function() {
-          if (buttonurl !== 'off' && !buttonon.checked) button.play();
-            if (isPlaying) {
-              isPlaying = false;
-              audio.pause();
-              audio.currentTime = 0;
-              // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-            }
-        });
-        // document.getElementById('offText').addEventListener('click', function() {
-        //   button.play();
-        //     if (isPlaying) {
-        //       isPlaying = false;
-        //       audio.loop = false;
-        //       audio.pause();
-        //       audio.currentTime = 0;
-        //       // const tojime = new Audio("https://video.twimg.com/ext_tw_video/1906347151887896576/pu/vid/avc1/1280x720/PK5dTLEB2OwxSkAL.mp3?tag=12");
-        //       tojime.play();
-        //     }
-        // });
-    </script>
+          try {
+            await button.play();
+          } catch (e) {}
+        }
 
-<!--       </div> -->
-<!--        <script>
-        const audio = document.getElementById("melody");
-        const tojime = document.getElementById("tojime");
-        const playButton = document.getElementById("start");
-        const stopButton = document.getElementById("stop");
+        if (!isPlaying) {
+          isPlaying = true;
+          audio.currentTime = 0;
+          depart.currentTime = 0;
+          departReachedThreshold = false;
 
-        let isPlaying = false;
+          try {
+            await setupAnalyser();
+            await Promise.all([
+              audio.play(),
+              depart.play()
+            ]);
+            startMonitoring();
+          } catch (e) {}
+        }
+      });
 
-        playButton.addEventListener("click", () => {
-            if (!isPlaying) {
-                isPlaying = true;
-                audio.loop = true; // ループ再生を有効にする
-                audio.play();
-            }
-        });
+      document.getElementById('offButton').addEventListener('click', async function() {
+        if (buttonurl !== 'off' && !buttonon.checked) {
+          button.currentTime = 0;
+          try {
+            await button.play();
+          } catch (e) {}
+        }
 
-        stopButton.addEventListener("click", () => {
+        if (isPlaying) {
           isPlaying = false;
-          audio.loop = false; // ループを解除
-          audio.pause();
-          audio.currentTime = 0; // 音声を最初に戻す
+          stopMonitoring();
 
-          // ボタンが押されるたびに新しい `Audio` インスタンスを作成して再生
-          const tojime = new Audio("https://video.twimg.com/ext_tw_video/1905964407139786752/pu/vid/avc1/1280x720/j3D2qa6ySZjnVlBm.mp3?tag=12");
-          tojime.play();
-        });
-      </script> -->
+          audio.pause();
+          audio.currentTime = 0;
+
+          depart.pause();
+          depart.currentTime = 0;
+
+          if (!departReachedThreshold) {
+            tojime.currentTime = 0;
+            try {
+              await tojime.play();
+            } catch (e) {}
+          }
+        }
+      });
+    </script>
   </div>
   </div>
   <footer class="footer">
