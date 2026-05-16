@@ -126,6 +126,7 @@
       let melodySource = null;
       let departSource = null;
       let tojimeSource = null;
+      let tojimeGeneration = 0;
 
       const timeData = new Uint8Array(2048);
 
@@ -195,7 +196,16 @@
       }
 
       function stopTojimeSource() {
-        try { if (tojimeSource) tojimeSource.stop(); } catch (e) {}
+        tojimeGeneration++;
+      
+        try {
+          if (tojimeSource) {
+            tojimeSource.onended = null;
+            tojimeSource.stop(0);
+            tojimeSource.disconnect();
+          }
+        } catch (e) {}
+      
         tojimeSource = null;
       }
 
@@ -275,12 +285,23 @@
       
         stopTojimeSource();
       
-        tojimeSource = createSource(tojimeBuffer);
-        tojimeSource.connect(audioContext.destination);
-        tojimeSource.start(audioContext.currentTime + 0.01);
+        const generation = tojimeGeneration;
       
-        tojimeSource.onended = () => {
-          tojimeSource = null;
+        const source = createSource(tojimeBuffer);
+        tojimeSource = source;
+      
+        source.connect(audioContext.destination);
+      
+        source.start();
+      
+        source.onended = () => {
+          if (generation === tojimeGeneration && tojimeSource === source) {
+            try {
+              source.disconnect();
+            } catch (e) {}
+      
+            tojimeSource = null;
+          }
         };
       }
 
