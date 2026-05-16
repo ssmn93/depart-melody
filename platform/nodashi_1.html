@@ -85,10 +85,10 @@
             <circle class="button" id="onButton" cx="480" cy="190" r="90" fill="#ffffff" fill-opacity="0" stroke="none" style="cursor:pointer;pointer-events:all;" />
             <circle class="button" id="offButton" cx="480" cy="528" r="90" fill="#ffffff" fill-opacity="0" stroke="none" style="cursor:pointer;pointer-events:all;" />
         </svg>
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/The%20Day%201番線ver.mp3"></audio>
-    <audio id="depart" crossorigin="anonymous" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_野田市1番.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_野田市1番.mp3"></audio>
-    <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
+    <audio id="melody" preload="auto" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/The%20Day%201番線ver.mp3"></audio>
+    <audio id="depart" preload="auto" crossorigin="anonymous" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_野田市1番.mp3"></audio>
+    <audio id="tojime" preload="auto" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_野田市1番.mp3"></audio>
+    <audio id="button" preload="auto" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
       
     </div>
       <div class="arrange">
@@ -219,6 +219,12 @@
             } catch (e) {}
           }
         }
+      });
+    
+      // 曲が終了したとき
+      audio.addEventListener("ended", () => {
+        audio.currentTime = 0;
+        isPlaying = false;
       });
     </script>
   </div>
