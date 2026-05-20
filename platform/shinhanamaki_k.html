@@ -82,7 +82,8 @@
     
     <script>
       
-      let audio;
+      let audio_1c = document.getElementById("melody_1c");
+      let audio_2c = document.getElementById("melody_2c");
       const tojime = document.getElementById("tojime");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
@@ -99,13 +100,15 @@
               if (!isPlaying) { 
                 chorus = document.getElementById("chorus").value;
                 isPlaying = true;
-                if (chorus === "1c") audio = document.getElementById("melody_1c");
-                if (chorus === "2c") audio = document.getElementById("melody_2c");
-                audio.play();
+                if (chorus === "1c") audio_1c.play();
+                if (chorus === "2c") audio_2c.play();
               }
         });
 
-        audio.addEventListener("ended", () => {
+        audio_1c.addEventListener("ended", () => {
+          isPlaying = false;
+        });
+        audio_2c.addEventListener("ended", () => {
           isPlaying = false;
         });
     </script>
