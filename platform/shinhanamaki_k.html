@@ -91,17 +91,17 @@
       let params = url.searchParams;
       let buttonurl = params.get('button');      
       let isPlaying = false;
-      let voice;
+      let chorus;
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
           button.currentTime = 0;
           if (buttonurl !== 'off' && !buttonon.checked) button.play();
               if (!isPlaying) { 
-                voice = document.getElementById("voice").value;
+                chorus = document.getElementById("chorus").value;
                 isPlaying = true;
-                if (voice === "1c") audio_1c.play();
-                if (voice === "2c") audio_2c.play();
+                if (chorus === "1c") audio_1c.play();
+                if (chorus === "2c") audio_2c.play();
               }
         });
     </script>
