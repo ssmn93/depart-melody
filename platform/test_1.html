@@ -318,7 +318,7 @@
             if (isPlaying) isPlaying = false;
           });
 
-          final.addEvertListener("ended", () => {
+          final.addEventListener("ended", () => {
             if (isStarting) {
               buzzer.currentTime = 0;
               buzzer.loop = true;
