@@ -784,6 +784,33 @@
               </script>
             </td>
           </tr>
+          <tr>
+            <td>【限定】2026/06/08~2026/07/07「星めぐりの歌 在来線ver」</td>
+            <td>運営収録</td>
+            <td>
+              <button id="play_sound8">聴く</button>
+              <td><a href="https://x.com/i/user/1246818704488198146">なろさん様</a></td>
+              <script>
+                const button8 = document.getElementById("play_sound8");
+                const sound8 = document.getElementById("sound8");
+                let isPlaying8 = false;
+
+                button8.addEventListener("click", (e) => {
+                  if (!isPlaying8) {
+                    sound8.play();
+                    isPlaying8 = true;
+                  } else {
+                    sound8.pause();
+                    isPlaying8 = false;
+                  }
+                });
+
+                sound8.addEventListener("ended", () => {
+                  isPlaying8 = false;
+                });
+              </script>
+            </td>
+          </tr>
         </tbody>
       </table>
       <h1>音声提供</h1>      
