@@ -41,8 +41,9 @@
       <div class="arrange">
         <img id="approach" src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/approach/塚口_2番_到着前.gif" />
       </div>
-    <audio id="announce" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/接近放送_塚口1番.mp3"></audio>
+    <audio id="announce" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/接近放送_塚口2番.mp3"></audio>
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/阪急入線標準A-a.mp3"></audio>
+    <audio id="arrive" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/到着放送_塚口2番.mp3"></audio>
       
       <div class="arrange">
         <div class="content">
@@ -58,6 +59,7 @@
       <script type="module">
         const announce = document.getElementById("announce");
         const audio = document.getElementById("melody");
+        const arrive = document.getElementById("melody");
         const approach = document.getElementById("approach");
       
         let isPlaying = false;
@@ -88,6 +90,7 @@
                 source.buffer = audioBuffer;
                 source.loop = true;
                 source.connect(audioContext.destination);
+                arrive.play();
               }
         });
 
