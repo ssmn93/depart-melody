@@ -186,7 +186,8 @@
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/オリジナル曲(阪急電鉄梅田駅神戸線発車チャイム)_阪急大阪梅田8番.mp3"></audio>
-    <audio id="depart" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_阪急大阪梅田駅8番.mp3"></audio>
+    <audio id="depart" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_阪急大阪梅田8番.mp3"></audio>
+    <audio id="no3man" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/第三の男_阪急大阪梅田8番.mp3"></audio>
     <audio id="final" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/オリジナル曲(阪急電鉄梅田駅神戸線発車チャイム).mp3"></audio>
     <audio id="buzzer" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/ブザー_阪急大阪梅田駅神戸線.mp3"></audio>
 <!--     <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E7%94%B7%E5%A3%B03%E7%95%AA.mp3"></audio> -->
@@ -205,22 +206,24 @@
         <select name="change" id="change" onchange="location.href=value;">
           <option value="hankyu_osakaumeda_8.html">〈発車〉オリジナル曲(阪急電鉄梅田駅神戸線発車チャイム)</option>
           <option value="../melody/阪急接近標準A-a">〈接近〉曲名不明(阪急接近標準A-a)</option>
-          <option value="hankyu_osakaumeda_8_l.html">〈終電〉第三の男</option>
         </select>
         <button id="last" style="margin-left: 20px;">固定解除</button>
         <button id="departure" class="final" style="margin-left: 20px; display: none;">発車放送</button>
+        <button id="no3manb" class="final" style="margin-left: 20px; display: none;">第三の男</button>
       </div>
     
     <script>
       
       const audio = document.getElementById("melody");
       const depart = document.getElementById("depart");
+      const no3man = document.getElementById("no3man");
       const final = document.getElementById("final");
       const buzzer = document.getElementById("buzzer");
       const button = document.getElementById("button");
       let buttonon = document.getElementById("buttonon");
       const last = document.getElementById("last");
       const departure = document.getElementById("departure");
+      const no3manb = document.getElementById("no3manb");
       const normals = document.querySelectorAll(".normal");
       const finals = document.querySelectorAll(".final");
       let url = new URL(window.location.href);
@@ -254,6 +257,11 @@
       departure.addEventListener("click", (e) => {
         depart.currentTime = 0;
         depart.play();
+      });   
+      
+      no3manb.addEventListener("click", (e) => {
+        no3man.currentTime = 0;
+        no3man.play();
       });
 
         // クリックイベント
