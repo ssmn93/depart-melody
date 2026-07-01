@@ -292,16 +292,12 @@
           document.getElementById('onText').addEventListener('click', function() {
             button.currentTime = 0;
             if (buttonurl !== 'off' && !buttonon.checked) button.play();
-              if (isPlaying) {
-                isPlaying = false;
-                isStarting = false;
-              }
-              if (isLooping) {
-                buzzer.pause();
-                buzzer.currentTime = 0;
-                isLooping = false;
-              }
-          });
+                if (!isPlaying) {
+                  isPlaying = true;
+                  final.play();
+                  isStarting = true;
+                }
+           });
           
           document.getElementById('offButton').addEventListener('click', function() {
             button.currentTime = 0;
@@ -322,6 +318,11 @@
               if (isPlaying) {
                 isPlaying = false;
                 isStarting = false;
+              }
+              if (isLooping) {
+                buzzer.pause();
+                buzzer.currentTime = 0;
+                isLooping = false;
               }
           });
       
