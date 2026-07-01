@@ -319,6 +319,11 @@
                 isPlaying = false;
                 isStarting = false;
               }
+              if (isLooping) {
+                buzzer.pause();
+                buzzer.currentTime = 0;
+                isLooping = false;
+              }
           });
       
           // 曲が終了したとき
