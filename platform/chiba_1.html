@@ -164,18 +164,14 @@
     <script>
       const audio = document.getElementById("melody");
       const tojime = document.getElementById("tojime");
-      const arrive = document.getElementById("arrive");
       const button = document.getElementById("button");
       const buttonon = document.getElementById("buttonon");
-      const arrival = document.getElementById("arrival");
       const circleButton = document.getElementById("onButton");
       const arrange = document.getElementById("arrange");
     
       let isCirclePressed = false;
     
       circleButton.addEventListener("touchstart", (e) => {
-        arrive.pause();
-        arrive.currentTime = 0;
         e.preventDefault();
         isCirclePressed = true;
         button.currentTime = 0;
@@ -186,8 +182,6 @@
       
       // ボタンを押したとき
       circleButton.addEventListener("mousedown", () => {
-        arrive.pause();
-        arrive.currentTime = 0;
         isCirclePressed = true;
         button.currentTime = 0;
         if (!buttonon.checked) button.play();
