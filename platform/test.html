@@ -237,7 +237,45 @@
         let __serialReader = null;
         let __serialKeepReading = false;
         let __prevSignalState = null; // 以前の DSR 状態など
+        let __serialPipeClosed = null; // port.readable -> decoder への pipeTo の完了 Promise
+        let __portOpQueue = Promise.resolve(); // open/close を直列化するためのキュー
         const __POLL_MS = 120; // 制御線ポーリング間隔（ms）
+
+        /*
+         * open() / close() を必ず1つずつ順番に実行するためのラッパー。
+         * 'connect' イベント・2秒ごとのフォールバックポーリング・手動ボタンなど
+         * 複数の経路からほぼ同時に __openAndWatchPort / __closePort が呼ばれると、
+         * 同じポートに対して open() と close() が競合し、
+         * 「The port is closed」や「pipeTo of null」エラーの原因になる。
+         * すべての呼び出しをこのキューに通すことで競合を防ぐ。
+         */
+        function __runExclusive(fn) {
+          const result = __portOpQueue.then(() => fn());
+          __portOpQueue = result.catch(e => {
+            console.warn('__runExclusive内でエラー', e);
+          });
+          return result;
+        }
+
+        /*
+         * open() が NetworkError（Failed to open serial port）で失敗するのは、
+         * 直前のクローズ処理や接続直後のドライバ初期化がまだ完了していないなど、
+         * 一時的な要因であることが多い。少し待って複数回リトライする。
+         */
+        async function __openPortWithRetry(port, options, retries = 4, delayMs = 600) {
+          for (let i = 0; i < retries; i++) {
+            try {
+              await port.open(options);
+              return true;
+            } catch (e) {
+              console.warn(`ポートのオープンに失敗（${i + 1}/${retries}回目）`, e);
+              if (i < retries - 1) {
+                await new Promise(r => setTimeout(r, delayMs));
+              }
+            }
+          }
+          return false;
+        }
         
         // 参照（既存のボタン要素を使う）
         const __onButton = document.getElementById('onButton');
@@ -281,34 +319,54 @@
             __triggerSvgClick(__offButton);
         }
         
-        /* シリアルポートを開いて監視開始 */
-        async function __openAndWatchPort(port) {
+        /* シリアルポートを開いて監視開始（直列化ラッパー経由で呼び出すこと） */
+        async function __openAndWatchPortImpl(port) {
           try {
-            // 既に別のポートを開いていれば切る
-            if (__serialPort && __serialPort !== port) {
-              await __closePort();
+            // 既にこのポートを監視中なら何もしない（二重オープン防止）
+            if (__serialPort === port && __serialKeepReading && port.readable) {
+              console.log('既にこのポートを監視中のためスキップします');
+              return;
             }
-        
-            // ポートが開いていない場合のみ open を試みる
+
+            // 別のポートを監視中であれば、先にきちんと閉じてから開き直す
+            if (__serialPort && __serialPort !== port) {
+              await __closePortImpl();
+            }
+
+            // open（未オープンの場合のみ open する）
+            // ※ SerialPort に "opened" というプロパティは存在しない（常に undefined）ため、
+            //   実際にオープン済みかどうかは readable の有無で判断する
             if (!port.readable) {
-              try {
-                await port.open({ baudRate: 115200 });
-              } catch (openError) {
-                console.error('ポートのオープンに失敗しました。監視を開始しません。', openError);
-                if (document.getElementById('hwStatus')) document.getElementById('hwStatus').textContent = '接続エラー';
-                // 開けなかった場合はここで処理を中断し、getSignalsエラーを防ぐ
-                return;
+              // NetworkError（Failed to open serial port）は、直前の切断処理や
+              // 接続直後のドライバ初期化待ちなど一時的な要因で起きることが多いためリトライする。
+              // ここでエラーを握りつぶして先に進むと、この後の getSignals() が
+              // 「The port is closed」で失敗し、readable も null のままなので
+              // pipeTo で「Cannot read properties of null (reading 'pipeTo')」になる。
+              const opened = await __openPortWithRetry(port, { baudRate: 115200 });
+              if (!opened || !port.readable) {
+                console.error('ポートのオープンに失敗しました。監視を開始しません。');
+                return; // ← ここで確実に処理を打ち切る
               }
             }
-            
+
+            // open() 後も readable が無ければ、実際には開けていないとみなして中止
+            if (!port.readable) {
+              console.error('ポートが開いていません（readable が null）。監視を開始しません。');
+              return;
+            }
+
+            __serialPort = port;
+            __serialKeepReading = true;
+            __prevSignalState = null;
+
             try {
               const sig = await port.getSignals();
               const current = !!sig.dataSetReady;
-            
+
               console.log('[初期状態]', current ? 'ON' : 'OFF');
-            
+
               __prevSignalState = current;
-            
+
               if (current) {
                 __doOn();
               } else {
@@ -318,31 +376,32 @@
               console.warn('初期状態の取得に失敗', e);
               __prevSignalState = null;
             }
-        
-            __serialPort = port;
-            __serialKeepReading = true;
-            __prevSignalState = null;
-        
+
             // テキスト読み取りストリームを作る（デバイスが "ON"/"OFF" を送る場合のフォールバック）
             try {
               const decoder = new TextDecoderStream();
               // 読み取りパイプをつなぐ（ブラウザ実装差をtryで保護）
-              port.readable.pipeTo(decoder.writable).catch(() => {});
+              // close 時に確実に待ち合わせできるよう、Promise を保持しておく
+              __serialPipeClosed = port.readable.pipeTo(decoder.writable).catch(() => {});
               __serialReader = decoder.readable.getReader();
               __readLoop().catch(e => console.warn('__readLoop error', e));
             } catch (e) {
               console.warn('text read setup failed', e);
               __serialReader = null;
             }
-        
+
             // 制御線ポーリング（getSignals が使えるなら利用）
             __pollSignalsLoop().catch(e => console.warn('__pollSignalsLoop error', e));
-        
+
             // 簡易UI変化（元から UI があれば不要）
             if (document.getElementById('hwStatus')) document.getElementById('hwStatus').textContent = '接続済み';
           } catch (err) {
             console.error('__openAndWatchPort error', err);
           }
+        }
+
+        function __openAndWatchPort(port) {
+          return __runExclusive(() => __openAndWatchPortImpl(port));
         }
         
         async function __pollSignalsLoop() {
@@ -351,10 +410,6 @@
           try {
             while (__serialKeepReading && __serialPort) {
               try {
-                // ポートが閉じられている場合は抜ける
-                if (!__serialPort.readable) {
-                  break;
-                }
                 const sig = await __serialPort.getSignals();
                 const current = !!sig.dataSetReady;
         
@@ -385,10 +440,6 @@
         
               } catch (e) {
                 console.warn('getSignalsエラー（再試行）', e);
-                // ポートが閉じているエラーが出た場合はループ終了
-                if (e.name === 'InvalidStateError') {
-                  break;
-                }
                 await new Promise(r => setTimeout(r, 500));
                 continue;
               }
@@ -436,8 +487,8 @@
           }
         }
         
-        /* ポートを閉じる（cleanup） */
-        async function __closePort() {
+        /* ポートを閉じる（cleanup）。直列化ラッパー経由で呼び出すこと */
+        async function __closePortImpl() {
           try {
             __serialKeepReading = false;
             __prevSignalState = null;
@@ -445,6 +496,14 @@
               try { await __serialReader.cancel(); } catch(_) {}
               try { await __serialReader.releaseLock(); } catch(_) {}
               __serialReader = null;
+            }
+            // pipeTo が readable のロックを解放し終えるのを待ってから close() する。
+            // 待たずに close() すると「ストリームがロックされている」ために失敗し、
+            // ブラウザ内部でポートが中途半端な状態のまま残って、
+            // 次回の open() が失敗する原因になることがある。
+            if (__serialPipeClosed) {
+              try { await __serialPipeClosed; } catch(_) {}
+              __serialPipeClosed = null;
             }
             if (__serialPort) {
               try { await __serialPort.close(); } catch(e) { /* ignore close errors */ }
@@ -454,6 +513,10 @@
           } catch (e) {
             console.warn('__closePort error', e);
           }
+        }
+
+        function __closePort() {
+          return __runExclusive(() => __closePortImpl());
         }
         
         /* 自動検出：ページロード時に既許可ポートを開く */
@@ -498,6 +561,9 @@
         
         // ページ unload 時のクリーンアップ
         window.addEventListener('beforeunload', () => {
+          try { __closePort(); } catch(e) {}
+        });
+        window.addEventListener('pagehide', () => {
           try { __closePort(); } catch(e) {}
         });
   (function(){
