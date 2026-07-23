@@ -234,10 +234,21 @@
             }
         });
         let __serialPort = null;
+        let __serialReader = null;
         let __serialKeepReading = false;
         let __prevSignalState = null; // 以前の DSR 状態など
+        let __serialPipeClosed = null; // port.readable -> decoder への pipeTo の完了 Promise
         let __portOpQueue = Promise.resolve(); // open/close を直列化するためのキュー
+        const __POLL_MS = 120; // 制御線ポーリング間隔（ms）
 
+        /*
+         * open() / close() を必ず1つずつ順番に実行するためのラッパー。
+         * 'connect' イベント・2秒ごとのフォールバックポーリング・手動ボタンなど
+         * 複数の経路からほぼ同時に __openAndWatchPort / __closePort が呼ばれると、
+         * 同じポートに対して open() と close() が競合し、
+         * 「The port is closed」や「pipeTo of null」エラーの原因になる。
+         * すべての呼び出しをこのキューに通すことで競合を防ぐ。
+         */
         function __runExclusive(fn) {
           const result = __portOpQueue.then(() => fn());
           __portOpQueue = result.catch(e => {
@@ -246,6 +257,11 @@
           return result;
         }
 
+        /*
+         * open() が NetworkError（Failed to open serial port）で失敗するのは、
+         * 直前のクローズ処理や接続直後のドライバ初期化がまだ完了していないなど、
+         * 一時的な要因であることが多い。少し待って複数回リトライする。
+         */
         async function __openPortWithRetry(port, options, retries = 4, delayMs = 600) {
           for (let i = 0; i < retries; i++) {
             try {
@@ -307,7 +323,7 @@
         async function __openAndWatchPortImpl(port) {
           try {
             // 既にこのポートを監視中なら何もしない（二重オープン防止）
-            if (__serialPort === port && __serialKeepReading) {
+            if (__serialPort === port && __serialKeepReading && port.readable) {
               console.log('既にこのポートを監視中のためスキップします');
               return;
             }
@@ -317,9 +333,31 @@
               await __closePortImpl();
             }
 
-            const opened = await __openPortWithRetry(port, { baudRate: 115200 });
-            if (!opened) {
-              console.error('ポートのオープンに失敗しました。監視を開始しません。');
+            // open（未オープンの場合のみ open する）
+            // ※ SerialPort に "opened" というプロパティは存在しない（常に undefined）ため、
+            //   実際にオープン済みかどうかは readable の有無で判断する
+            if (!port.readable) {
+              // NetworkError（Failed to open serial port）は、直前の切断処理や
+              // 接続直後のドライバ初期化待ちなど一時的な要因で起きることが多いためリトライする。
+              // ここでエラーを握りつぶして先に進むと、この後の getSignals() が
+              // 「The port is closed」で失敗し、readable も null のままなので
+              // pipeTo で「Cannot read properties of null (reading 'pipeTo')」になる。
+              const opened = await __openPortWithRetry(port, {
+                baudRate: 115200,
+                dataBits: 8,
+                stopBits: 1,
+                parity: 'none',
+                flowControl: 'none'
+              });
+              if (!opened || !port.readable) {
+                console.error('ポートのオープンに失敗しました。監視を開始しません。');
+                return; // ← ここで確実に処理を打ち切る
+              }
+            }
+
+            // open() 後も readable が無ければ、実際には開けていないとみなして中止
+            if (!port.readable) {
+              console.error('ポートが開いていません（readable が null）。監視を開始しません。');
               return;
             }
 
@@ -345,9 +383,23 @@
               __prevSignalState = null;
             }
 
-            // 制御線ポーリング（WS3400WKスイッチはDSR等の制御線のみ使用）
+            // テキスト読み取りストリームを作る（デバイスが "ON"/"OFF" を送る場合のフォールバック）
+            try {
+              const decoder = new TextDecoderStream();
+              // 読み取りパイプをつなぐ（ブラウザ実装差をtryで保護）
+              // close 時に確実に待ち合わせできるよう、Promise を保持しておく
+              __serialPipeClosed = port.readable.pipeTo(decoder.writable).catch(() => {});
+              __serialReader = decoder.readable.getReader();
+              __readLoop().catch(e => console.warn('__readLoop error', e));
+            } catch (e) {
+              console.warn('text read setup failed', e);
+              __serialReader = null;
+            }
+
+            // 制御線ポーリング（getSignals が使えるなら利用）
             __pollSignalsLoop().catch(e => console.warn('__pollSignalsLoop error', e));
 
+            // 簡易UI変化（元から UI があれば不要）
             if (document.getElementById('hwStatus')) document.getElementById('hwStatus').textContent = '接続済み';
           } catch (err) {
             console.error('__openAndWatchPort error', err);
@@ -405,12 +457,60 @@
           }
         }
         
+        /* テキスト読み取りループ（"ON"/"OFF" を期待する場合） */
+        async function __readLoop() {
+          if (!__serialReader) return;
+          try {
+            let buf = '';
+            while (__serialKeepReading) {
+              const { value, done } = await __serialReader.read();
+              if (done) break;
+              if (value) {
+                buf += value;
+                const lines = buf.split(/\r?\n/);
+                buf = lines.pop();
+                for (const lineRaw of lines) {
+                  const line = (lineRaw || '').trim().toUpperCase();
+                  if (line === 'ON') {
+                    __doOn();
+                  } else if (line === 'OFF') {
+                    __doOff();
+                  } else {
+                    // その他のメッセージはログのみ
+                    console.log('serial text:', line);
+                  }
+                }
+              } else {
+                // 少し待つ
+                await new Promise(r => setTimeout(r, 50));
+              }
+            }
+          } catch (e) {
+            console.error('__readLoop error', e);
+          } finally {
+            try { if (__serialReader) await __serialReader.releaseLock(); } catch(_) {}
+            __serialReader = null;
+          }
+        }
+        
         /* ポートを閉じる（cleanup）。直列化ラッパー経由で呼び出すこと */
         async function __closePortImpl() {
           try {
             __serialKeepReading = false;
             __prevSignalState = null;
-
+            if (__serialReader) {
+              try { await __serialReader.cancel(); } catch(_) {}
+              try { await __serialReader.releaseLock(); } catch(_) {}
+              __serialReader = null;
+            }
+            // pipeTo が readable のロックを解放し終えるのを待ってから close() する。
+            // 待たずに close() すると「ストリームがロックされている」ために失敗し、
+            // ブラウザ内部でポートが中途半端な状態のまま残って、
+            // 次回の open() が失敗する原因になることがある。
+            if (__serialPipeClosed) {
+              try { await __serialPipeClosed; } catch(_) {}
+              __serialPipeClosed = null;
+            }
             if (__serialPort) {
               try { await __serialPort.close(); } catch(e) { /* ignore close errors */ }
               __serialPort = null;
@@ -431,6 +531,7 @@
           try {
             const ports = await navigator.serial.getPorts();
             if (ports && ports.length > 0) {
+              // 最初の許可済みポートを自動で使用（必要なら選択UIに変えてください）
               await __openAndWatchPort(ports[0]);
             }
           } catch (e) {
@@ -438,9 +539,10 @@
           }
         }
         
-        /* connect / disconnect イベント対応 */
+        /* connect / disconnect イベント対応（許可済みポートの挿抜を検出できる） */
         if ('serial' in navigator) {
           navigator.serial.addEventListener('connect', ev => {
+            // ev.port は許可済みのポートのみが渡されることがある
             if (ev && ev.port) {
               __openAndWatchPort(ev.port).catch(e => console.warn('open on connect failed', e));
             }
@@ -450,7 +552,7 @@
               __closePort().catch(e => console.warn('close on disconnect failed', e));
             }
           });
-          
+          // フォールバック：一部環境で connect イベントが使えないため定期チェックも行う
           setInterval(async () => {
             if (!__serialPort) {
               try {
@@ -470,35 +572,69 @@
         window.addEventListener('pagehide', () => {
           try { __closePort(); } catch(e) {}
         });
-
   (function(){
     const btn = document.getElementById('connectHardware');
     if (!btn) return;
 
     btn.addEventListener('click', async () => {
+      // Web Serial API 非対応チェック
       if (!('serial' in navigator)) {
         alert('このブラウザは Web Serial API に対応していません。Chrome/Edge（HTTPS または localhost）で実行してください。');
         return;
       }
 
       try {
-        const port = await navigator.serial.requestPort();
+        // ユーザーにポート選択ダイアログを表示
+        // filters を必要に応じて指定可能（例: { usbVendorId: xxxx, usbProductId: yyyy }）
+        const port = await navigator.serial.requestPort(); // ユーザーがキャンセルすると例外になる
+        // 既存の監視開始関数に渡す（ファイル内で定義されている __openAndWatchPort を利用）
         if (typeof __openAndWatchPort === 'function') {
           await __openAndWatchPort(port);
           console.log('port opened and watching');
+          // optional: 簡易ステータス表示
           const s = document.getElementById('hwStatus');
           if (s) s.textContent = '接続済み';
         } else {
           console.warn('__openAndWatchPort が定義されていません');
         }
       } catch (err) {
+        // ユーザーがキャンセルした場合やエラー時
         console.warn('requestPort failed or canceled', err);
+        // 必要なら UI に反映
         const s = document.getElementById('hwStatus');
         if (s) s.textContent = '未接続';
       }
     });
   })();
     </script>
+<!--       </div> -->
+<!--        <script>
+        const audio = document.getElementById("melody");
+        const tojime = document.getElementById("tojime");
+        const playButton = document.getElementById("start");
+        const stopButton = document.getElementById("stop");
+
+        let isPlaying = false;
+
+        playButton.addEventListener("click", () => {
+            if (!isPlaying) {
+                isPlaying = true;
+                audio.loop = true; // ループ再生を有効にする
+                audio.play();
+            }
+        });
+
+        stopButton.addEventListener("click", () => {
+          isPlaying = false;
+          audio.loop = false; // ループを解除
+          audio.pause();
+          audio.currentTime = 0; // 音声を最初に戻す
+
+          // ボタンが押されるたびに新しい `Audio` インスタンスを作成して再生
+          const tojime = new Audio("https://video.twimg.com/ext_tw_video/1905964407139786752/pu/vid/avc1/1280x720/j3D2qa6ySZjnVlBm.mp3?tag=12");
+          tojime.play();
+        });
+      </script> -->
   </div>
   </div>
   <footer class="footer">
