@@ -808,7 +808,7 @@
                         <option value="kaihimmakuhari_3">(3)</option>
                     </select>
                 </div>
-                <div class="kaihimmakuhari"><input type="radio" id="kaihimmakuhari_4" name="kaihimmakuhari" value="2" class="forms" data-timelines="2016-09-25:" /><label for="kaihimmakuhari_4">(4)</label></div>
+                <div class="kaihimmakuhari"><input type="radio" id="kaihimmakuhari_4" name="kaihimmakuhari" value="2" class="forms mains" data-timelines="2016-09-25:" /><label for="kaihimmakuhari_4">(4)</label></div>
                 <div class="kaihimmakuhari"><h3>海浜幕張駅</h3></div>
               </div>
               <div class="stationes">
@@ -828,7 +828,7 @@
                         <option value="minamifunabashi_3">(3)</option>
                     </select>
                 </div>
-                <div class="minamifunabashi"><input type="radio" id="minamifunabashi_4" name="minamifunabashi" value="2" class="forms" data-timelines="2016-09-25:_o1,2025-06-05:" /><label for="minamifunabashi_4">(4)</label></div>
+                <div class="minamifunabashi"><input type="radio" id="minamifunabashi_4" name="minamifunabashi" value="2" class="forms mains" data-timelines="2016-09-25:_o1,2025-06-05:" /><label for="minamifunabashi_4">(4)</label></div>
                 <div class="minamifunabashi"><h3>南船橋駅</h3></div>
               </div>
               <div class="stationes">
@@ -900,7 +900,7 @@
                         <option value="tokyo_JE4">(4)</option>
                     </select>
                 </div>
-                <div class="tokyo"><input type="radio" id="tokyo_JE3" name="tokyo" value="2" class="forms" data-timelines="2016-09-25:_o,2025-06-02:" /><label for="tokyo_JE3">(3)</label></div>
+                <div class="tokyo"><input type="radio" id="tokyo_JE3" name="tokyo" value="2" class="forms mains" data-timelines="2016-09-25:_o,2025-06-02:" /><label for="tokyo_JE3">(3)</label></div>
                 <div class="tokyo"><h3>東京駅</h3></div>
               </div>
               <div class="stationes">
@@ -964,7 +964,7 @@
                 <div class="makuharitoyosuna"><h3>幕張豊砂駅</h3></div>
               </div>
               <div class="stationes">
-                <div class="kaihimmakuhari"><input type="radio" id="kaihimmakuhari_1" name="kaihimmakuhari" value="2" class="forms" data-timelines="2016-09-25:" /><label for="kaihimmakuhari_1">(1)</label></div>
+                <div class="kaihimmakuhari"><input type="radio" id="kaihimmakuhari_1" name="kaihimmakuhari" value="2" class="forms mains" data-timelines="2016-09-25:" /><label for="kaihimmakuhari_1">(1)</label></div>
                 <div class="kaihimmakuhari"><input type="radio" id="kaihimmakuhari_2" name="kaihimmakuhari" value="2" class="forms" data-timelines="2016-09-25:" /><label for="kaihimmakuhari_2">(2)</label></div>
                 <div class="kaihimmakuhari"><h3>海浜幕張駅</h3></div>
               </div>
@@ -2420,5 +2420,193 @@
       鉄道モバイル:<a href="https://www.te2do.jp">https://www.te2do.jp</a>
     </p>
   </footer>
+  <script>
+    // 再読込しても①路線・②停車駅/使用ホーム・共通設定・タイムスリップ日を保持するための追加スクリプト
+    // 既存のロジックは変更せず、localStorageへの保存/復元のみを行う。
+    (() => {
+      'use strict';
+      const STORAGE_KEY = 'stationBellSettings';
+
+      const lineContainerMap = {
+        jr_nambu_u: 'nambu_us', jr_nambu_d: 'nambu_ds',
+        jr_abiko_u: 'abiko_us', jr_abiko_d: 'abiko_ds',
+        jr_sotobo_u: 'sotobo_us', jr_sotobo_d: 'sotobo_ds',
+        jr_keiyo_u: 'keiyo_us', jr_keiyo_d: 'keiyo_ds',
+        jr_senseki_u: 'senseki_us', jr_senseki_d: 'senseki_ds',
+        jr_yokohama_u: 'yokohama_us', jr_yokohama_d: 'yokohama_ds'
+      };
+
+      function getActiveContainer(line) {
+        const containerId = line ? lineContainerMap[line] : null;
+        return containerId ? document.getElementById(containerId) : null;
+      }
+
+      function saveState() {
+        try {
+          const lineEl = document.getElementById('line');
+          const timeEl = document.getElementById('time_nambu');
+          const iframeEl = document.getElementById('station-iframe');
+          const line = lineEl ? lineEl.value : null;
+          const scope = getActiveContainer(line);
+
+          const state = {
+            line: line,
+            radios: {},
+            selects: {},
+            checkboxes: {},
+            time_nambu: timeEl ? timeEl.value : '',
+            iframe: null
+          };
+
+          // 強制受信ボタンなどで表示された駅・ホーム(iframe)を保存
+          if (iframeEl && iframeEl.dataset.stationId) {
+            state.iframe = {
+              stationId: iframeEl.dataset.stationId,
+              platform: iframeEl.dataset.platform || '',
+              src: iframeEl.src
+            };
+          }
+
+          // ②停車駅・使用ホームのラジオ状態を保存する。
+          // 同じ駅名(name)のラジオが同じグループ内でvalueが重複しているケースがあるため、
+          // value ではなく「現在表示中の路線グループ内での、同名ラジオの中の並び順(index)」で識別する。
+          if (scope) {
+            const seen = {};
+            scope.querySelectorAll('input[type="radio"]').forEach((r) => {
+              if (!r.name) return;
+              const idx = seen[r.name] || 0;
+              seen[r.name] = idx + 1;
+              if (r.checked) state.radios[r.name] = idx;
+            });
+
+            // 駅によっては同じホームでも複数のページIDを持ち、
+            // <select onchange="syncRadioId(this)"> で切り替える構造になっているため、その選択値も保存
+            scope.querySelectorAll('select[onchange*="syncRadioId"]').forEach((sel, idx) => {
+              const container = sel.closest('div');
+              const radio = container ? container.querySelector('input[type="radio"]') : null;
+              const key = radio && radio.name ? radio.name : ('idx_' + idx);
+              state.selects[key] = sel.value;
+            });
+          }
+
+          ['buttonon', 'changeon', 'placeoff'].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) state.checkboxes[id] = el.checked;
+          });
+
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+          console.warn('設定の保存に失敗しました:', e);
+        }
+      }
+
+      function restoreState() {
+        let state;
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          state = JSON.parse(raw);
+        } catch (e) {
+          console.warn('設定の復元に失敗しました:', e);
+          return;
+        }
+
+        // ①路線を選択してください。
+        const lineSelect = document.getElementById('line');
+        if (lineSelect && state.line) {
+          lineSelect.value = state.line;
+          if (typeof lineChange === 'function') lineChange();
+        }
+
+        const scope = getActiveContainer(state.line);
+
+        // 駅によっては同じホームでも複数のページIDを持ち、
+        // <select onchange="syncRadioId(this)"> で切り替える構造になっているため、その選択値を先に復元
+        // (先にidを正しい状態へ戻してから、ラジオのchecked状態を復元する)
+        if (scope && state.selects) {
+          scope.querySelectorAll('select[onchange*="syncRadioId"]').forEach((sel, idx) => {
+            const container = sel.closest('div');
+            const radio = container ? container.querySelector('input[type="radio"]') : null;
+            const key = radio && radio.name ? radio.name : ('idx_' + idx);
+            if (state.selects[key] !== undefined) {
+              sel.value = state.selects[key];
+              if (typeof syncRadioId === 'function') syncRadioId(sel);
+            }
+          });
+        }
+
+        // ②停車駅・使用ホームを選択してください。
+        // 保存時と同じく、現在表示中の路線グループ内での同名ラジオの並び順(index)で照合する。
+        if (scope && state.radios) {
+          const seen = {};
+          scope.querySelectorAll('input[type="radio"]').forEach((r) => {
+            if (!r.name) return;
+            const idx = seen[r.name] || 0;
+            seen[r.name] = idx + 1;
+            if (state.radios[r.name] === idx) r.checked = true;
+          });
+        }
+
+        // 強制受信ボタンなどで表示されていた駅・ホーム(iframe)を復元
+        // ※「ボタン音オフ」の反映(?button=off の付与/削除)より前に行うことで、
+        //   復元後のiframe URLに対して正しくパラメータが同期されるようにする。
+        const iframeEl = document.getElementById('station-iframe');
+        if (iframeEl && state.iframe && state.iframe.stationId) {
+          iframeEl.dataset.stationId = state.iframe.stationId;
+          iframeEl.dataset.platform = state.iframe.platform || '';
+          if (state.iframe.src) iframeEl.src = state.iframe.src;
+        }
+
+        // 共通設定（ボタン音オフ/切替通知音オフ/位置情報オフ）
+        if (state.checkboxes) {
+          Object.keys(state.checkboxes).forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) {
+              el.checked = state.checkboxes[id];
+              el.dispatchEvent(new Event('change'));
+            }
+          });
+        }
+
+        // タイムスリップ日
+        const timeInput = document.getElementById('time_nambu');
+        if (timeInput && state.time_nambu) {
+          timeInput.value = state.time_nambu;
+          timeInput.dispatchEvent(new Event('change'));
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', restoreState);
+
+      // 強制受信ボタン・自動切替などでiframeの表示駅が変わるたびに保存
+      const stationIframeEl = document.getElementById('station-iframe');
+      if (stationIframeEl) {
+        stationIframeEl.addEventListener('load', () => {
+          if (stationIframeEl.dataset.stationId) saveState();
+        });
+      }
+
+      // 「本線選択」「全消去」ボタンは checked を直接書き換えるだけで change イベントを発火しないため、
+      // 個別に保存をフックする（既存の onclick="mains();"/"deletes();" とは独立して追加するだけ）。
+      ['mains', 'deletes'].forEach((id) => {
+        const btn = document.getElementById(id);
+        if (btn) btn.addEventListener('click', () => setTimeout(saveState, 0));
+      });
+
+      // いずれかの設定項目が変更されたら保存
+      document.addEventListener('change', (e) => {
+        const t = e.target;
+        if (!t) return;
+        const ids = ['line', 'buttonon', 'changeon', 'placeoff', 'time_nambu'];
+        if (
+          ids.includes(t.id) ||
+          t.matches('input[type="radio"]') ||
+          t.matches('select[onchange*="syncRadioId"]')
+        ) {
+          saveState();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
