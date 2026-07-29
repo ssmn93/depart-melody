@@ -519,4 +519,5 @@ summary {
   top: 50%;
   transform: translateY(-50%);  /* 縦方向を中央揃え */
   width: fit-content;
+  margin-left: auto;
 }
