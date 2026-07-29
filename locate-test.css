@@ -470,6 +470,7 @@ iframe {
   border-radius: 6px;
   margin-bottom: 8px;
   flex-wrap: wrap;               /* 幅が狭ければ折り返す（スマホ対応） */
+  position: relative;
 }
 
 .lines {
@@ -514,8 +515,9 @@ summary {
 }
 
 .open-platform-btn {
+  position: absolute;
   display: block;
   width: fit-content;   /* ボタンの幅をテキスト分だけに縮める */
   margin-left: auto;    /* 左側の余白を自動にして右へ寄せる */
-  margin-top: 8px;       /* 任意：上の行との間に少し余白を入れる場合 */
+  transform: translateY(-50%);  /* 縦方向を中央揃え */
 }
