@@ -517,7 +517,6 @@ summary {
 .open-platform-btn {
   position: absolute;
   top: 50%;
-  right: auto;                     /* 右端に配置。余白を付けたいなら right: 8px; 等に調整 */
   transform: translateY(-50%);  /* 縦方向を中央揃え */
   width: fit-content;
 }
