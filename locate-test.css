@@ -517,7 +517,7 @@ summary {
 .open-platform-btn {
   position: absolute;
   top: 50%;
-  transform: translateY(-50%);  /* 縦方向を中央揃え */
+  right: 12px;                  /* .stationes の左右パディング(12px)と揃えて右端に配置 */
+  transform: translateY(-50%);
   width: fit-content;
-  margin-left: auto;
 }
