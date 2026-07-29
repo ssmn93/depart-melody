@@ -470,6 +470,7 @@ iframe {
   border-radius: 6px;
   margin-bottom: 8px;
   flex-wrap: wrap;               /* 幅が狭ければ折り返す（スマホ対応） */
+  position: relative;
 }
 
 .lines {
@@ -511,4 +512,12 @@ summary {
   font-weight: normal;
   font-size: 20px;
   margin-left: 5px;
+}
+
+.open-platform-btn {
+  position: absolute;
+  top: 50%;
+  right: 12px;                  /* .stationes の左右パディング(12px)と揃えて右端に配置 */
+  transform: translateY(-50%);
+  width: fit-content;
 }
