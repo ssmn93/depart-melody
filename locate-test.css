@@ -515,7 +515,6 @@ summary {
 }
 
 .open-platform-btn {
-  position: absolute;
   display: block;
   width: fit-content;   /* ボタンの幅をテキスト分だけに縮める */
   margin-left: auto;    /* 左側の余白を自動にして右へ寄せる */
