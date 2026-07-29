@@ -2218,6 +2218,7 @@
                 }
               } catch (err) {    
                 if (err && err.code === -2) return; // ← 位置情報オフ時は何もしない
+                if (err && err.code === 3) { setTimeout(checkAndSwitchIfNeeded, 2000); return; } // ← タイムアウト時はエラー表示せず自動再試行
                 // err は PositionError か任意のオブジェクト
                 const code = err && err.code !== undefined ? err.code : 'unknown';
                 const msg  = err && err.message ? err.message : JSON.stringify(err);
@@ -2273,6 +2274,7 @@
           
                 console.log('強制受信: 表示するプラットフォームが見つかりませんでした。');
               } catch (err) {
+                if (err && err.code === 3) { setTimeout(onForceReceive, 2000); return; } // ← タイムアウト時はエラー表示せず自動再試行
                 const code = err && err.code !== undefined ? err.code : 'unknown';
                 const msg  = err && err.message ? err.message : JSON.stringify(err);
                 window.alert('位置情報の受信に失敗しました: コード=' + code + ' メッセージ=' + msg);
