@@ -176,8 +176,12 @@
           <p>収録駅:大宮駅8番線</p>
           <p>スピーカー:JVC横長新型(倉賀野)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="kuragano_1.html">JRE-IKST-009-02(首都圏6-1番)</option>
+          <option value="kuragano_1_o1.html">ベル</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
