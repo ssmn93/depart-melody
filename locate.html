@@ -82,6 +82,8 @@
                 <option value="jr_yokohama_d">JR横浜線 -下り</option>
                 <option value="jr_takasaki_u">JR高崎線 -上り</option>
                 <option value="jr_takasaki_d">JR高崎線 -下り</option>
+                <option value="jr_utsunomiya_u">JR宇都宮線(東京-宇都宮) -上り</option>
+                <option value="jr_utsunomiya_d">JR宇都宮線(東京-宇都宮) -下り</option>
             </select>
           </div>
           
@@ -2089,6 +2091,342 @@
                 </div>
               </details>
             </div>
+            <div class="utsunomiya_us lines" id="utsunomiya_us" style="display:none;">
+              <details>
+                <summary>メニューを開く</summary>
+                <div class="stationes">
+                    <div class="utsunomiya"><input type="radio" id="utsunomiya_7" name="utsunomiya" value="1" class="forms" data-timelines="2018-07-01:_o2,2019-07-01:,2025-08-21:_o1,2025-10-21:" />
+                        <select onchange="syncRadioId(this)">
+                            <option value="utsunomiya_7">(7)</option>
+                            <option value="utsunomiya_8">(8)</option>
+                            <option value="utsunomiya_10">(10)</option>
+                        </select>
+                    </div>
+                    <div class="utsunomiya"><input type="radio" id="utsunomiya_9" name="utsunomiya" value="2" class="forms mains" data-timelines="2018-07-01:_o2,2019-07-01:,2025-08-21:_o1,2025-10-21:" /><label for="utsunomiya_9">(9)</label></div>
+                    <div class="utsunomiya"><h3>宇都宮駅</h3></div>
+                    <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="suzumenomiya"><input type="radio" id="suzumenomiya_2" name="suzumenomiya" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-09-12:" /><label for="suzumenomiya_2">(2)</label></div>
+                  <div class="suzumenomiya"><input type="radio" id="suzumenomiya_3" name="suzumenomiya" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-09-12:" /><label for="suzumenomiya_3">(3)</label></div>
+                  <div class="suzumenomiya"><h3>雀宮駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="jichiidai"><input type="radio" id="jichiidai_1" name="jichiidai" style="visibility: hidden;" value="1" class="forms" /><label for="jichiidai_1">(1)</label></div>
+                  <div class="jichiidai"><input type="radio" id="jichiidai_2" name="jichiidai" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-09-12:" /><label for="jichiidai_2">(2)</label></div>
+                  <div class="jichiidai"><h3>自治医大駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                    <div class="koganei"><input type="radio" id="koganei_2" name="koganei" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-08-21:" />
+                        <select onchange="syncRadioId(this)">
+                            <option value="koganei_2">(2)</option>
+                            <option value="koganei_4">(4)</option>
+                        </select>
+                    </div>
+                  <div class="koganei"><input type="radio" id="koganei_3" name="koganei" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-21:" /><label for="koganei_3">(3)</label></div>
+                  <div class="koganei"><h3>小金井駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="oyama"><input type="radio" id="oyama_12" name="oyama" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-21:" /><label for="oyama_12">(12)</label></div>
+                  <div class="oyama"><input type="radio" id="oyama_13" name="oyama" value="2" class="forms" data-timelines="2018-07-01:_o1,2025-08-21:" /><label for="oyama_13">(13)</label></div>
+                  <div class="oyama"><h3>小山駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="mamada"><input type="radio" id="mamada_1" name="mamada" style="visibility: hidden;" value="1" class="forms" /><label for="mamada_1">(1)</label></div>
+                  <div class="mamada"><input type="radio" id="mamada_3" name="mamada" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-06-13:" /><label for="mamada_3">(3)</label></div>
+                  <div class="mamada"><h3>間々田駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="nogi"><input type="radio" id="nogi_1" name="nogi" style="visibility: hidden;" value="1" class="forms" /><label for="nogi_1">(1)</label></div>
+                  <div class="nogi"><input type="radio" id="nogi_2" name="nogi" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-06-11:" /><label for="nogi_2">(2)</label></div>
+                  <div class="nogi"><h3>野木駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                    <div class="koga"><input type="radio" id="koga_1" name="koga" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-08-20:" />
+                        <select onchange="syncRadioId(this)">
+                            <option value="koga_1">(1)</option>
+                            <option value="koga_4">(4)</option>
+                        </select>
+                    </div>
+                  <div class="koga"><input type="radio" id="koga_3" name="koga" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="koga_3">(3)</label></div>
+                  <div class="koga"><h3>古河駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="kurihashi"><input type="radio" id="kurihashi_1" name="kurihashi" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="kurihashi_1">(1)</label></div>
+                  <div class="kurihashi"><input type="radio" id="kurihashi_2" name="kurihashi" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="kurihashi_2">(2)</label></div>
+                  <div class="kurihashi"><h3>栗橋駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="higashiwashinomiya"><input type="radio" id="higashiwashinomiya_1" name="higashiwashinomiya" style="visibility: hidden;" value="1" class="forms" /><label for="higashiwashinomiya_1">(1)</label></div>
+                  <div class="higashiwashinomiya"><input type="radio" id="higashiwashinomiya_2" name="higashiwashinomiya" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="higashiwashinomiya_2">(2)</label></div>
+                  <div class="higashiwashinomiya"><h3>東鷲宮駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="kuki"><input type="radio" id="kuki_2" name="kuki" value="1" class="forms" style="visibility: hidden;" /><label for="kuki_2">(2)</label></div>
+                  <div class="kuki"><input type="radio" id="kuki_3" name="kuki" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-09-17:" /><label for="kuki_3">(3)</label></div>
+                  <div class="kuki"><h3>久喜駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="shinshiraoka"><input type="radio" id="shinshiraoka_1" name="shinshiraoka" style="visibility: hidden;" value="1" class="forms" /><label for="shinshiraoka_1">(1)</label></div>
+                  <div class="shinshiraoka"><input type="radio" id="shinshiraoka_2" name="shinshiraoka" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="shinshiraoka_2">(2)</label></div>
+                  <div class="shinshiraoka"><h3>新白岡駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="shiraoka"><input type="radio" id="shiraoka_2" name="shiraoka" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="shiraoka_2">(2)</label></div>
+                  <div class="shiraoka"><input type="radio" id="shiraoka_3" name="shiraoka" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="shiraoka_3">(3)</label></div>
+                  <div class="shiraoka"><h3>白岡駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="hasuda"><input type="radio" id="hasuda_2" name="hasuda" value="1" class="forms" data-timelines="2018-07-01:_o1,2018-10-05:,2018-11-04:_o1,2019-10-05:,2019-11-04:_o1,2021-10-14:,2021-11-15:_o1,2022-10-23:,2022-11-24:_o1,2023-10-03:" /><label for="hasuda_2">(2)</label></div>
+                  <div class="hasuda"><input type="radio" id="hasuda_3" name="hasuda" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2018-10-05:,2018-11-04:_o1,2019-10-05:,2019-11-04:_o1,2021-10-14:,2021-11-15:_o1,2022-10-23:,2022-11-24:_o1,2023-10-03:" /><label for="hasuda_3">(3)</label></div>
+                  <div class="hasuda"><h3>蓮田駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="higashiomiya"><input type="radio" id="higashiomiya_1" name="higashiomiya" style="visibility: hidden;" value="1" class="forms" /><label for="higashiomiya_1">(1)</label></div>
+                  <div class="higashiomiya"><input type="radio" id="higashiomiya_2" name="higashiomiya" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="higashiomiya_2">(2)</label></div>
+                  <div class="higashiomiya"><h3>東大宮駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="toro"><input type="radio" id="toro_1" name="toro" style="visibility: hidden;" value="1" class="forms" /><label for="toro_1">(1)</label></div>
+                  <div class="toro"><input type="radio" id="toro_2" name="toro" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-04-11:" /><label for="toro_2">(2)</label></div>
+                  <div class="toro"><h3>土呂駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="omiya"><input type="radio" id="omiya_3" name="omiya" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-02-18:" /><label for="omiya_3">(3)</label></div>
+                  <div class="omiya"><input type="radio" id="omiya_4" name="omiya" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-02-18:" /><label for="omiya_4">(4)</label></div>
+                  <div class="omiya"><h3>大宮駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="saitamashintoshin"><input type="radio" id="saitamashintoshin_3" name="saitamashintoshin" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-02-19:" /><label for="saitamashintoshin_3">(3)</label></div>
+                  <div class="saitamashintoshin"><input type="radio" id="saitamashintoshin_4" name="saitamashintoshin" style="visibility: hidden;" value="2" class="forms" /><label for="saitamashintoshin_4">(4)</label></div>
+                  <div class="saitamashintoshin"><h3>さいたま新都心駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="urawa"><input type="radio" id="urawa_3" name="urawa" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-02-26:" /><label for="urawa_3">(3)</label></div>
+                  <div class="urawa"><input type="radio" id="urawa_4" name="urawa" style="visibility: hidden;" value="2" class="forms" /><label for="urawa_4">(4)</label></div>
+                  <div class="urawa"><h3>浦和駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="akabane"><input type="radio" id="akabane_3" name="akabane" value="1" class="forms mains" data-timelines="2018-07-01:" /><label for="akabane_3">(3)</label></div>
+                  <div class="akabane"><input type="radio" id="akabane_4" name="akabane" style="visibility: hidden;" value="2" class="forms" /><label for="akabane_4">(4)</label></div>
+                  <div class="akabane"><h3>赤羽駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="oku"><input type="radio" id="oku_1" name="omiya" value="1" class="forms mains" data-timelines="2018-07-01:" /><label for="oku_1">(1)</label></div>
+                  <div class="oku"><input type="radio" id="oku_2" name="omiya" style="visibility: hidden;" value="2" class="forms" /><label for="oku_2">(2)</label></div>
+                  <div class="oku"><h3>尾久駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                    <div class="ueno"><input type="radio" id="ueno_7" name="ueno" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-2-19:" />
+                        <select onchange="syncRadioId(this)">
+                            <option value="ueno_7">(7)</option>
+                            <option value="ueno_8">(8)</option>
+                            <option value="ueno_9">(9)</option>
+                        </select>
+                    </div>
+                    <div class="ueno"><input type="radio" id="ueno_13" name="ueno" value="1" class="forms" style="visibility: hidden;" />
+                        <select onchange="syncRadioId(this)">
+                            <option value="ueno_13">(13)</option>
+                            <option value="ueno_14">(15)</option>
+                            <option value="ueno_15">(15)</option>
+                            <option value="ueno_16">(16)</option>
+                        </select>
+                    </div>
+                  <div class="ueno"><h3>上野駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="tokyo"><input type="radio" id="tokyo_9" name="tokyo" value="1" class="forms" data-timelines="2018-07-01:_o,2024-10-31:" /><label for="tokyo_9">(9)</label></div>
+                  <div class="tokyo"><input type="radio" id="tokyo_10" name="tokyo" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2024-10-31:" /><label for="tokyo_10">(10)</label></div>
+                  <div class="tokyo"><h3>東京駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+              </details>
+            </div>
+            <div class="utsunomiya_ds lines" id="utsunomiya_ds" style="display:none;">
+              <details>
+                <summary>メニューを開く</summary>
+                <div class="stationes">
+                  <div class="tokyo"><input type="radio" id="tokyo_7" name="tokyo" value="1" class="forms mains" data-timelines="2018-07-01:_o,2024-10-31:" /><label for="tokyo_7">(7)</label></div>
+                  <div class="tokyo"><input type="radio" id="tokyo_8" name="tokyo" value="2" class="forms" data-timelines="2018-07-01:_o1,2024-10-31:" /><label for="tokyo_8">(8)</label></div>
+                  <div class="tokyo"><h3>東京駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                    <div class="ueno"><input type="radio" id="ueno_5" name="ueno" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-2-19:" />
+                        <select onchange="syncRadioId(this)">
+                            <option value="ueno_5">(5)</option>
+                            <option value="ueno_6">(6)</option>
+                            <option value="ueno_8">(8)</option>
+                            <option value="ueno_9">(9)</option>
+                        </select>
+                    </div>
+                    <div class="ueno"><input type="radio" id="ueno_13" name="ueno" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-2-19:" />
+                        <select onchange="syncRadioId(this)">
+                            <option value="ueno_13">(13)</option>
+                            <option value="ueno_14">(15)</option>
+                            <option value="ueno_15">(15)</option>
+                            <option value="ueno_16">(16)</option>
+                        </select>
+                    </div>
+                  <div class="ueno"><h3>上野駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="oku"><input type="radio" id="oku_1" name="omiya" style="visibility: hidden;" value="1" class="forms" /><label for="oku_1">(1)</label></div>
+                  <div class="oku"><input type="radio" id="oku_2" name="omiya" value="2" class="forms mains" data-timelines="2018-07-01:" /><label for="oku_2">(2)</label></div>
+                  <div class="oku"><h3>尾久駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="akabane"><input type="radio" id="akabane_3" name="akabane" style="visibility: hidden;" value="1" class="forms" /><label for="akabane_3">(3)</label></div>
+                  <div class="akabane"><input type="radio" id="akabane_4" name="akabane" value="2" class="forms mains" data-timelines="2018-07-01:" /><label for="akabane_4">(4)</label></div>
+                  <div class="akabane"><h3>赤羽駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="urawa"><input type="radio" id="urawa_3" name="urawa" style="visibility: hidden;" value="1" class="forms" /><label for="urawa_3">(3)</label></div>
+                  <div class="urawa"><input type="radio" id="urawa_4" name="urawa" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-02-26:" /><label for="urawa_4">(4)</label></div>
+                  <div class="urawa"><h3>浦和駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="saitamashintoshin"><input type="radio" id="saitamashintoshin_3" name="saitamashintoshin" style="visibility: hidden;" value="1" class="forms" /><label for="saitamashintoshin_3">(3)</label></div>
+                  <div class="saitamashintoshin"><input type="radio" id="saitamashintoshin_4" name="saitamashintoshin" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-02-19:" /><label for="saitamashintoshin_4">(4)</label></div>
+                  <div class="saitamashintoshin"><h3>さいたま新都心駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="omiya"><input type="radio" id="omiya_9" name="omiya" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-02-18:" /><label for="omiya_9">(9)</label></div>
+                  <div class="omiya"><input type="radio" id="omiya_11" name="omiya" value="2" class="forms" data-timelines="2018-07-01:_o1,2025-02-18:" /><label for="omiya_11">(11)</label></div>
+                  <div class="omiya"><h3>大宮駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="toro"><input type="radio" id="toro_1" name="toro" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-04-11:" /><label for="toro_1">(1)</label></div>
+                  <div class="toro"><input type="radio" id="toro_2" name="toro" style="visibility: hidden;" value="2" class="forms" /><label for="toro_2">(2)</label></div>
+                  <div class="toro"><h3>土呂駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="higashiomiya"><input type="radio" id="higashiomiya_1" name="higashiomiya" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="higashiomiya_1">(1)</label></div>
+                  <div class="higashiomiya"><input type="radio" id="higashiomiya_2" name="higashiomiya" style="visibility: hidden;" value="2" class="forms" /><label for="higashiomiya_2">(2)</label></div>
+                  <div class="higashiomiya"><h3>東大宮駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="hasuda"><input type="radio" id="hasuda_1" name="hasuda" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2018-10-05:,2018-11-04:_o1,2019-10-05:,2019-11-04:_o1,2021-10-14:,2021-11-15:_o1,2022-10-23:,2022-11-24:_o1,2023-10-03:" /><label for="hasuda_1">(1)</label></div>
+                  <div class="hasuda"><input type="radio" id="hasuda_2" name="hasuda" value="2" class="forms" data-timelines="2018-07-01:_o1,2018-10-05:,2018-11-04:_o1,2019-10-05:,2019-11-04:_o1,2021-10-14:,2021-11-15:_o1,2022-10-23:,2022-11-24:_o1,2023-10-03:" /><label for="hasuda_2">(2)</label></div>
+                  <div class="hasuda"><h3>蓮田駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="shiraoka"><input type="radio" id="shiraoka_1" name="shiraoka" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="shiraoka_1">(1)</label></div>
+                  <div class="shiraoka"><input type="radio" id="shiraoka_2" name="shiraoka" value="2" class="forms" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="shiraoka_2">(2)</label></div>
+                  <div class="shiraoka"><h3>白岡駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="shinshiraoka"><input type="radio" id="shinshiraoka_1" name="shinshiraoka" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="shinshiraoka_1">(1)</label></div>
+                  <div class="shinshiraoka"><input type="radio" id="shinshiraoka_2" name="shinshiraoka" style="visibility: hidden;" value="2" class="forms" /><label for="shinshiraoka_2">(2)</label></div>
+                  <div class="shinshiraoka"><h3>新白岡駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="kuki"><input type="radio" id="kuki_1" name="kuki" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-09-17:" /><label for="kuki_1">(1)</label></div>
+                  <div class="kuki"><input type="radio" id="kuki_2" name="kuki" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-09-17:" /><label for="kuki_2">(2)</label></div>
+                  <div class="kuki"><h3>久喜駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="higashiwashinomiya"><input type="radio" id="higashiwashinomiya_1" name="higashiwashinomiya" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="higashiwashinomiya_1">(1)</label></div>
+                  <div class="higashiwashinomiya"><input type="radio" id="higashiwashinomiya_2" name="higashiwashinomiya" style="visibility: hidden;" value="2" class="forms" /><label for="higashiwashinomiya_2">(2)</label></div>
+                  <div class="higashiwashinomiya"><h3>東鷲宮駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="kurihashi"><input type="radio" id="kurihashi_2" name="kurihashi" style="visibility: hidden;" value="1" class="forms" /><label for="kurihashi_2">(2)</label></div>
+                  <div class="kurihashi"><input type="radio" id="kurihashi_3" name="kurihashi" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="kurihashi_3">(3)</label></div>
+                  <div class="kurihashi"><h3>栗橋駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="koga"><input type="radio" id="koga_1" name="koga" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="koga_1">(1)</label></div>
+                  <div class="koga"><input type="radio" id="koga_2" name="koga" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-20:" /><label for="koga_2">(2)</label></div>
+                  <div class="koga"><h3>古河駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="nogi"><input type="radio" id="nogi_1" name="nogi" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-06-11:" /><label for="nogi_1">(1)</label></div>
+                  <div class="nogi"><input type="radio" id="nogi_2" name="nogi" style="visibility: hidden;" value="2" class="forms" /><label for="nogi_2">(2)</label></div>
+                  <div class="nogi"><h3>野木駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="mamada"><input type="radio" id="mamada_1" name="mamada" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-06-13:" /><label for="mamada_1">(1)</label></div>
+                  <div class="mamada"><input type="radio" id="mamada_3" name="mamada" style="visibility: hidden;" value="2" class="forms" /><label for="mamada_3">(3)</label></div>
+                  <div class="mamada"><h3>間々田駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="oyama"><input type="radio" id="oyama_9" name="oyama" value="1" class="forms" data-timelines="2018-07-01:_o1,2025-08-21:" /><label for="oyama_9">(9)</label></div>
+                  <div class="oyama"><input type="radio" id="oyama_10" name="oyama" value="2" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-21:" /><label for="oyama_10">(10)</label></div>
+                  <div class="oyama"><h3>小山駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="koganei"><input type="radio" id="koganei_1" name="koganei" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-08-21:" /><label for="koganei_1">(1)</label></div>
+                  <div class="koganei"><input type="radio" id="koganei_2" name="koganei" value="2" class="forms" data-timelines="2018-07-01:_o1,2025-08-21:" /><label for="koganei_2">(2)</label></div>
+                  <div class="koganei"><h3>小金井駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="jichiidai"><input type="radio" id="jichiidai_1" name="jichiidai" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-09-12:" /><label for="jichiidai_1">(1)</label></div>
+                  <div class="jichiidai"><input type="radio" id="jichiidai_2" name="jichiidai" style="visibility: hidden;" value="2" class="forms" /><label for="jichiidai_2">(2)</label></div>
+                  <div class="jichiidai"><h3>自治医大駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                  <div class="suzumenomiya"><input type="radio" id="suzumenomiya_1" name="suzumenomiya" value="1" class="forms mains" data-timelines="2018-07-01:_o1,2025-09-12:" /><label for="suzumenomiya_1">(1)</label></div>
+                  <div class="suzumenomiya"><input type="radio" id="suzumenomiya_2" name="suzumenomiya" value="2" class="forms" data-timelines="2018-07-01:_o1,2025-09-12:" /><label for="suzumenomiya_2">(2)</label></div>
+                  <div class="suzumenomiya"><h3>雀宮駅</h3></div>
+                  <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+                <div class="stationes">
+                    <div class="utsunomiya"><input type="radio" id="utsunomiya_7" name="utsunomiya" style="visibility: hidden;" value="1" class="forms" data-timelines="2018-07-01:_o2,2019-07-01:,2025-08-21:_o1,2025-10-21:" /><label for="utsunomiya_7">(7)</label></div>
+                    <div class="utsunomiya"><input type="radio" id="utsunomiya_5" name="utsunomiya" style="visibility: hidden;" value="2" class="forms" data-timelines="2018-07-01:_o2,2019-07-01:,2025-08-21:_o1,2025-10-21:" />
+                        <select onchange="syncRadioId(this)">
+                            <option value="utsunomiya_5">(5)</option>
+                            <option value="utsunomiya_8">(8)</option>
+                            <option value="utsunomiya_9">(9)</option>
+                            <option value="utsunomiya_10">(10)</option>
+                        </select>
+                    </div>
+                    <div class="utsunomiya"><h3>宇都宮駅</h3></div>
+                    <button type="button" class="butt open-platform-btn" onclick="openPlatformFromGroup(this);">開く</button>
+                </div>
+              </details>
+            </div>
             <script>
               function lineChange() {
                 const id = document.getElementById('line').value;
@@ -2107,6 +2445,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2023-08-06";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
@@ -2125,6 +2465,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2023-08-06";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/南武線.png";
@@ -2143,6 +2485,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-09";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
@@ -2161,6 +2505,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-09";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/我孫子支線.png";
@@ -2179,6 +2525,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2018-11-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
@@ -2197,6 +2545,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2018-11-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/外房線.png";
@@ -2215,6 +2565,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2016-09-25";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
@@ -2233,6 +2585,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2016-09-25";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/京葉線.png";
@@ -2251,6 +2605,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2011-05-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
@@ -2264,11 +2620,13 @@
                   document.getElementById('keiyo_us').style.display = "none";
                   document.getElementById('keiyo_ds').style.display = "none";
                   document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "";
                   document.getElementById('yokohama_us').style.display = "none";
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
-                  document.getElementById('senseki_ds').style.display = "";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2011-05-20";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/仙石線.png";
@@ -2287,6 +2645,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-07";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/横浜線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/横浜線.png";
@@ -2305,6 +2665,8 @@
                   document.getElementById('yokohama_ds').style.display = "";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2017-02-07";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/横浜線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/横浜線.png";
@@ -2323,6 +2685,8 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "";
                   document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2015-01-19";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/高崎線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/高崎線.png";
@@ -2341,9 +2705,51 @@
                   document.getElementById('yokohama_ds').style.display = "none";
                   document.getElementById('takasaki_us').style.display = "none";
                   document.getElementById('takasaki_ds').style.display = "";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
                   document.getElementById('time_nambu').min = "2015-01-19";
                   document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/高崎線.png";
                   document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/高崎線.png";
+                } else if (id == 'jr_utsunomiya_u') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
+                  document.getElementById('keiyo_us').style.display = "none";
+                  document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
+                  document.getElementById('takasaki_us').style.display = "none";
+                  document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "";
+                  document.getElementById('utsunomiya_ds').style.display = "none";
+                  document.getElementById('time_nambu').min = "2018-07-01";
+                  document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/宇都宮線.png";
+                  document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/宇都宮線.png";
+                } else if (id == 'jr_utsunomiya_d') {
+                  document.getElementById('nambu_us').style.display = "none";
+                  document.getElementById('nambu_ds').style.display = "none";
+                  document.getElementById('abiko_us').style.display = "none";
+                  document.getElementById('abiko_ds').style.display = "none";
+                  document.getElementById('sotobo_us').style.display = "none";
+                  document.getElementById('sotobo_ds').style.display = "none";
+                  document.getElementById('keiyo_us').style.display = "none";
+                  document.getElementById('keiyo_ds').style.display = "none";
+                  document.getElementById('senseki_us').style.display = "none";
+                  document.getElementById('senseki_ds').style.display = "none";
+                  document.getElementById('yokohama_us').style.display = "none";
+                  document.getElementById('yokohama_ds').style.display = "none";
+                  document.getElementById('takasaki_us').style.display = "none";
+                  document.getElementById('takasaki_ds').style.display = "none";
+                  document.getElementById('utsunomiya_us').style.display = "none";
+                  document.getElementById('utsunomiya_ds').style.display = "";
+                  document.getElementById('time_nambu').min = "2018-07-01";
+                  document.getElementById('icon').href = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/宇都宮線.png";
+                  document.getElementById('header').src = "https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/宇都宮線.png";
                 }
               }
               
@@ -2364,6 +2770,8 @@
                 if (line === 'jr_yokohama_d') targetId = 'yokohama_ds';
                 if (line === 'jr_takasaki_u') targetId = 'takasaki_us';
                 if (line === 'jr_takasaki_d') targetId = 'takasaki_ds';
+                if (line === 'jr_utsunomiya_u') targetId = 'utsunomiya_us';
+                if (line === 'jr_utsunomiya_d') targetId = 'utsunomiya_ds';
                 const target = document.getElementById(targetId);
                 const radios = target.querySelectorAll('.mains');
               
@@ -2577,7 +2985,29 @@
                 'kitaageo': { lat: 35.9853, lng: 139.5775 },
                 'ageo': { lat: 35.9731, lng: 139.5888 },
                 'miyahara': { lat: 35.9403, lng: 139.6095 },
-                'omiya': { lat: 35.9062, lng: 139.6237 }
+                'omiya': { lat: 35.9062, lng: 139.6237 },
+                'ueno': { lat: 35.7136, lng: 139.7768 },
+                'oku': { lat: 35.7468, lng: 139.7538 },
+                'akabane': { lat: 35.7776, lng: 139.7210 },
+                'urawa': { lat: 35.8586, lng: 139.6574 },
+                'saitamashintoshin': { lat: 35.8940, lng: 139.6336 },
+                'toro': { lat: 35.9318, lng: 139.6322 },
+                'higashiomiya': { lat: 35.9485, lng: 139.6402 },
+                'hasuda': { lat: 35.9814, lng: 139.6531 },
+                'shiraoka': { lat: 36.0175, lng: 139.6668 },
+                'shinshiraoka': { lat: 36.0387, lng: 139.6721 },
+                'kuki': { lat: 36.0658, lng: 139.6774 },
+                'higashiwashinomiya' : { lat: 36.0897, lng: 139.6795 },
+                'kurihashi': { lat: 36.1393, lng: 139.6942 },
+                'koga': { lat: 36.1945, lng: 139.7097 },
+                'nogi': { lat: 36.2303, lng: 139.7351 },
+                'mamada': { lat: 36.2580, lng: 139.7611 },
+                'oyama': { lat: 36.3135, lng: 139.8065 },
+                'koganei': { lat: 36.3744, lng: 139.8422 },
+                'jichiidai': { lat: 36.3954, lng: 139.8546 },
+                'ishibashi': { lat: 36.4365, lng: 139.8666 },
+                'suzumenomiya': { lat: 36.4939, lng: 139.8770 },
+                'utsunomiya': { lat: 36.5595, lng: 139.8985 }
               };
               
               function locate() {
