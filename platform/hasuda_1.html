@@ -176,8 +176,12 @@
           <p>収録駅:蓮田駅1番線</p>
           <p>スピーカー:小VOSS・ユニペックス小丸型・ユニペックス小型・ユニペックス箱型・JVC横長型</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="hasuda_1.html">雅楽谷の森〜蓮田のタカラ〜 verA</option>
+          <option value="hasuda_1_o1.html">美しき丘</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
