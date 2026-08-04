@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="宇都宮駅9番線上り(旧)の発車メロディ「木々の目覚めV1」の再現ができます！">
+  <meta name="description" content="宇都宮駅9番線上り(旧)の発車メロディ「光と風と」の再現ができます！">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/e233yo.png" />
   <link rel="stylesheet" href="utsunomiya_9.css">
   <meta property="og:image" content="https://github.com/ssmn93/depart-melody/blob/main/picture/ad.png?raw=true">
-  <meta property="og:description" content="宇都宮駅9番線上り(旧)の発車メロディ「木々の目覚めV1」の再現ができます！">
-  <meta property="og:title" content="宇都宮駅9番線上り(旧)「木々の目覚めV1」｜どこでもステーションベル">
+  <meta property="og:description" content="宇都宮駅9番線上り(旧)の発車メロディ「光と風と」の再現ができます！">
+  <meta property="og:title" content="宇都宮駅9番線上り(旧)「光と風と」｜どこでもステーションベル">
   <meta property="og:url" content="https://dkst.net">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="宇都宮駅9番線上り(旧)「木々の目覚めV1」｜どこでもステーションベル">
-  <title>宇都宮駅9番線上り(旧)「木々の目覚めV1」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="宇都宮駅9番線上り(旧)「光と風と」｜どこでもステーションベル">
+  <title>宇都宮駅9番線上り(旧)「光と風と」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -165,18 +165,24 @@
         <rect class="button" id="offButton" x="432" y="445" width="100" height="100" fill="#e06666" stroke="#e06666" stroke-width="2"/>
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%9C%A8%E3%80%85%E3%81%AE%E7%9B%AE%E8%A6%9A%E3%82%81V1.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E5%A5%B3%E5%A3%B09%E7%95%AA.mp3"></audio>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/光と風と.mp3"></audio>
+    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_男声9番.mp3"></audio>
     <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
       
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>宇都宮駅 9番線上り(旧)「木々の目覚めV1」</h1>
-          <p>収録駅:古河駅2番線</p>
-          <p>スピーカー:BOSE(宇都宮)</p>
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
+          <h1>宇都宮駅 9番線上り(旧)「光と風と」</h1>
+          <p>収録駅:長野駅6番線</p>
+          <p>スピーカー:BOSE</p>
+          
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="utsunomiya_9_u_o2.html">光と風と</option>
+          <option value="utsunomiya_9_u.html">カリフォルニア・シャワー 上りver</option>
+          <option value="utsunomiya_9_u_o1.html">JRE-IKST-021-02(首都圏3番)</option>
+        </select>
 
       </div>
     <script>
