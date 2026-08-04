@@ -4,17 +4,17 @@
   <meta charset="utf-8" />
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="久喜駅3番線の発車メロディ「牧場の朝」の再現ができます！">
+  <meta name="description" content="久喜駅3番線の発車メロディ「JRE-IKST-021-02(首都圏3番)」の再現ができます！">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="icon" href="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/e233yo.png" />
   <link rel="stylesheet" href="kuki_3.css">
   <meta property="og:image" content="https://github.com/ssmn93/depart-melody/blob/main/picture/ad.png?raw=true">
-  <meta property="og:description" content="久喜駅3番線の発車メロディ「牧場の朝」の再現ができます！">
-  <meta property="og:title" content="久喜駅3番線「牧場の朝」｜どこでもステーションベル">
+  <meta property="og:description" content="久喜駅3番線の発車メロディ「JRE-IKST-021-02(首都圏3番)」の再現ができます！">
+  <meta property="og:title" content="久喜駅3番線「JRE-IKST-021-02(首都圏3番)」｜どこでもステーションベル">
   <meta property="og:url" content="https://dkst.net">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="久喜駅3番線「牧場の朝」｜どこでもステーションベル">
-  <title>久喜駅3番線「牧場の朝」｜どこでもステーションベル</title>
+  <meta property="og:site_name" content="久喜駅3番線「JRE-IKST-021-02(首都圏3番)」｜どこでもステーションベル">
+  <title>久喜駅3番線「JRE-IKST-021-02(首都圏3番)」｜どこでもステーションベル</title>
 </head>
 <body>
   <header>
@@ -165,19 +165,23 @@
         <rect class="button" id="offButton" x="432" y="445" width="100" height="100" fill="#e06666" stroke="#e06666" stroke-width="2"/>
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E7%89%A7%E5%A0%B4%E3%81%AE%E6%9C%9D.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/%E6%88%B8%E9%96%89%E6%94%BE%E9%80%81_%E5%A5%B3%E5%A3%B03%E7%95%AA.mp3"></audio>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏3番_微低.mp3"></audio>
+    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_女声3番.mp3"></audio>
     <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
       
     </div>
       <div class="arrange">
         <div class="content">
-          <h1>久喜駅 3番線「牧場の朝」</h1>
-          <p>収録駅:久喜駅3番線</p>
-          <p>スピーカー:ユニペックス箱型・ユニペックス小丸型</p>
+          <h1>久喜駅 3番線「JRE-IKST-021-02(首都圏3番)」</h1>
+          <p>収録駅:浦和駅3番線</p>
+          <p>スピーカー:ユニペックス箱型・ユニペックス小丸型(久喜)</p>
         
-          <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
         </div>
+        <label  style="margin-left: 20px;"><input type="checkbox" id="buttonon">ボタン音オフ</label>
+        <select name="change" id="change" onchange="location.href=value;">
+          <option value="kuki_3.html">JRE-IKST-021-02(首都圏3番)</option>
+          <option value="kuki_3_o1.html">牧場の朝</option>
+        </select>
       </div>
           <script>
       const audio = document.getElementById("melody");
