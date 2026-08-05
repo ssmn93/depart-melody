@@ -38,6 +38,7 @@
     <div class="main">
     <div class="melody">
     <audio id="change" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/4点チャイム_大阪メトロ中央線西行.mp3"></audio>
+    <audio id="notfound" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/3点チャイム_大阪メトロ中央線東行.mp3"></audio>
       <div class="arrange">
         <iframe id="station-iframe" src="https://dkst.net/platform/tokyo_9_o.html" style="width:100%;height:480px;" data-station-id="" data-platform=""></iframe>
       </div>
@@ -3205,7 +3206,10 @@
               console.log('iframe 切替 ->', cand.radioId, cand.iframeUrl);
               const changeon = document.getElementById("changeon");
               const change = document.getElementById("change");
-              if (!changeon.checked) change.play();
+              const notfound = document.getElementById("notfound");
+              if (!changeon.checked) {
+                change.play();
+              }  
             }
           
             function getCurrentPositionPromise(options = { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }){
