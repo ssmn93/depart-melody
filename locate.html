@@ -3208,7 +3208,9 @@
               const change = document.getElementById("change");
               const notfound = document.getElementById("notfound");
               if (!changeon.checked) {
-                change.play();
+                fetch(cand.iframeUrl)
+                  .then(res => (res.ok ? change : notfound).play())
+                  .catch(() => change.play());
               }  
             }
           
