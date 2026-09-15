@@ -387,6 +387,13 @@
                 }
               }
         });
+            
+        gensui.addEventListener("ended", () => {
+          gensui.currentTime = 0;
+          audio.currentTime = 0;
+          audio.play();
+          audio.loop = true;
+        });
       
         document.getElementById('offButton').addEventListener('click', function() { 
           audio.removeEventListener('ended', nishiogikubo_tojime);
