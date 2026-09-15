@@ -494,6 +494,13 @@
             switch_method.style.pointerEvents = "auto";
             }
         });
+
+
+        fullml.addEventListener("ended", () => {
+          fullml.currentTime = 0;
+          isPlaying = false;
+        });
+      
         let __serialPort = null;
         let __serialReader = null;
         let __serialKeepReading = false;
