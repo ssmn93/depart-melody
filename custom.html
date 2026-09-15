@@ -293,7 +293,7 @@
               });
               
               fullInput.addEventListener("change", function () {
-                const file = this.files[0];
+                const fullFile = this.files[0];
                 if (fullFile && fullFile.type.startsWith("audio/")) {
                   const fullUrl = URL.createObjectURL(fullFile);
                   full.src = fullUrl;
