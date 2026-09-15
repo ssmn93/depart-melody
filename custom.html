@@ -210,22 +210,27 @@
               <div class="mukaburiMenu" id="mukaburiMenu">
                 <label for="fileInput">無被り音声ファイルを選択</label>
                 <input type="file" id="fileInput" accept="audio/*">
+                <button id="mukaburiButton">オフ</button>
               </div>
               <div class="fullMenu" id="fullMenu" style="display:none;">
                 <label for="fullInput">フル音声ファイルを選択</label>
                 <input type="file" id="fullInput" accept="audio/*">
+                <button id="fullButton">オフ</button>
               </div>
               <div class="gensuiMenu" id="gensuiMenu" style="display:none;">
                 <label for="gensuiInput">音量減衰部音声ファイルを選択</label>
                 <input type="file" id="gensuiInput" accept="audio/*">  
+                <button id="gensuiButton">オフ</button>
               </div>
               <div class="departMenu" id="departMenu" style="display:none;">
                 <label for="departInput">発車放送部音声ファイルを選択</label>
                 <input type="file" id="departInput" accept="audio/*">   
+                <button id="departButton">オフ</button>
               </div>
               <div class="tojimeMenu" id="tojimeMenu">
                 <label for="tojimeInput">戸閉放送部音声ファイルを選択</label>
                 <input type="file" id="tojimeInput" accept="audio/*">
+                <button id="tojimeButton">オフ</button>
               </div>
             </div>
             <script>
@@ -333,7 +338,27 @@
                   depart.src = departUrl;
                 }
               });
+
+              const mukaburiButton = document.getElementById("mukaburiButton");
+              const gensuiButton = document.getElementById("gensuiButton");
+              const departButton = document.getElementById("departButton");
+              const fullButton = document.getElementById("fullButton");
+
+              
+              mukaburiButton.addEventListener("click", (e) => {
+                audio.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+              });
+              gensuiButton.addEventListener("click", (e) => {
+                gensui.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+              });
+              departButton.addEventListener("click", (e) => {
+                depart.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+              });
+              fullButton.addEventListener("click", (e) => {
+                fullml.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+              });
             </script>
+          <p>③その他</p>
           <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
           <button id="connectHardware">実機スイッチ検知</button>
         </div>
@@ -364,19 +389,21 @@
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
               if (!isPlaying) {
-                isPlaying = true;
                 if (switch_method.value == "shinkansen" || switch_method.value == "shintachikawa") {
                   gensui.play();
                   depart.play();
+                  isPlaying = true;
                 } else if (switch_method.value == "notgensui" || switch_method.value == "shintachikawanotgensui") {
                   audio.loop = true;
                   audio.play();
                   depart.play();
+                  isPlaying = true;
                 } else if (switch_method.value == "full") {
                   fullml.play();
                 } else {
                   audio.loop = true; // ループ再生を有効にする
                   audio.play();
+                  isPlaying = true;
                 }
               }
         }
@@ -389,19 +416,21 @@
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
               if (!isPlaying) {
-                isPlaying = true;
                 if (switch_method.value == "shinkansen" || switch_method.value == "shintachikawa") {
                   gensui.play();
                   depart.play();
+                  isPlaying = true;
                 } else if (switch_method.value == "notgensui" || switch_method.value == "shintachikawanotgensui") {
                   audio.loop = true;
                   audio.play();
                   depart.play();
+                  isPlaying = true;
                 } else if (switch_method.value == "full") {
                   fullml.play();
                 } else {
                   audio.loop = true; // ループ再生を有効にする
                   audio.play();
+                  isPlaying = true;
                 }
               }
         });
