@@ -345,20 +345,19 @@
 
         // クリックイベント
         document.getElementById('onButton').addEventListener('click', function() {
-          switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
-                if (switch_method == "shinkansen" || switch_method == "shintachikawa") {
+                if (switch_method.value == "shinkansen" || switch_method.value == "shintachikawa") {
                   gensui.play();
                   depart.play();
-                } else if (switch_method == "notgensui" || switch_method == "shintachikawanotgensui") {
+                } else if (switch_method.value == "notgensui" || switch_method.value == "shintachikawanotgensui") {
                   audio.loop = true;
                   audio.play();
                   depart.play();
-                } else if (switch_method == "full") {
+                } else if (switch_method.value == "full") {
                   fullml.play();
                 } else {
                   audio.loop = true; // ループ再生を有効にする
@@ -368,20 +367,19 @@
         });
       
         document.getElementById('onText').addEventListener('click', function() {
-          switch_method = document.getElementById("switch_method");
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
               if (!isPlaying) {
                 isPlaying = true;
-                if (switch_method == "shinkansen" || switch_method == "shintachikawa") {
+                if (switch_method.value == "shinkansen" || switch_method.value == "shintachikawa") {
                   gensui.play();
                   depart.play();
-                } else if (switch_method == "notgensui" || switch_method == "shintachikawanotgensui") {
+                } else if (switch_method.value == "notgensui" || switch_method.value == "shintachikawanotgensui") {
                   audio.loop = true;
                   audio.play();
                   depart.play();
-                } else if (switch_method == "full") {
+                } else if (switch_method.value == "full") {
                   fullml.play();
                 } else {
                   audio.loop = true; // ループ再生を有効にする
