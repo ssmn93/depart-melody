@@ -293,7 +293,7 @@
               });
               
               fullInput.addEventListener("change", function () {
-                const fullFile = this.files[0];
+                const file = this.files[0];
                 if (fullFile && fullFile.type.startsWith("audio/")) {
                   const fullUrl = URL.createObjectURL(fullFile);
                   full.src = fullUrl;
@@ -344,7 +344,12 @@
         let isPlaying = false;
 
         // クリックイベント
-        document.getElementById('onButton').addEventListener('click', function() {
+        // JRスイッチ側・メトロスイッチ側の両方に id="onButton" の要素があるため、
+        // getElementById（最初の1件しか取得できない）ではなく querySelectorAll で
+        // 全ての onButton 要素を取得し、同じ処理関数を割り当てる。
+        // これにより表示中のSVGがどちらであっても、また実機スイッチ（USB）から
+        // dispatchEvent で疑似クリックする既存の連携コードも変更なしでそのまま動く。
+        function handleOnButtonClick() {
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
@@ -364,6 +369,9 @@
                   audio.play();
                 }
               }
+        }
+        document.querySelectorAll('#onButton').forEach(function(el) {
+          el.addEventListener('click', handleOnButtonClick);
         });
       
         document.getElementById('onText').addEventListener('click', function() {
@@ -386,13 +394,6 @@
                   audio.play();
                 }
               }
-        });
-            
-        gensui.addEventListener("ended", () => {
-          gensui.currentTime = 0;
-          audio.currentTime = 0;
-          audio.play();
-          audio.loop = true;
         });
       
         document.getElementById('offButton').addEventListener('click', function() { 
