@@ -238,6 +238,9 @@
             const melody = document.getElementById("melody");
             const jr_svg = document.getElementById("jr_svg");
             const metro_svg = document.getElementById("metro_svg");
+            // 無被り音声(melody)をユーザーがアップロード済みかどうかのフラグ。
+            // これが true の間は、モード切替時に既定のURLで上書きしないようにする。
+            let customMelodyUploaded = false;
             
             switch_method.addEventListener('change', (event) => {
               const selectedValue = event.target.value;
@@ -249,7 +252,9 @@
                 tojimeMenu.style.display = "block";
                 jr_svg.style.display = "block";
                 metro_svg.style.display = "none";
-                melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/朝の静けさ.mp3";
+                if (!customMelodyUploaded) {
+                  melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/朝の静けさ.mp3";
+                }
               } else if (selectedValue == "shinkansen" || selectedValue == "shintachikawa") {
                 mukaburiMenu.style.display = "block";
                 fullMenu.style.display = "none";
@@ -258,7 +263,9 @@
                 tojimeMenu.style.display = "none";
                 jr_svg.style.display = "block";
                 metro_svg.style.display = "none";
-                melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3";
+                if (!customMelodyUploaded) {
+                  melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3";
+                }
               } else if (selectedValue == "notgensui" || selectedValue == "shintachikawanotgensui") {
                 mukaburiMenu.style.display = "block";
                 fullMenu.style.display = "none";
@@ -267,7 +274,9 @@
                 tojimeMenu.style.display = "none";
                 jr_svg.style.display = "block";
                 metro_svg.style.display = "none";
-                melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3";
+                if (!customMelodyUploaded) {
+                  melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3";
+                }
               } else if (selectedValue == "full") {
                 mukaburiMenu.style.display = "none";
                 fullMenu.style.display = "block";
@@ -289,6 +298,7 @@
                 if (file && file.type.startsWith("audio/")) {
                   const url = URL.createObjectURL(file);
                   audio.src = url;
+                  customMelodyUploaded = true;
                 }
               });
               
