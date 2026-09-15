@@ -38,7 +38,7 @@
     <div class="main">
     <div class="melody">
       <div class="arrange">
-    <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" viewbox="0.0 0.0 960.0 720.0">
+    <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" viewbox="0.0 0.0 960.0 720.0" id="jr_svg">
       <clippath id="p.0">
         <path d="m0 0l960.0 0l0 720.0l-960.0 0l0 -720.0z" clip-rule="nonzero"/>
       </clippath>
@@ -164,7 +164,7 @@
         <rect class="button" id="offButton" x="432" y="445" width="100" height="100" fill="#e06666" stroke="#e06666" stroke-width="2"/>
         <text class="button" id="offText" x="440" y="515" font-size="50" fill="white">OFF</text>
         </svg>
-        <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" viewbox="0.0 0.0 960.0 720.0" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" style="display:none;">
+        <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" viewbox="0.0 0.0 960.0 720.0" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" id="metro_svg" style="display:none;">
           <clippath id="p.0">
             <path d="m0 0l960.0 0l0 720.0l-960.0 0l0 -720.0z" clip-rule="nonzero"/>
           </clippath>
@@ -212,6 +212,9 @@
             const gensuiMenu = document.getElementById("gensuiMenu");
             const departMenu = document.getElementById("departMenu");
             const tojimeMenu = document.getElementById("tojimeMenu");
+            const melody = document.getElementById("melody");
+            const jr_svg = document.getElementById("jr_svg");
+            const metro_svg = document.getElementById("metro_svg");
             
             switch_method.addEventListener('change', (event) => {
               const selectedValue = event.target.value;
@@ -221,48 +224,59 @@
                 gensuiMenu.style.display = "none";
                 departMenu.style.display = "none";
                 tojimeMenu.style.display = "block";
+                jr_svg.style.display = "block";
+                metro_svg.style.display = "none";
+                melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/朝の静けさ.mp3";
               } else if (selectedValue == "shinkansen" || selectedValue == "shintachikawa") {
                 mukaburiMenu.style.display = "block";
                 fullMenu.style.display = "none";
                 gensuiMenu.style.display = "block";
                 departMenu.style.display = "block";
                 tojimeMenu.style.display = "none";
+                jr_svg.style.display = "block";
+                metro_svg.style.display = "none";
+                melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3";
               } else if (selectedValue == "notgensui" || selectedValue == "shintachikawanotgensui") {
                 mukaburiMenu.style.display = "block";
                 fullMenu.style.display = "none";
                 gensuiMenu.style.display = "none";
                 departMenu.style.display = "block";
                 tojimeMenu.style.display = "none";
+                jr_svg.style.display = "block";
+                metro_svg.style.display = "none";
+                melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3";
               } else if (selectedValue == "full") {
                 mukaburiMenu.style.display = "none";
                 fullMenu.style.display = "block";
                 gensuiMenu.style.display = "none";
                 departMenu.style.display = "none";
                 tojimeMenu.style.display = "none";
+                jr_svg.style.display = "none";
+                metro_svg.style.display = "block";
               }
             });
           </script>
           <p>②ファイルをアップロードしてください。</p>
             <div class="arrange" id="fileUpload">
               <div class="mukaburiMenu" id="mukaburiMenu">
+                <p>無被り音声ファイルを選択</p>
                 <input type="file" id="fileInput" accept="audio/*">
-                <label for="fileInput">無被り音声ファイルを選択</label>
               </div>
               <div class="fullMenu" id="fullMenu" style="display:none;">
+                <p>フル音声ファイルを選択</p>
                 <input type="file" id="fullInput" accept="audio/*">
-                <label for="fullInput">フル音声ファイルを選択</label>
               </div>
               <div class="gensuiMenu" id="gensuiMenu" style="display:none;">
-                <input type="file" id="gensuiInput" accept="audio/*">              
-                <label for="gensuiInput">音量減衰部ファイルを選択</label>
+                <p>音量減衰部音声ファイルを選択</p>
+                <input type="file" id="gensuiInput" accept="audio/*">  
               </div>
               <div class="departMenu" id="departMenu" style="display:none;">
-                <input type="file" id="departInput" accept="audio/*">              
-                <label for="departInput">発車放送部ファイルを選択</label>
+                <p>発車放送部音声ファイルを選択</p>
+                <input type="file" id="departInput" accept="audio/*">   
               </div>
               <div class="tojimeMenu" id="tojimeMenu">
+                <p>戸閉放送部音声ファイルを選択</p>
                 <input type="file" id="tojimeInput" accept="audio/*">
-                <label for="tojimeInput">戸閉放送部ファイルを選択</label>
               </div>
             </div>
             <script>
