@@ -183,13 +183,13 @@
           </g> 
             <circle class="button" id="onButton" cx="480" cy="373" r="122" fill="#fbf1e8" stroke="#000000" stroke-width="1.0"/>
         </svg>
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/朝の静けさ.mp3"></audio>
-    <audio id="mukaburi" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3"></audio>
-    <audio id="gensui" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番_大宮15番.mp3"></audio>
-    <audio id="depart" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_大宮15番.mp3"></audio>
-    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_男声1番.mp3"></audio>
-    <audio id="fullml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/若葉の散歩道.mp3"></audio>
-    <audio id="fullcutml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/Sea%20Green.mp3"></audio>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="mukaburi" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="gensui" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="depart" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="fullml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="fullcutml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
     <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
       
     </div>
@@ -391,31 +391,38 @@
               const melodyButton = document.getElementById("melodyButton");
               const mukaburiButton = document.getElementById("mukaburiButton");
               const fullButton = document.getElementById("fullButton");
-              const fullcutButton = document.getElementById("fullmlButton");
+              const fullcutButton = document.getElementById("fullcutButton");
               const gensuiButton = document.getElementById("gensuiButton");
               const departButton = document.getElementById("departButton");
               const tojimeButton = document.getElementById("tojimeButton");
 
               melodyButton.addEventListener("click", (e) => {
                 audio.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+                fileInput.value = "";
               });
               mukaburiButton.addEventListener("click", (e) => {
                 mukaburi.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+                mukaburiInput.value = "";
               });
               fullButton.addEventListener("click", (e) => {
                 fullml.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+                fullInput.value = "";
               });
               fullcutButton.addEventListener("click", (e) => {
                 fullcutml.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+                fullcutInput.value = "";
               });
               gensuiButton.addEventListener("click", (e) => {
                 gensui.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+                gensuiInput.value = "";
               });
               departButton.addEventListener("click", (e) => {
                 depart.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+                departInput.value = "";
               });
               tojimeButton.addEventListener("click", (e) => {
                 tojime.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+                tojimeInput.value = "";
               });
             </script>
           <p>③その他</p>
@@ -455,8 +462,10 @@
                   isPlaying = true;
                 } else if (switch_method.value == "full") {
                   fullml.play();
+                  isPlaying = true;
                 } else if (switch_method.value == "fullcut") {
                   fullcutml.play();
+                  isPlaying = true;
                 } else {
                   audio.loop = true; // ループ再生を有効にする
                   audio.play();
@@ -484,8 +493,10 @@
                   isPlaying = true;
                 } else if (switch_method.value == "full") {
                   fullml.play();
+                  isPlaying = true;
                 } else if (switch_method.value == "fullcut") {
                   fullcutml.play();
+                  isPlaying = true;
                 } else {
                   audio.loop = true; // ループ再生を有効にする
                   audio.play();
