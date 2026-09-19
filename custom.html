@@ -268,6 +268,7 @@
             const tojime = document.getElementById("tojime");
             const depart = document.getElementById("depart");
             const gensui = document.getElementById("gensui");
+            let isPlaying = false;
             
             switch_method.addEventListener('change', (event) => {
               const selectedValue = event.target.value;
@@ -399,30 +400,37 @@
               melodyButton.addEventListener("click", (e) => {
                 audio.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
                 fileInput.value = "";
+                isPlaying = false;
               });
               mukaburiButton.addEventListener("click", (e) => {
                 mukaburi.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
                 mukaburiInput.value = "";
+                isPlaying = false;
               });
               fullButton.addEventListener("click", (e) => {
                 fullml.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
                 fullInput.value = "";
+                isPlaying = false;
               });
               fullcutButton.addEventListener("click", (e) => {
                 fullcutml.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
                 fullcutInput.value = "";
+                isPlaying = false;
               });
               gensuiButton.addEventListener("click", (e) => {
                 gensui.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
                 gensuiInput.value = "";
+                isPlaying = false;
               });
               departButton.addEventListener("click", (e) => {
                 depart.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
                 departInput.value = "";
+                isPlaying = false;
               });
               tojimeButton.addEventListener("click", (e) => {
                 tojime.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
                 tojimeInput.value = "";
+                isPlaying = false;
               });
             </script>
           <p>③その他</p>
@@ -438,7 +446,6 @@
         tojime.currentTime = 0;
         tojime.play();
       }
-        let isPlaying = false;
 
         // クリックイベント
         // JRスイッチ側・メトロスイッチ側の両方に id="onButton" の要素があるため、
