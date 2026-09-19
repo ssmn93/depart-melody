@@ -464,28 +464,40 @@
           switch_method.style.pointerEvents = "none";
           button.currentTime = 0;
           if (!buttonon.checked) button.play();
-              if (!isPlaying) {
                 if (switch_method.value == "shinkansen" || switch_method.value == "shintachikawa") {
-                  gensui.play();
-                  depart.play();
-                  isPlaying = true;
+                  if (!isPlaying) {
+                    gensui.play();
+                    depart.play();
+                    isPlaying = true;
+                  }
                 } else if (switch_method.value == "notgensui" || switch_method.value == "shintachikawanotgensui") {
-                  mukaburi.loop = true;
-                  mukaburi.play();
-                  depart.play();
-                  isPlaying = true;
+                  if (!isPlaying) {
+                    mukaburi.loop = true;
+                    mukaburi.play();
+                    depart.play();
+                    isPlaying = true;
+                  }
                 } else if (switch_method.value == "full") {
-                  fullml.play();
-                  isPlaying = true;
+                  if (!isPlaying) {
+                    fullml.play();
+                    isPlaying = true;
+                  } else {
+                    fullml.pause();
+                    fullml.currentTime = 0;
+                    fullml.play();
+                  }
                 } else if (switch_method.value == "fullcut") {
-                  fullcutml.play();
-                  isPlaying = true;
+                  if (!isPlaying) {
+                    fullcutml.play();
+                    isPlaying = true;
+                  }
                 } else {
-                  audio.loop = true; // ループ再生を有効にする
-                  audio.play();
-                  isPlaying = true;
+                  if (!isPlaying) {
+                    audio.loop = true; // ループ再生を有効にする
+                    audio.play();
+                    isPlaying = true;
+                  }
                 }
-              }
         }
         document.querySelectorAll('#onButton').forEach(function(el) {
           el.addEventListener('click', handleOnButtonClick);
