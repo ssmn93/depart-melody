@@ -912,6 +912,87 @@
     });
   })();
     </script>
+    <script>
+      // ===== 設定の保存・復元(再読み込み対応) =====
+      // ・switch_method の選択 / ボタン音オフ → localStorage
+      // ・各音声ファイル → IndexedDB(容量が大きいため localStorage は使わない)
+      // 「オフ」ボタンを押したファイルは保存も削除し、再読み込み後も無音のままにする。
+      (() => {
+        const LS_SWITCH = "dkst_custom_switch_method";
+        const LS_BTNOFF = "dkst_custom_button_off";
+        const DB_NAME = "dkst_custom_bell";
+        const STORE = "audio";
+        const btnOffBox = document.getElementById("buttonon");
+ 
+        const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+ 
+        function idb(mode, fn) {
+          return new Promise((resolve, reject) => {
+            const open = indexedDB.open(DB_NAME, 1);
+            open.onupgradeneeded = () => open.result.createObjectStore(STORE);
+            open.onerror = () => reject(open.error);
+            open.onsuccess = () => {
+              const db = open.result;
+              const tx = db.transaction(STORE, mode);
+              const req = fn(tx.objectStore(STORE));
+              tx.oncomplete = () => { db.close(); resolve(req.result); };
+              tx.onabort = tx.onerror = () => { db.close(); reject(tx.error); };
+            };
+          });
+        }
+        const saveFile = (key, file) => idb("readwrite", (s) => s.put({ blob: file, name: file.name, type: file.type }, key)).catch(() => {});
+        const loadFile = (key) => idb("readonly", (s) => s.get(key)).catch(() => null);
+        const deleteFile = (key) => idb("readwrite", (s) => s.delete(key)).catch(() => {});
+ 
+        // [input要素, 音声要素, オフボタン]
+        const targets = [
+          [fileInput, audio, melodyButton],
+          [mukaburiInput, mukaburi, mukaburiButton],
+          [fullInput, fullml, fullButton],
+          [fullcutInput, fullcutml, fullcutButton],
+          [gensuiInput, gensui, gensuiButton],
+          [departInput, depart, departButton],
+          [tojimeInput, tojime, tojimeButton]
+        ];
+ 
+        // --- 復元 ---
+        const savedSwitch = lsGet(LS_SWITCH);
+        if (savedSwitch) {
+          switch_method.value = savedSwitch;
+          if (switch_method.value === savedSwitch) {
+            // 既存の change 処理を流用して、表示するメニュー・SVGも切り替える
+            switch_method.dispatchEvent(new Event("change"));
+          }
+        }
+        btnOffBox.checked = lsGet(LS_BTNOFF) === "1";
+ 
+        targets.forEach(([input, media]) => {
+          loadFile(input.id).then((rec) => {
+            if (!rec || !rec.blob) return;
+            media.src = URL.createObjectURL(rec.blob);
+            try {
+              // 「ファイルを選択」横にファイル名を表示するため、input にも復元する(change は発火しない)
+              const dt = new DataTransfer();
+              dt.items.add(new File([rec.blob], rec.name, { type: rec.type }));
+              input.files = dt.files;
+            } catch (e) {}
+          });
+        });
+ 
+        // --- 保存 ---
+        switch_method.addEventListener("change", () => lsSet(LS_SWITCH, switch_method.value));
+        btnOffBox.addEventListener("change", () => lsSet(LS_BTNOFF, btnOffBox.checked ? "1" : "0"));
+ 
+        targets.forEach(([input, media, offBtn]) => {
+          input.addEventListener("change", function () {
+            const f = this.files[0];
+            if (f && f.type.startsWith("audio/")) saveFile(input.id, f);
+          });
+          offBtn.addEventListener("click", () => deleteFile(input.id));
+        });
+      })();
+    </script>
       </div>
   <!-- <script>
         const tojime = document.getElementById("tojime");
