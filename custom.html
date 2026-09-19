@@ -184,10 +184,12 @@
             <circle class="button" id="onButton" cx="480" cy="373" r="122" fill="#fbf1e8" stroke="#000000" stroke-width="1.0"/>
         </svg>
     <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/朝の静けさ.mp3"></audio>
+    <audio id="mukaburi" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3"></audio>
     <audio id="gensui" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番_大宮15番.mp3"></audio>
     <audio id="depart" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/発車放送_大宮15番.mp3"></audio>
     <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/戸閉放送_男声1番.mp3"></audio>
     <audio id="fullml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/若葉の散歩道.mp3"></audio>
+    <audio id="fullcutml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/Sea%20Green.mp3"></audio>
     <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
       
     </div>
@@ -204,18 +206,29 @@
               <option value="shintachikawa">JR東日本-新幹線立川式</option>
               <option value="shintachikawanotgensui">JR東日本-新幹線立川式(音量減衰なし)</option>
               <option value="full">フルコーラス固定</option>
+              <option value="fullcut">1コーラス･途中切り可能</option>
           </select>
           <p>②ファイルをアップロードしてください。</p>
             <div class="arrange" id="fileUpload">
-              <div class="mukaburiMenu" id="mukaburiMenu">
-                <label for="fileInput">無被り音声ファイルを選択</label>
+              <div class="melodyMenu" id="melodyMenu">
+                <label for="fileInput">メロディ部ファイルを選択</label>
                 <input type="file" id="fileInput" accept="audio/*">
+                <button id="melodyButton">オフ</button>
+              </div>
+              <div class="mukaburiMenu" id="mukaburiMenu" style="display:none;">
+                <label for="mukaburiInput">無被り音声ファイルを選択</label>
+                <input type="file" id="mukaburiInput" accept="audio/*">
                 <button id="mukaburiButton">オフ</button>
               </div>
               <div class="fullMenu" id="fullMenu" style="display:none;">
                 <label for="fullInput">フル音声ファイルを選択</label>
                 <input type="file" id="fullInput" accept="audio/*">
                 <button id="fullButton">オフ</button>
+              </div>
+              <div class="fullcutMenu" id="fullcutMenu" style="display:none;">
+                <label for="fullcutInput">フル音声ファイルを選択</label>
+                <input type="file" id="fullcutInput" accept="audio/*">
+                <button id="fullcutButton">オフ</button>
               </div>
               <div class="gensuiMenu" id="gensuiMenu" style="display:none;">
                 <label for="gensuiInput">音量減衰部音声ファイルを選択</label>
@@ -235,8 +248,10 @@
             </div>
             <script>
             const switch_method = document.getElementById("switch_method");
+            const melodyMenu = document.getElementById("melodyMenu");
             const mukaburiMenu = document.getElementById("mukaburiMenu");
             const fullMenu = document.getElementById("fullMenu");
+            const fullcutMenu = document.getElementById("fullcutMenu");
             const gensuiMenu = document.getElementById("gensuiMenu");
             const departMenu = document.getElementById("departMenu");
             const tojimeMenu = document.getElementById("tojimeMenu");
@@ -245,55 +260,73 @@
             const metro_svg = document.getElementById("metro_svg");
             // 無被り音声(melody)をユーザーがアップロード済みかどうかのフラグ。
             // これが true の間は、モード切替時に既定のURLで上書きしないようにする。
-            let customMelodyUploaded = false;
+ 
+            const audio = document.getElementById("melody");
+            const mukaburi = document.getElementById("mukaburi");
+            const fullml = document.getElementById("fullml");
+            const fullcutml = document.getElementById("fullcutml");
+            const tojime = document.getElementById("tojime");
+            const depart = document.getElementById("depart");
+            const gensui = document.getElementById("gensui");
             
             switch_method.addEventListener('change', (event) => {
               const selectedValue = event.target.value;
               if (selectedValue == "normal" || selectedValue == "tachikawa" || selectedValue == "nishiogikubo") {
-                mukaburiMenu.style.display = "block";
+                melodyMenu.style.display = "block";
+                mukaburiMenu.style.display = "none";
                 fullMenu.style.display = "none";
+                fullcutMenu.style.display = "none";
                 gensuiMenu.style.display = "none";
                 departMenu.style.display = "none";
                 tojimeMenu.style.display = "block";
                 jr_svg.style.display = "block";
                 metro_svg.style.display = "none";
-                if (!customMelodyUploaded) {
-                  melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/朝の静けさ.mp3";
-                }
               } else if (selectedValue == "shinkansen" || selectedValue == "shintachikawa") {
+                melodyMenu.style.display = "none";
                 mukaburiMenu.style.display = "block";
                 fullMenu.style.display = "none";
+                fullcutMenu.style.display = "none";
                 gensuiMenu.style.display = "block";
                 departMenu.style.display = "block";
                 tojimeMenu.style.display = "none";
                 jr_svg.style.display = "block";
                 metro_svg.style.display = "none";
-                if (!customMelodyUploaded) {
-                  melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3";
-                }
               } else if (selectedValue == "notgensui" || selectedValue == "shintachikawanotgensui") {
+                melodyMenu.style.display = "none";
                 mukaburiMenu.style.display = "block";
                 fullMenu.style.display = "none";
+                fullcutMenu.style.display = "none";
                 gensuiMenu.style.display = "none";
                 departMenu.style.display = "block";
                 tojimeMenu.style.display = "none";
                 jr_svg.style.display = "block";
                 metro_svg.style.display = "none";
-                if (!customMelodyUploaded) {
-                  melody.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/首都圏42番.mp3";
-                }
               } else if (selectedValue == "full") {
+                melodyMenu.style.display = "none";
                 mukaburiMenu.style.display = "none";
                 fullMenu.style.display = "block";
+                fullcutMenu.style.display = "none";
                 gensuiMenu.style.display = "none";
                 departMenu.style.display = "none";
                 tojimeMenu.style.display = "none";
                 jr_svg.style.display = "none";
                 metro_svg.style.display = "block";
+              } else if (selectedValue == "fullcut") {
+                melodyMenu.style.display = "none";
+                mukaburiMenu.style.display = "none";
+                fullMenu.style.display = "none";
+                fullcutMenu.style.display = "block";
+                gensuiMenu.style.display = "none";
+                departMenu.style.display = "none";
+                tojimeMenu.style.display = "none";
+                jr_svg.style.display = "block";
+                metro_svg.style.display = "none";
               }
             });
               const fileInput = document.getElementById("fileInput");
+              const mukaburiInput = document.getElementById("mukaburiInput");
               const fullInput = document.getElementById("fullInput");
+              const fullcutInput = document.getElementById("fullcutInput");
               const gensuiInput = document.getElementById("gensuiInput");
               const departInput = document.getElementById("departInput");
               const tojimeInput = document.getElementById("tojimeInput");
@@ -306,12 +339,28 @@
                   customMelodyUploaded = true;
                 }
               });
+
+              mukaburiInput.addEventListener("change", function () {
+                const mukaburiFile = this.files[0];
+                if (mukaburiFile && mukaburiFile.type.startsWith("audio/")) {
+                  const mukaburiUrl = URL.createObjectURL(mukaburiFile);
+                  mukaburi.src = mukaburiUrl;
+                }
+              });
               
               fullInput.addEventListener("change", function () {
                 const fullFile = this.files[0];
                 if (fullFile && fullFile.type.startsWith("audio/")) {
                   const fullUrl = URL.createObjectURL(fullFile);
                   fullml.src = fullUrl;
+                }
+              });
+              
+              fullcutInput.addEventListener("change", function () {
+                const fullcutFile = this.files[0];
+                if (fullcutFile && fullcutFile.type.startsWith("audio/")) {
+                  const fullcutUrl = URL.createObjectURL(fullcutFile);
+                  fullcutml.src = fullcutUrl;
                 }
               });
               
@@ -339,14 +388,25 @@
                 }
               });
 
+              const melodyButton = document.getElementById("melodyButton");
               const mukaburiButton = document.getElementById("mukaburiButton");
+              const fullButton = document.getElementById("fullButton");
+              const fullcutButton = document.getElementById("fullmlButton");
               const gensuiButton = document.getElementById("gensuiButton");
               const departButton = document.getElementById("departButton");
-              const fullButton = document.getElementById("fullButton");
+              const tojimeButton = document.getElementById("tojimeButton");
 
-              
-              mukaburiButton.addEventListener("click", (e) => {
+              melodyButton.addEventListener("click", (e) => {
                 audio.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+              });
+              mukaburiButton.addEventListener("click", (e) => {
+                mukaburi.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+              });
+              fullButton.addEventListener("click", (e) => {
+                fullml.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+              });
+              fullcutButton.addEventListener("click", (e) => {
+                fullcutml.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
               });
               gensuiButton.addEventListener("click", (e) => {
                 gensui.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
@@ -354,8 +414,8 @@
               departButton.addEventListener("click", (e) => {
                 depart.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
               });
-              fullButton.addEventListener("click", (e) => {
-                fullml.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
+              tojimeButton.addEventListener("click", (e) => {
+                tojime.src = "https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3";
               });
             </script>
           <p>③その他</p>
@@ -365,11 +425,6 @@
 
         
     <script>
-      const audio = document.getElementById("melody");
-      const fullml = document.getElementById("fullml");
-      const tojime = document.getElementById("tojime");
-      const depart = document.getElementById("depart");
-      const gensui = document.getElementById("gensui");
       const button = document.getElementById("button");
       const buttonon = document.getElementById("buttonon");
       const nishiogikubo_tojime = () => {
@@ -394,12 +449,14 @@
                   depart.play();
                   isPlaying = true;
                 } else if (switch_method.value == "notgensui" || switch_method.value == "shintachikawanotgensui") {
-                  audio.loop = true;
-                  audio.play();
+                  mukaburi.loop = true;
+                  mukaburi.play();
                   depart.play();
                   isPlaying = true;
                 } else if (switch_method.value == "full") {
                   fullml.play();
+                } else if (switch_method.value == "fullcut") {
+                  fullcutml.play();
                 } else {
                   audio.loop = true; // ループ再生を有効にする
                   audio.play();
@@ -421,12 +478,14 @@
                   depart.play();
                   isPlaying = true;
                 } else if (switch_method.value == "notgensui" || switch_method.value == "shintachikawanotgensui") {
-                  audio.loop = true;
-                  audio.play();
+                  mukaburi.loop = true;
+                  mukaburi.play();
                   depart.play();
                   isPlaying = true;
                 } else if (switch_method.value == "full") {
                   fullml.play();
+                } else if (switch_method.value == "fullcut") {
+                  fullcutml.play();
                 } else {
                   audio.loop = true; // ループ再生を有効にする
                   audio.play();
@@ -437,9 +496,9 @@
             
         gensui.addEventListener("ended", () => {
           gensui.currentTime = 0;
-          audio.currentTime = 0;
-          audio.play();
-          audio.loop = true;
+          mukaburi.currentTime = 0;
+          mukaburi.play();
+          mukaburi.loop = true;
         });
       
         document.getElementById('offButton').addEventListener('click', function() { 
@@ -465,19 +524,23 @@
                 audio.addEventListener('ended', nishiogikubo_tojime);         
               } else if (switch_method.value === "shinkansen") {
                 isPlaying = false;
-                audio.loop = false;
-                audio.pause();
-                audio.currentTime = 0;
+                mukaburi.loop = false;
+                mukaburi.pause();
+                mukaburi.currentTime = 0;
                 gensui.pause();
                 gensui.currentTime = 0;
               } else if (switch_method.value === "notgensui") {
                 isPlaying = false;
-                audio.loop = false;
-                audio.pause();
-                audio.currentTime = 0;
+                mukaburi.loop = false;
+                mukaburi.pause();
+                mukaburi.currentTime = 0;
               } else if (switch_method.value === "shintachikawa" || switch_method.value === "shintachikawanotgensui") {
                 isPlaying = false;
-                audio.loop = false;
+                mukaburi.loop = false;
+              } else if (switch_method.value === "fullcut") {
+                isPlaying = false;
+                fullcutml.pause();
+                fullcutml.currentTime = 0;
               }
             switch_method.style.pointerEvents = "auto";
             }
@@ -506,19 +569,23 @@
                 audio.addEventListener('ended', nishiogikubo_tojime);         
               } else if (switch_method.value === "shinkansen") {
                 isPlaying = false;
-                audio.loop = false;
-                audio.pause();
-                audio.currentTime = 0;
+                mukaburi.loop = false;
+                mukaburi.pause();
+                mukaburi.currentTime = 0;
                 gensui.pause();
                 gensui.currentTime = 0;
               } else if (switch_method.value === "notgensui") {
                 isPlaying = false;
-                audio.loop = false;
-                audio.pause();
-                audio.currentTime = 0;
+                mukaburi.loop = false;
+                mukaburi.pause();
+                mukaburi.currentTime = 0;
               } else if (switch_method.value === "shintachikawa" || switch_method.value === "shintachikawanotgensui") {
                 isPlaying = false;
-                audio.loop = false;
+                mukaburi.loop = false;
+              } else if (switch_method.value === "fullcut") {
+                isPlaying = false;
+                fullcutml.pause();
+                fullcutml.currentTime = 0;
               }
             switch_method.style.pointerEvents = "auto";
             }
@@ -528,6 +595,7 @@
         fullml.addEventListener("ended", () => {
           fullml.currentTime = 0;
           isPlaying = false;
+          switch_method.style.pointerEvents = "auto";
         });
       
         let __serialPort = null;
