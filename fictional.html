@@ -16,7 +16,7 @@
   <title>架空鉄道駅メロ再現システム(仮称)</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.17.0/dist/leaflet-geoman.css">
-  <style>
+  <!-- <style>
     [hidden]{display:none!important}
     .rm-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
     .rm-bar button,.rm-card button,.trains button{font:inherit;font-size:14px;padding:5px 10px;border:1px solid #b9c0c9;border-radius:5px;background:#fff;color:#222;cursor:pointer}
@@ -33,7 +33,7 @@
     .rm-card>div{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0}
     .rm-card label{margin:0}
     #rm-panel{border:1px solid #b9c0c9;border-radius:6px;padding:8px 12px;margin:8px 0}
-  </style>
+  </style> -->
 </head>
 <body>
   <header>
@@ -58,14 +58,20 @@
         <a href="../"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/総武緩行線.png" alt="どこでもステーションベル" class="logo"></a>
         <a href="../custom.html"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/京浜東北線.png" alt="カスタムステーションベル" class="logo"></a>
         <a href="../locate.html"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/横須賀線.png" alt="ここからステーションベル" class="logo"></a>
-        <!-- <a href="../fictional.html"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/常磐緩行線.png" alt="くうそうステーションベル" class="logo"></a> -->
+        <a href="../fictional.html"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/常磐緩行線.png" alt="架空鉄道駅メロ再現システム(仮称)" class="logo"></a>
       </div>
     </div>
   <div class="main">
     <audio id="change" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/4点チャイム_大阪メトロ中央線西行.mp3"></audio>
     <audio id="notfound" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/3点チャイム_大阪メトロ中央線東行.mp3"></audio>
     <audio id="button" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/button.mp3"></audio>
-    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio><audio id="mukaburi" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio><audio id="gensui" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio><audio id="depart" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio><audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio><audio id="fullml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio><audio id="fullcutml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="melody" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="mukaburi" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="gensui" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="depart" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="fullml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <audio id="fullcutml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
     <h1>駅・路線の作成</h1>
     <div class="rm-bar">
       <button type="button" data-rm="station" title="クリックで駅を追加。もう一度押すと終了">駅を置く</button>
@@ -268,7 +274,8 @@
         <li><a href="https://dkst.net/support.html">問い合わせ</a></li>
         <li><a href="https://dkst.net/ikst/ikst.html">IKST動静</a></li>
         <li><a href="https://dkst.net/custom.html">カスタムステーションベル</a></li>
-        <li><a href="https://dkst.net/locate.html">架空鉄道駅メロ再現システム(仮称)</a></li>
+        <li><a href="https://dkst.net/locate.html">ここからステーションベル</a></li>
+        <li><a href="https://dkst.net/fictional.html">架空鉄道駅メロ再現システム(仮称)</a></li>
         <li><a href="https://status.dkst.net">ステータス</a></li>
       </ul>
     </div>
