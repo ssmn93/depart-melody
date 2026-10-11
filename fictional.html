@@ -340,6 +340,15 @@ const cleanPl = q => ({
   type: q && q.type === 'sub' ? 'sub' : 'main',
   method: q && typeof q.method === 'string' && own(METHODS, q.method) ? q.method : 'normal'
 });
+const dirOverlap = (a, b) => a === 'both' || b === 'both' || a === b;
+const mainClash = (pls, t, self) => t.type === 'main' && t.line && pls.find(x => x !== self && x.type === 'main' && x.line === t.line && dirOverlap(x.dir, t.dir));
+function fixMains(pls) {
+  const seen = [];
+  pls.forEach(q => {
+    if (q.type !== 'main' || !q.line) return;
+    if (seen.some(x => x.line === q.line && dirOverlap(x.dir, q.dir))) q.type = 'sub'; else seen.push(q);
+  });
+}
 function label(l) {
   const p = l.feature.properties, el = document.createElement('span');
   el.textContent = p.name || '';
@@ -358,6 +367,7 @@ function adopt(l, props) {
     p.uid = String((props && props.uid) || '').slice(0, 20);
     if (!p.uid || stations().some(s => s.feature.properties.uid === p.uid)) p.uid = rid();
     p.platforms = ((props && Array.isArray(props.platforms)) ? props.platforms : []).slice(0, 30).map(cleanPl);
+    fixMains(p.platforms);
   }
   l.feature = { type: 'Feature', properties: p };
   label(l);
@@ -419,7 +429,9 @@ $('rm-del').onclick = () => { if (!sel) return; items.removeLayer(sel); select(n
 $('rm-addp').onclick = () => {
   if (!sel) return;
   const p = sel.feature.properties, l0 = lines()[0];
-  p.platforms.push(cleanPl({ no: String(p.platforms.length + 1), line: l0 ? l0.feature.properties.name : '' }));
+  const nq = cleanPl({ no: String(p.platforms.length + 1), line: l0 ? l0.feature.properties.name : '' });
+  if (mainClash(p.platforms, nq, null)) nq.type = 'sub';
+  p.platforms.push(nq);
   renderPlats(); changed();
 };
 function mk(opts, val, cb) {
@@ -446,10 +458,18 @@ function renderPlats() {
       Object.keys(SLOTS).forEach(k => delF(fkey(st.uid, q.id, k)));
       renderPlats(); changed();
     };
+    const set = (k, v) => {
+      const c = mainClash(st.platforms, Object.assign({}, q, { [k]: v }), q);
+      if (c) {
+        alert('同じ路線・同じ方向の本線は1つのホームしか登録できません。\n（' + (c.no || '?') + '番線が本線として登録済みです。「上下兼用」は上り・下りの両方に含まれます。）');
+        renderPlats(); return;
+      }
+      q[k] = v; changed();
+    };
     r1.append(no,
-      mk(lopts, q.line, v => { q.line = v; changed(); }),
-      mk(Object.entries(DIRS), q.dir, v => { q.dir = v; changed(); }),
-      mk([['main', '本線'], ['sub', '副本線']], q.type, v => { q.type = v; changed(); }),
+      mk(lopts, q.line, v => set('line', v)),
+      mk(Object.entries(DIRS), q.dir, v => set('dir', v)),
+      mk([['main', '本線'], ['sub', '副本線']], q.type, v => set('type', v)),
       mk(Object.entries(METHODS).map(([k, v]) => [k, v[0]]), q.method, v => { q.method = v; renderPlats(); changed(); applyIfCurrent(q); }),
       del);
     card.append(r1);
@@ -639,15 +659,15 @@ function renderUse() {
     if (subs.length > 1) {
       const cur = subs.find(q => q.id === use.sel[uid]) || subs[0];
       const sl2 = document.createElement('select');
-      subs.forEach(q => sl2.add(new Option((q.no || '?') + '番線', q.id)));
+      subs.forEach(q => sl2.add(new Option('(' + (q.no || '?') + ')', q.id)));
       sl2.value = cur.id;
-      const [w, r] = radio(cur, '副本線');
-      sl2.onchange = () => { r.value = sl2.value; if (r.checked) { use.sel[uid] = r.value; saveUse(); } };
+      const [w, r] = radio(cur, '(' + (cur.no || '?') + ')');
+      sl2.onchange = () => { r.value = sl2.value; w.querySelector('label').textContent = '(' + ((subs.find(x => x.id === sl2.value) || {}).no || '?') + ')'; if (r.checked) { use.sel[uid] = r.value; saveUse(); } };
       left.append(sl2, w);
     } else if (subs.length === 1) {
-      left.append(radio(subs[0], (subs[0].no || '?') + '番線(副)')[0]);
+      left.append(radio(subs[0], '(' + (subs[0].no || '?') + ')')[0]);
     }
-    mains.forEach(q => right.append(radio(q, (q.no || '?') + '番線')[0]));
+    mains.forEach(q => right.append(radio(q, '(' + (q.no || '?') + ')')[0]));
     row.append(left, right, h);
     box.append(row);
   });
