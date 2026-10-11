@@ -15,25 +15,6 @@
   <meta property="og:site_name" content="架空鉄道駅メロ再現システム(仮称)">
   <title>架空鉄道駅メロ再現システム(仮称)</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <link rel="stylesheet" href="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.17.0/dist/leaflet-geoman.css">
-  <style>
-    [hidden]{display:none!important}
-    .rm-bar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:8px 0}
-    .rm-bar button,.rm-card button,.trains button{font:inherit;font-size:14px;padding:5px 10px;border:1px solid #b9c0c9;border-radius:5px;background:#fff;color:#222;cursor:pointer}
-    .rm-bar button.on{background:#3f7aa1;border-color:#3f7aa1;color:#fff}
-    .rm-bar input[type=color]{width:34px;height:30px;padding:0;border:1px solid #b9c0c9;border-radius:5px;background:#fff}
-    #railmap{width:100%;height:60vh;min-height:360px;border:1px solid #b9c0c9;border-radius:6px}
-    #railmap svg{width:auto;padding-top:0}
-    .rm-dot{background:#fff;border:3px solid #222;border-radius:50%}
-    .leaflet-tooltip.rm-label{background:rgba(255,255,255,.88);border:0;box-shadow:none;font-weight:600;padding:1px 5px}
-    .leaflet-tooltip.rm-label:before{display:none}
-    #railmap.rm-hide .rm-label{display:none}
-    #rm-stat,#cur{font-size:14px;color:#556}
-    .rm-card{border:1px solid #d8e6ee;border-radius:6px;padding:8px;margin:6px 0;background:#fbfdff}
-    .rm-card>div{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:4px 0}
-    .rm-card label{margin:0}
-    #rm-panel{border:1px solid #b9c0c9;border-radius:6px;padding:8px 12px;margin:8px 0}
-  </style>
 </head>
 <body>
   <header>
@@ -74,13 +55,17 @@
     <audio id="fullcutml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
     <h1>駅・路線の作成</h1>
     <div class="rm-bar">
-      <button type="button" data-rm="station" title="クリックで駅を追加。もう一度押すと終了">駅を置く</button>
-      <button type="button" data-rm="line" title="点を打ち、最後の点をもう一度クリックで確定">路線を引く</button>
-      <button type="button" data-rm="edit">編集・移動</button>
-      <button type="button" data-rm="remove">削除</button>
+      <button type="button" data-rm="station" title="地図をクリックして駅を追加。もう一度押すと終了">駅を置く</button>
+      <button type="button" data-rm="line" title="地図や駅をクリックして頂点を追加。ダブルクリックか「線を確定」で完了">路線を引く</button>
+      <button type="button" data-rm="edit" title="駅のドラッグ、路線の頂点のドラッグ、路線上のダブルクリックで頂点追加">編集・移動</button>
+      <button type="button" data-rm="remove" title="クリックした駅・路線を削除">削除</button>
       <input type="color" id="rm-color" value="#e60012" title="路線の色">
+      <button type="button" id="rm-fin" hidden>線を確定</button>
+      <button type="button" id="rm-cancel" hidden>描画を取消</button>
+    </div>
+    <div class="rm-bar">
+      <button type="button" id="rm-labels">駅名表示：ON</button>
       <button type="button" id="rm-base">背景地図切替</button>
-      <button type="button" id="rm-labels">駅名表示</button>
       <button type="button" id="rm-export">エクスポート</button>
       <button type="button" id="rm-import">インポート</button>
       <button type="button" id="rm-clear">全消去</button>
@@ -259,6 +244,7 @@
       <label><input type="checkbox" id="buttonon">ボタン音オフ</label>
       <label><input type="checkbox" id="changeon">切替通知音オフ</label>
       <label><input type="checkbox" id="placeoff">位置情報オフ</label>
+      <div class="rm-bar"><button type="button" id="connectHardware">実機スイッチ検知</button><span id="hwStatus">未接続</span></div>
     </div>
   </div>
   <footer class="footer">
@@ -285,448 +271,577 @@
     </p>
   </footer>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/@geoman-io/leaflet-geoman-free@2.17.0/dist/leaflet-geoman.min.js"></script>
   <script>
-    (() => {
-    'use strict';
-    const $ = id => document.getElementById(id);
-    const HEX = /^#[0-9a-f]{6}$/i;
-    const SIL = 'https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3';
-    const rid = () => Math.random().toString(36).slice(2, 10);
-    const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
-    
-    /* ---------- 方式・音声スロット（カスタムステーションベルと同じ構成） ---------- */
-    const MEL = ['melody', 'tojime'], SHK = ['mukaburi', 'gensui', 'depart'], SHN = ['mukaburi', 'depart'];
-    const METHODS = {
-      normal: ['途中切り可能', MEL], tachikawa: ['JR東日本-立川式', MEL], nishiogikubo: ['JR東日本-西荻窪式', MEL],
-      shinkansen: ['JR東日本-新幹線式', SHK], notgensui: ['JR東日本-新幹線式(音声減衰なし)', SHN],
-      shintachikawa: ['JR東日本-新幹線立川式', SHK], shintachikawanotgensui: ['JR東日本-新幹線立川式(音量減衰なし)', SHN],
-      full: ['フルコーラス固定', ['full']], fullcut: ['1コーラス･途中切り可能', ['fullcut']]
-    };
-    const SLOTS = { melody: 'メロディ部', mukaburi: '無被り音声', gensui: '音量減衰部音声', depart: '発車放送部音声', tojime: '戸閉放送部音声', full: 'フル音声', fullcut: 'フル音声' };
-    const EL = { melody: 'melody', mukaburi: 'mukaburi', gensui: 'gensui', depart: 'depart', tojime: 'tojime', full: 'fullml', fullcut: 'fullcutml' };
-    const DIRS = { up: '上り', down: '下り', both: '上下兼用' };
-    
-    /* ---------- 音声ファイルの保存（IndexedDB） ---------- */
-    const idb = (mode, fn) => new Promise((res, rej) => {
-      const o = indexedDB.open('railBellAudio', 1);
-      o.onupgradeneeded = () => o.result.createObjectStore('a');
-      o.onerror = () => rej(o.error);
-      o.onsuccess = () => {
-        const db = o.result, tx = db.transaction('a', mode), rq = fn(tx.objectStore('a'));
-        tx.oncomplete = () => { db.close(); res(rq.result); };
-        tx.onabort = tx.onerror = () => { db.close(); rej(tx.error); };
-      };
-    });
-    const putF = (k, f) => idb('readwrite', s => s.put({ blob: f, name: f.name }, k)).catch(() => {});
-    const getF = k => idb('readonly', s => s.get(k)).catch(() => null);
-    const delF = k => idb('readwrite', s => s.delete(k)).catch(() => {});
-    const fkey = (uid, pid, slot) => uid + ':' + pid + ':' + slot;
-    const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
-    const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
-    
-    /* ---------- 地図 ---------- */
-    const GSI = '<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>';
-    const BASES = [
-      { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', n: 19, attr: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' },
-      { url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', n: 18, attr: GSI },
-      { url: 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', n: 18, attr: GSI }
-    ];
-    const map = L.map('railmap').setView([35.68, 139.76], 11);
-    map.pm.setLang('ja');
-    map.pm.setGlobalOptions({ snappable: true, snapDistance: 20 });
-    const items = L.featureGroup().addTo(map);
-    const dot = L.divIcon({ className: 'rm-dot', iconSize: [16, 16], iconAnchor: [8, 8] });
-    let base = 0, baseLayer, labelsOn = true, mode = null, sel = null, ready = false, switching = false, timer;
-    const stations = () => items.getLayers().filter(l => l.feature.properties.kind === 'station');
-    const lines = () => items.getLayers().filter(l => l.feature.properties.kind === 'line');
-    
-    function setBase(i) {
-      base = BASES[i] ? i : 0;
-      if (baseLayer) map.removeLayer(baseLayer);
-      const b = BASES[base];
-      baseLayer = L.tileLayer(b.url, { maxNativeZoom: b.n, maxZoom: 19, attribution: b.attr }).addTo(map);
-    }
-    const cleanPl = q => ({
-      id: String((q && q.id) || rid()).slice(0, 20),
-      no: String((q && q.no) || '').slice(0, 10),
-      line: String((q && q.line) || '').slice(0, 100),
-      dir: q && ['up', 'down', 'both'].includes(q.dir) ? q.dir : 'both',
-      type: q && q.type === 'sub' ? 'sub' : 'main',
-      method: q && typeof q.method === 'string' && own(METHODS, q.method) ? q.method : 'normal'
-    });
-    function label(l) {
-      const p = l.feature.properties, el = document.createElement('span');
-      el.textContent = p.name || '';
-      if (l.getTooltip()) { l.setTooltipContent(el); return; }
-      l.bindTooltip(el, p.kind === 'station'
-        ? { permanent: true, direction: 'right', offset: [10, 0], className: 'rm-label' }
-        : { sticky: true });
-    }
-    function adopt(l, props) {
-      const kind = l instanceof L.Marker ? 'station' : 'line';
-      const p = { kind, name: String((props && props.name) || '').slice(0, 100) };
-      if (kind === 'line') {
-        p.color = props && HEX.test(props.color) ? props.color : $('rm-color').value;
-        l.setStyle({ color: p.color, weight: 5 });
-      } else {
-        p.uid = String((props && props.uid) || '').slice(0, 20);
-        if (!p.uid || stations().some(s => s.feature.properties.uid === p.uid)) p.uid = rid();
-        p.platforms = ((props && Array.isArray(props.platforms)) ? props.platforms : []).slice(0, 30).map(cleanPl);
-      }
-      l.feature = { type: 'Feature', properties: p };
-      label(l);
-      l.on('click', ev => { L.DomEvent.stopPropagation(ev); if (!mode || mode === 'edit') select(l); });
-      l.on('pm:edit pm:dragend', changed);
-      items.addLayer(l);
-    }
-    function loadGeo(geo, replace) {
-      if (replace) { items.clearLayers(); select(null); }
-      const src = geo && geo.type === 'FeatureCollection' ? geo.features : geo && geo.type === 'Feature' ? [geo] : [];
-      const feats = (src || []).filter(f => f && f.geometry && ['Point', 'LineString'].includes(f.geometry.type));
-      L.geoJSON({ type: 'FeatureCollection', features: feats }, {
-        pointToLayer: (f, ll) => L.marker(ll, { icon: dot }),
-        onEachFeature: (f, l) => adopt(l, f.properties)
-      });
-    }
-    function stat() {
-      $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lines().length;
-    }
-    function changed() { queueSave(); stat(); renderUse(); }
-    
-    /* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
-    function select(l) {
-      sel = l;
-      $('rm-panel').hidden = !l;
-      if (!l) return;
-      const p = l.feature.properties, st = p.kind === 'station';
-      $('rm-kind').textContent = st ? '駅' : '路線';
-      $('rm-name').value = p.name;
-      $('rm-pcolor').hidden = st;
-      if (!st) $('rm-pcolor').value = p.color;
-      $('rm-plats').hidden = !st;
-      $('rm-addp').hidden = !st;
-      if (st) renderPlats();
-    }
-    $('rm-name').oninput = () => {
-      if (!sel) return;
-      const p = sel.feature.properties, old = p.name;
-      p.name = $('rm-name').value;
-      if (p.kind === 'line') stations().forEach(s => s.feature.properties.platforms.forEach(q => { if (q.line === old) q.line = p.name; }));
-      label(sel); changed();
-    };
-    $('rm-pcolor').oninput = () => {
-      if (!sel || sel.feature.properties.kind !== 'line') return;
-      sel.feature.properties.color = $('rm-pcolor').value;
-      sel.setStyle({ color: $('rm-pcolor').value }); queueSave();
-    };
-    $('rm-del').onclick = () => { if (!sel) return; items.removeLayer(sel); select(null); changed(); };
-    $('rm-addp').onclick = () => {
-      if (!sel) return;
-      const p = sel.feature.properties, l0 = lines()[0];
-      p.platforms.push(cleanPl({ no: String(p.platforms.length + 1), line: l0 ? l0.feature.properties.name : '' }));
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const HEX = /^#[0-9a-f]{6}$/i;
+const SIL = 'https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3';
+const rid = () => Math.random().toString(36).slice(2, 10);
+const own = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
+
+/* ---------- 方式・音声スロット（カスタムステーションベルと同じ構成） ---------- */
+const MEL = ['melody', 'tojime'], SHK = ['mukaburi', 'gensui', 'depart'], SHN = ['mukaburi', 'depart'];
+const METHODS = {
+  normal: ['途中切り可能', MEL], tachikawa: ['JR東日本-立川式', MEL], nishiogikubo: ['JR東日本-西荻窪式', MEL],
+  shinkansen: ['JR東日本-新幹線式', SHK], notgensui: ['JR東日本-新幹線式(音声減衰なし)', SHN],
+  shintachikawa: ['JR東日本-新幹線立川式', SHK], shintachikawanotgensui: ['JR東日本-新幹線立川式(音量減衰なし)', SHN],
+  full: ['フルコーラス固定', ['full']], fullcut: ['1コーラス･途中切り可能', ['fullcut']]
+};
+const SLOTS = { melody: 'メロディ部', mukaburi: '無被り音声', gensui: '音量減衰部音声', depart: '発車放送部音声', tojime: '戸閉放送部音声', full: 'フル音声', fullcut: 'フル音声' };
+const EL = { melody: 'melody', mukaburi: 'mukaburi', gensui: 'gensui', depart: 'depart', tojime: 'tojime', full: 'fullml', fullcut: 'fullcutml' };
+const DIRS = { up: '上り', down: '下り', both: '上下兼用' };
+
+/* ---------- 音声ファイルの保存（IndexedDB） ---------- */
+const idb = (mode, fn) => new Promise((res, rej) => {
+  const o = indexedDB.open('railBellAudio', 1);
+  o.onupgradeneeded = () => o.result.createObjectStore('a');
+  o.onerror = () => rej(o.error);
+  o.onsuccess = () => {
+    const db = o.result, tx = db.transaction('a', mode), rq = fn(tx.objectStore('a'));
+    tx.oncomplete = () => { db.close(); res(rq.result); };
+    tx.onabort = tx.onerror = () => { db.close(); rej(tx.error); };
+  };
+});
+const putF = (k, f) => idb('readwrite', s => s.put({ blob: f, name: f.name }, k)).catch(() => {});
+const getF = k => idb('readonly', s => s.get(k)).catch(() => null);
+const delF = k => idb('readwrite', s => s.delete(k)).catch(() => {});
+const fkey = (uid, pid, slot) => uid + ':' + pid + ':' + slot;
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+
+/* ---------- 地図 ---------- */
+const GSI = '<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>';
+const BASES = [
+  { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', n: 19, attr: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' },
+  { url: 'https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png', n: 18, attr: GSI },
+  { url: 'https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png', n: 18, attr: GSI }
+];
+window.addEventListener('error', e => { const s = $('rm-stat'); if (s) s.textContent = 'エラー: ' + e.message; });
+if (typeof L === 'undefined') { $('rm-stat').textContent = '地図ライブラリ(Leaflet)を読み込めませんでした。通信状況を確認してください。'; return; }
+const map = L.map('railmap').setView([35.68, 139.76], 11);
+const items = L.featureGroup().addTo(map);
+const dot = L.divIcon({ className: 'rm-dot', iconSize: [16, 16], iconAnchor: [8, 8] });
+let base = 0, baseLayer, labelsOn = true, mode = null, sel = null, ready = false, timer;
+const stations = () => items.getLayers().filter(l => l.feature.properties.kind === 'station');
+const lines = () => items.getLayers().filter(l => l.feature.properties.kind === 'line');
+
+function setBase(i) {
+  base = BASES[i] ? i : 0;
+  if (baseLayer) map.removeLayer(baseLayer);
+  const b = BASES[base];
+  baseLayer = L.tileLayer(b.url, { maxNativeZoom: b.n, maxZoom: 19, attribution: b.attr }).addTo(map);
+}
+const cleanPl = q => ({
+  id: String((q && q.id) || rid()).slice(0, 20),
+  no: String((q && q.no) || '').slice(0, 10),
+  line: String((q && q.line) || '').slice(0, 100),
+  dir: q && ['up', 'down', 'both'].includes(q.dir) ? q.dir : 'both',
+  type: q && q.type === 'sub' ? 'sub' : 'main',
+  method: q && typeof q.method === 'string' && own(METHODS, q.method) ? q.method : 'normal'
+});
+function label(l) {
+  const p = l.feature.properties, el = document.createElement('span');
+  el.textContent = p.name || '';
+  if (l.getTooltip()) { l.setTooltipContent(el); return; }
+  l.bindTooltip(el, p.kind === 'station'
+    ? { permanent: true, direction: 'right', offset: [10, 0], className: 'rm-label' }
+    : { sticky: true });
+}
+function adopt(l, props) {
+  const kind = l instanceof L.Marker ? 'station' : 'line';
+  const p = { kind, name: String((props && props.name) || '').slice(0, 100) };
+  if (kind === 'line') {
+    p.color = props && HEX.test(props.color) ? props.color : $('rm-color').value;
+    l.setStyle({ color: p.color, weight: 5 });
+  } else {
+    p.uid = String((props && props.uid) || '').slice(0, 20);
+    if (!p.uid || stations().some(s => s.feature.properties.uid === p.uid)) p.uid = rid();
+    p.platforms = ((props && Array.isArray(props.platforms)) ? props.platforms : []).slice(0, 30).map(cleanPl);
+  }
+  l.feature = { type: 'Feature', properties: p };
+  label(l);
+  l.on('click', ev => {
+    if (mode === 'line') { if (l instanceof L.Marker) addVertex(l.getLatLng()); return; }
+    if (mode === 'station') return;
+    L.DomEvent.stopPropagation(ev);
+    if (mode === 'remove') { items.removeLayer(l); if (sel === l) select(null); buildHandles(); changed(); }
+    else select(l);
+  });
+  if (kind === 'station') l.on('dragend', changed);
+  else l.on('dblclick', ev => { if (mode === 'edit') { L.DomEvent.stop(ev); insertVertex(l, ev.latlng); } });
+  items.addLayer(l);
+  if (kind === 'station' && mode === 'edit' && l.dragging) l.dragging.enable();
+  if (kind === 'line' && mode === 'edit') buildHandles();
+}
+function loadGeo(geo, replace) {
+  if (replace) { items.clearLayers(); select(null); }
+  const src = geo && geo.type === 'FeatureCollection' ? geo.features : geo && geo.type === 'Feature' ? [geo] : [];
+  const feats = (src || []).filter(f => f && f.geometry && ['Point', 'LineString'].includes(f.geometry.type));
+  L.geoJSON({ type: 'FeatureCollection', features: feats }, {
+    pointToLayer: (f, ll) => L.marker(ll, { icon: dot }),
+    onEachFeature: (f, l) => adopt(l, f.properties)
+  });
+  buildHandles();
+}
+function stat() {
+  $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lines().length;
+}
+function changed() { queueSave(); stat(); renderUse(); }
+
+/* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
+function select(l) {
+  sel = l;
+  $('rm-panel').hidden = !l;
+  if (!l) return;
+  const p = l.feature.properties, st = p.kind === 'station';
+  $('rm-kind').textContent = st ? '駅' : '路線';
+  $('rm-name').value = p.name;
+  $('rm-pcolor').hidden = st;
+  if (!st) $('rm-pcolor').value = p.color;
+  $('rm-plats').hidden = !st;
+  $('rm-addp').hidden = !st;
+  if (st) renderPlats();
+}
+$('rm-name').oninput = () => {
+  if (!sel) return;
+  const p = sel.feature.properties, old = p.name;
+  p.name = $('rm-name').value;
+  if (p.kind === 'line') stations().forEach(s => s.feature.properties.platforms.forEach(q => { if (q.line === old) q.line = p.name; }));
+  label(sel); changed();
+};
+$('rm-pcolor').oninput = () => {
+  if (!sel || sel.feature.properties.kind !== 'line') return;
+  sel.feature.properties.color = $('rm-pcolor').value;
+  sel.setStyle({ color: $('rm-pcolor').value }); queueSave();
+};
+$('rm-del').onclick = () => { if (!sel) return; items.removeLayer(sel); select(null); buildHandles(); changed(); };
+$('rm-addp').onclick = () => {
+  if (!sel) return;
+  const p = sel.feature.properties, l0 = lines()[0];
+  p.platforms.push(cleanPl({ no: String(p.platforms.length + 1), line: l0 ? l0.feature.properties.name : '' }));
+  renderPlats(); changed();
+};
+function mk(opts, val, cb) {
+  const s = document.createElement('select');
+  opts.forEach(([v, t]) => s.add(new Option(t, v)));
+  s.value = val; s.onchange = () => cb(s.value);
+  return s;
+}
+function renderPlats() {
+  const box = $('rm-plats'), st = sel.feature.properties;
+  box.textContent = '';
+  const names = [...new Set(lines().map(l => l.feature.properties.name))];
+  st.platforms.forEach(q => {
+    const card = document.createElement('div'), r1 = document.createElement('div');
+    card.className = 'rm-card';
+    const no = document.createElement('input');
+    no.type = 'text'; no.size = 4; no.placeholder = '番線'; no.value = q.no;
+    no.oninput = () => { q.no = no.value; changed(); };
+    const lopts = [['', '路線を選択']].concat((names.includes(q.line) || !q.line ? names : names.concat(q.line)).map(n => [n, n]));
+    const del = document.createElement('button');
+    del.type = 'button'; del.textContent = 'このホームを削除';
+    del.onclick = () => {
+      st.platforms = st.platforms.filter(x => x !== q);
+      Object.keys(SLOTS).forEach(k => delF(fkey(st.uid, q.id, k)));
       renderPlats(); changed();
     };
-    function mk(opts, val, cb) {
-      const s = document.createElement('select');
-      opts.forEach(([v, t]) => s.add(new Option(t, v)));
-      s.value = val; s.onchange = () => cb(s.value);
-      return s;
-    }
-    function renderPlats() {
-      const box = $('rm-plats'), st = sel.feature.properties;
-      box.textContent = '';
-      const names = [...new Set(lines().map(l => l.feature.properties.name))];
-      st.platforms.forEach(q => {
-        const card = document.createElement('div'), r1 = document.createElement('div');
-        card.className = 'rm-card';
-        const no = document.createElement('input');
-        no.type = 'text'; no.size = 4; no.placeholder = '番線'; no.value = q.no;
-        no.oninput = () => { q.no = no.value; changed(); };
-        const lopts = [['', '路線を選択']].concat((names.includes(q.line) || !q.line ? names : names.concat(q.line)).map(n => [n, n]));
-        const del = document.createElement('button');
-        del.type = 'button'; del.textContent = 'このホームを削除';
-        del.onclick = () => {
-          st.platforms = st.platforms.filter(x => x !== q);
-          Object.keys(SLOTS).forEach(k => delF(fkey(st.uid, q.id, k)));
-          renderPlats(); changed();
-        };
-        r1.append(no,
-          mk(lopts, q.line, v => { q.line = v; changed(); }),
-          mk(Object.entries(DIRS), q.dir, v => { q.dir = v; changed(); }),
-          mk([['main', '本線'], ['sub', '副本線']], q.type, v => { q.type = v; changed(); }),
-          mk(Object.entries(METHODS).map(([k, v]) => [k, v[0]]), q.method, v => { q.method = v; renderPlats(); changed(); applyIfCurrent(q); }),
-          del);
-        card.append(r1);
-        METHODS[q.method][1].forEach(slot => {
-          const row = document.createElement('div'), lb = document.createElement('span'), f = document.createElement('input'),
-            off = document.createElement('button'), stt = document.createElement('span');
-          lb.textContent = SLOTS[slot];
-          f.type = 'file'; f.accept = 'audio/*';
-          off.type = 'button'; off.textContent = 'オフ';
-          const key = fkey(st.uid, q.id, slot);
-          const refresh = () => getF(key).then(r => { stt.textContent = r ? '登録済み: ' + r.name : '未登録（無音）'; });
-          f.onchange = () => {
-            const file = f.files[0];
-            if (file && file.type.startsWith('audio/')) putF(key, file).then(refresh).then(() => applyIfCurrent(q));
-            f.value = '';
-          };
-          off.onclick = () => delF(key).then(refresh).then(() => applyIfCurrent(q));
-          refresh();
-          row.append(lb, f, off, stt); card.append(row);
-        });
-        box.append(card);
-      });
-    }
-    
-    /* ---------- 地図の操作モード ---------- */
-    function syncButtons() {
-      document.querySelectorAll('[data-rm]').forEach(b => b.classList.toggle('on', b.dataset.rm === mode));
-      $('rm-labels').classList.toggle('on', labelsOn);
-      $('railmap').classList.toggle('rm-hide', !labelsOn);
-    }
-    function setMode(m) {
-      mode = mode === m ? null : m;
-      switching = true;
-      map.pm.disableDraw(); map.pm.disableGlobalEditMode(); map.pm.disableGlobalRemoveMode();
-      switching = false;
-      const c = $('rm-color').value;
-      if (mode === 'station') map.pm.enableDraw('Marker', { markerStyle: { icon: dot }, continueDrawing: true });
-      if (mode === 'line') map.pm.enableDraw('Line', { pathOptions: { color: c, weight: 5 }, templineStyle: { color: c }, hintlineStyle: { color: c, dashArray: [5, 5] } });
-      if (mode === 'edit') map.pm.enableGlobalEditMode({ allowSelfIntersection: true });
-      if (mode === 'remove') map.pm.enableGlobalRemoveMode();
-      syncButtons(); queueSave();
-    }
-    document.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => setMode(b.dataset.rm));
-    map.on('pm:drawend', () => { if (!switching && (mode === 'line' || mode === 'station')) { mode = null; syncButtons(); } });
-    map.on('pm:create', e => {
-      const isSt = e.shape === 'Marker';
-      const def = (isSt ? '駅' : '路線') + ((isSt ? stations() : lines()).length + 1);
-      const nm = prompt(isSt ? '駅名を入力' : '路線名を入力', def);
-      adopt(e.layer, { name: nm === null ? def : nm, color: $('rm-color').value });
-      changed();
+    r1.append(no,
+      mk(lopts, q.line, v => { q.line = v; changed(); }),
+      mk(Object.entries(DIRS), q.dir, v => { q.dir = v; changed(); }),
+      mk([['main', '本線'], ['sub', '副本線']], q.type, v => { q.type = v; changed(); }),
+      mk(Object.entries(METHODS).map(([k, v]) => [k, v[0]]), q.method, v => { q.method = v; renderPlats(); changed(); applyIfCurrent(q); }),
+      del);
+    card.append(r1);
+    METHODS[q.method][1].forEach(slot => {
+      const row = document.createElement('div'), lb = document.createElement('span'), f = document.createElement('input'),
+        off = document.createElement('button'), stt = document.createElement('span');
+      lb.textContent = SLOTS[slot];
+      f.type = 'file'; f.accept = 'audio/*';
+      off.type = 'button'; off.textContent = 'オフ';
+      const key = fkey(st.uid, q.id, slot);
+      const refresh = () => getF(key).then(r => { stt.textContent = r ? '登録済み: ' + r.name : '未登録（無音）'; });
+      f.onchange = () => {
+        const file = f.files[0];
+        if (file && file.type.startsWith('audio/')) putF(key, file).then(refresh).then(() => applyIfCurrent(q));
+        f.value = '';
+      };
+      off.onclick = () => delF(key).then(refresh).then(() => applyIfCurrent(q));
+      refresh();
+      row.append(lb, f, off, stt); card.append(row);
     });
-    map.on('pm:remove', e => { items.removeLayer(e.layer); if (sel === e.layer) select(null); changed(); });
-    map.on('click', () => { if (!mode || mode === 'edit') select(null); });
-    $('rm-base').onclick = () => { setBase((base + 1) % BASES.length); queueSave(); };
-    $('rm-labels').onclick = () => { labelsOn = !labelsOn; syncButtons(); queueSave(); };
-    $('rm-export').onclick = () => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([JSON.stringify(items.toGeoJSON(), null, 2)], { type: 'application/geo+json' }));
-      a.download = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.geojson';
-      a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    box.append(card);
+  });
+}
+
+/* ---------- 地図の操作モード（駅を置く／路線を引く／編集／削除。駅名表示とは独立） ---------- */
+const draft = { pts: [], line: null, rub: null, dots: L.layerGroup().addTo(map) };
+const handles = L.layerGroup().addTo(map);
+const hIcon = L.divIcon({ className: 'rm-handle', iconSize: [12, 12], iconAnchor: [6, 6] });
+function syncButtons() {
+  document.querySelectorAll('[data-rm]').forEach(b => b.classList.toggle('on', b.dataset.rm === mode));
+  $('rm-labels').textContent = '駅名表示：' + (labelsOn ? 'ON' : 'OFF');
+  $('railmap').classList.toggle('rm-hide', !labelsOn);
+}
+function clearDraft() {
+  if (draft.line) map.removeLayer(draft.line);
+  if (draft.rub) map.removeLayer(draft.rub);
+  draft.line = draft.rub = null; draft.pts = []; draft.dots.clearLayers();
+  $('rm-fin').hidden = $('rm-cancel').hidden = true;
+}
+function addVertex(ll) {
+  const c = $('rm-color').value;
+  draft.pts.push(ll);
+  if (!draft.line) draft.line = L.polyline([], { color: c, weight: 5, dashArray: '8 6', interactive: false }).addTo(map);
+  draft.line.setLatLngs(draft.pts);
+  L.circleMarker(ll, { radius: 4, color: c, fillOpacity: 1, interactive: false }).addTo(draft.dots);
+  $('rm-fin').hidden = $('rm-cancel').hidden = false;
+}
+function finishLine() {
+  const px = p => map.latLngToContainerPoint(p);
+  const pts = draft.pts.filter((p, i, a) => !i || px(p).distanceTo(px(a[i - 1])) > 4);
+  clearDraft();
+  if (pts.length < 2) return;
+  const def = '路線' + (lines().length + 1), nm = prompt('路線名を入力', def);
+  adopt(L.polyline(pts, { color: $('rm-color').value, weight: 5 }), { name: nm || def, color: $('rm-color').value });
+  setMode(mode);
+  changed();
+}
+function insertVertex(ln, ll) {
+  const a = ln.getLatLngs(), p = map.latLngToLayerPoint(ll);
+  let bi = 0, bd = Infinity;
+  for (let i = 0; i < a.length - 1; i++) {
+    const d = L.LineUtil.pointToSegmentDistance(p, map.latLngToLayerPoint(a[i]), map.latLngToLayerPoint(a[i + 1]));
+    if (d < bd) { bd = d; bi = i; }
+  }
+  a.splice(bi + 1, 0, ll); ln.setLatLngs(a); buildHandles(); changed();
+}
+function buildHandles() {
+  handles.clearLayers();
+  if (mode !== 'edit') return;
+  lines().forEach(ln => ln.getLatLngs().forEach((ll, i) => {
+    const h = L.marker(ll, { draggable: true, icon: hIcon, zIndexOffset: 1000 });
+    h.on('drag', () => { const a = ln.getLatLngs(); a[i] = h.getLatLng(); ln.setLatLngs(a); });
+    h.on('dragend', changed);
+    h.on('dblclick', e => {
+      L.DomEvent.stop(e);
+      const a = ln.getLatLngs();
+      if (a.length > 2) { a.splice(i, 1); ln.setLatLngs(a); buildHandles(); changed(); }
+    });
+    handles.addLayer(h);
+  }));
+}
+function setMode(m) {
+  mode = mode === m ? null : m;
+  clearDraft();
+  map.doubleClickZoom[mode === 'line' || mode === 'edit' ? 'disable' : 'enable']();
+  map.getContainer().style.cursor = mode === 'station' || mode === 'line' ? 'crosshair' : '';
+  stations().forEach(s => { if (s.dragging) s.dragging[mode === 'edit' ? 'enable' : 'disable'](); });
+  buildHandles(); syncButtons();
+}
+document.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => setMode(b.dataset.rm));
+$('rm-fin').onclick = finishLine;
+$('rm-cancel').onclick = clearDraft;
+map.on('click', e => {
+  if (mode === 'station') {
+    const def = '駅' + (stations().length + 1), nm = prompt('駅名を入力', def);
+    if (nm === null) return;
+    adopt(L.marker(e.latlng, { icon: dot }), { name: nm || def });
+    changed();
+  } else if (mode === 'line') addVertex(e.latlng);
+  else select(null);
+});
+map.on('dblclick', () => { if (mode === 'line') finishLine(); });
+map.on('mousemove', e => {
+  if (mode !== 'line' || !draft.pts.length) return;
+  if (!draft.rub) draft.rub = L.polyline([], { color: '#888', weight: 2, dashArray: '4 6', interactive: false }).addTo(map);
+  draft.rub.setLatLngs([draft.pts[draft.pts.length - 1], e.latlng]);
+});
+document.addEventListener('keydown', e => {
+  if (mode !== 'line' || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.key === 'Escape') clearDraft(); else if (e.key === 'Enter') finishLine();
+});
+$('rm-base').onclick = () => { setBase((base + 1) % BASES.length); queueSave(); };
+$('rm-labels').onclick = () => { labelsOn = !labelsOn; syncButtons(); queueSave(); };
+$('rm-export').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(items.toGeoJSON(), null, 2)], { type: 'application/geo+json' }));
+  a.download = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.geojson';
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+};
+$('rm-import').onclick = () => $('rm-file').click();
+$('rm-file').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try {
+    const geo = JSON.parse(await f.text());
+    loadGeo(geo, !items.getLayers().length || confirm('今のデータを消して読み込みますか？\nOK＝置き換え／キャンセル＝追加で読み込み'));
+    if (items.getLayers().length) map.fitBounds(items.getBounds().pad(0.1));
+    changed();
+  } catch (err) { alert('読み込めませんでした。GeoJSONファイルを選んでください。\n' + err.message); }
+};
+$('rm-clear').onclick = () => {
+  if (!items.getLayers().length || !confirm('駅と路線をすべて消去します。よろしいですか？')) return;
+  items.clearLayers(); select(null); buildHandles(); changed();
+};
+
+/* ---------- 地図の自動保存・復元 ---------- */
+function queueSave() { clearTimeout(timer); timer = setTimeout(saveNow, 300); }
+function saveNow() {
+  clearTimeout(timer);
+  if (!ready) return;
+  const c = map.getCenter();
+  lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value });
+}
+map.on('moveend', queueSave);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
+window.addEventListener('pagehide', saveNow);
+
+/* ---------- 使用：路線・駅・ホーム選択 ---------- */
+const use = { line: '', sel: {} };
+function saveUse() {
+  lsSet('railUseState', { line: use.line, sel: use.sel, buttonon: $('buttonon').checked, changeon: $('changeon').checked, placeoff: $('placeoff').checked });
+}
+function renderUse() {
+  const sl = $('line'), old = use.line;
+  const names = [...new Set(stations().flatMap(s => s.feature.properties.platforms.map(q => q.line)).filter(Boolean))];
+  sl.textContent = '';
+  names.forEach(n => [['u', '上り'], ['d', '下り']].forEach(([k, t]) => sl.add(new Option(n + ' -' + t, encodeURIComponent(n) + '|' + k))));
+  if (!names.length) sl.add(new Option('（ホームを登録すると選べます）', ''));
+  if ([...sl.options].some(o => o.value === old)) sl.value = old;
+  use.line = sl.value;
+  const box = $('use-list');
+  box.textContent = '';
+  const [en, dk] = use.line.split('|');
+  if (!dk) return;
+  const name = decodeURIComponent(en), want = dk === 'u' ? 'up' : 'down';
+  const ln = lines().find(l => l.feature.properties.name === name);
+  const pts = ln ? [].concat(ln.getLatLngs()) : [];
+  const ord = s => pts.reduce((b, pt, i) => { const d = pt.distanceTo(s.getLatLng()); return d < b[0] ? [d, i] : b; }, [Infinity, 0])[1];
+  const list = stations()
+    .map(s => ({ s, pls: s.feature.properties.platforms.filter(q => q.line === name && (q.dir === 'both' || q.dir === want)) }))
+    .filter(x => x.pls.length)
+    .sort((a, b) => ord(a.s) - ord(b.s));
+  if (dk === 'u') list.reverse();
+  list.forEach(({ s, pls }) => {
+    const uid = s.feature.properties.uid;
+    const subs = pls.filter(q => q.type === 'sub'), mains = pls.filter(q => q.type !== 'sub');
+    const row = document.createElement('div'), left = document.createElement('div'), right = document.createElement('div'), h = document.createElement('h3');
+    row.className = 'stationes'; right.className = 'mn'; h.textContent = s.feature.properties.name;
+    const radio = (q, txt) => {
+      const w = document.createElement('div'), r = document.createElement('input'), lb = document.createElement('label');
+      r.type = 'radio'; r.name = 'st_' + uid; r.value = q.id; r.checked = use.sel[uid] === q.id;
+      r.onchange = () => { use.sel[uid] = r.value; saveUse(); };
+      lb.textContent = txt; lb.onclick = () => { r.checked = true; r.dispatchEvent(new Event('change')); };
+      w.append(r, lb);
+      return [w, r];
     };
-    $('rm-import').onclick = () => $('rm-file').click();
-    $('rm-file').onchange = async e => {
-      const f = e.target.files[0]; e.target.value = '';
-      if (!f) return;
-      try {
-        const geo = JSON.parse(await f.text());
-        loadGeo(geo, !items.getLayers().length || confirm('今のデータを消して読み込みますか？\nOK＝置き換え／キャンセル＝追加で読み込み'));
-        if (items.getLayers().length) map.fitBounds(items.getBounds().pad(0.1));
-        changed();
-      } catch (err) { alert('読み込めませんでした。GeoJSONファイルを選んでください。\n' + err.message); }
-    };
-    $('rm-clear').onclick = () => {
-      if (!items.getLayers().length || !confirm('駅と路線をすべて消去します。よろしいですか？')) return;
-      items.clearLayers(); select(null); changed();
-    };
-    
-    /* ---------- 地図の自動保存・復元 ---------- */
-    function queueSave() { clearTimeout(timer); timer = setTimeout(saveNow, 300); }
-    function saveNow() {
-      clearTimeout(timer);
-      if (!ready) return;
-      const c = map.getCenter();
-      lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value });
+    if (subs.length > 1) {
+      const cur = subs.find(q => q.id === use.sel[uid]) || subs[0];
+      const sl2 = document.createElement('select');
+      subs.forEach(q => sl2.add(new Option((q.no || '?') + '番線', q.id)));
+      sl2.value = cur.id;
+      const [w, r] = radio(cur, '副本線');
+      sl2.onchange = () => { r.value = sl2.value; if (r.checked) { use.sel[uid] = r.value; saveUse(); } };
+      left.append(sl2, w);
+    } else if (subs.length === 1) {
+      left.append(radio(subs[0], (subs[0].no || '?') + '番線(副)')[0]);
     }
-    map.on('moveend', queueSave);
-    map.on('pm:globaleditmodetoggled pm:globalremovemodetoggled', queueSave);
-    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
-    window.addEventListener('pagehide', saveNow);
-    
-    /* ---------- 使用：路線・駅・ホーム選択 ---------- */
-    const use = { line: '', sel: {} };
-    function saveUse() {
-      lsSet('railUseState', { line: use.line, sel: use.sel, buttonon: $('buttonon').checked, changeon: $('changeon').checked, placeoff: $('placeoff').checked });
+    mains.forEach(q => right.append(radio(q, (q.no || '?') + '番線')[0]));
+    row.append(left, right, h);
+    box.append(row);
+  });
+}
+$('line').onchange = () => { use.line = $('line').value; saveUse(); renderUse(); };
+$('mains').onclick = () => {
+  $('use-list').querySelectorAll('.stationes').forEach(row => {
+    const r = row.querySelector('.mn input');
+    if (r) { r.checked = true; r.dispatchEvent(new Event('change')); }
+  });
+};
+$('deletes').onclick = () => {
+  $('use-list').querySelectorAll('input[type=radio]').forEach(r => { r.checked = false; });
+  use.sel = {}; saveUse();
+};
+['buttonon', 'changeon', 'placeoff'].forEach(id => { $(id).onchange = saveUse; });
+
+/* ---------- 位置情報：最寄り駅の選択ホームを表示 ---------- */
+let cur = null, hasInit = false, lastSw = 0, autoT = null, urls = [];
+function candidates() {
+  return [...$('use-list').querySelectorAll('input[type=radio]:checked')].map(r => {
+    const s = stations().find(x => x.feature.properties.uid === r.name.slice(3));
+    const q = s && s.feature.properties.platforms.find(x => x.id === r.value);
+    return s && q ? { s, q } : null;
+  }).filter(Boolean);
+}
+function getPos() {
+  return new Promise((res, rej) => {
+    if ($('placeoff').checked) return res(null);
+    if (!navigator.geolocation) return rej({ code: -1 });
+    navigator.geolocation.getCurrentPosition(p => res(L.latLng(p.coords.latitude, p.coords.longitude)), rej, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+  });
+}
+async function locate(force) {
+  const cs = candidates();
+  if (!cs.length) { if (force) alert('停車駅・使用ホームを選択してください。'); return; }
+  let best = cs[0];
+  try {
+    const p = await getPos();
+    if (p) best = cs.reduce((a, b) => p.distanceTo(b.s.getLatLng()) < p.distanceTo(a.s.getLatLng()) ? b : a);
+  } catch (e) { if (force) alert('位置情報の取得に失敗しました。エラーコード：' + e.code); return; }
+  if (!force && cur && cur.s === best.s && cur.q.id === best.q.id) return;
+  if (!force && Date.now() - lastSw < 5000) return;
+  await show(best.s, best.q, true);
+  lastSw = Date.now();
+}
+$('forceReceiveBtn').onclick = async () => {
+  await locate(true);
+  hasInit = true;
+  if (!autoT) autoT = setInterval(() => { if (hasInit && !document.hidden) locate(false); }, 10000);
+};
+
+/* ---------- 駅メロ再生（カスタムステーションベルの方式を移植） ---------- */
+const bell = { method: 'normal', playing: false };
+const A = k => $(EL[k]);
+const nish = () => { A('tojime').currentTime = 0; A('tojime').play(); };
+function stopAll() {
+  Object.keys(EL).forEach(k => { const a = A(k); a.pause(); a.currentTime = 0; a.loop = false; });
+  A('melody').removeEventListener('ended', nish);
+  bell.playing = false;
+}
+async function show(s, q, notify) {
+  cur = { s, q };
+  stopAll();
+  urls.forEach(u => URL.revokeObjectURL(u)); urls = [];
+  const uid = s.feature.properties.uid;
+  for (const k of Object.keys(SLOTS)) {
+    const r = await getF(fkey(uid, q.id, k));
+    if (r && r.blob) { const u = URL.createObjectURL(r.blob); urls.push(u); A(k).src = u; } else A(k).src = SIL;
+  }
+  bell.method = q.method;
+  $('sw').hidden = false;
+  $('jr_svg').style.display = q.method === 'full' ? 'none' : 'block';
+  $('metro_svg').style.display = q.method === 'full' ? 'block' : 'none';
+  $('cur').textContent = '現在: ' + s.feature.properties.name + '　' + (q.no || '?') + '番線（' + METHODS[q.method][0] + '）';
+  if (notify && !$('changeon').checked) (urls.length ? $('change') : $('notfound')).play().catch(() => {});
+}
+function applyIfCurrent(q) { if (cur && cur.q === q) show(cur.s, q, false); }
+function btnSnd() { const b = $('button'); b.currentTime = 0; if (!$('buttonon').checked) b.play().catch(() => {}); }
+function on() {
+  if (!cur) return;
+  btnSnd();
+  const m = bell.method;
+  if (m === 'shinkansen' || m === 'shintachikawa') {
+    if (!bell.playing) { A('gensui').play(); A('depart').play(); bell.playing = true; }
+  } else if (m === 'notgensui' || m === 'shintachikawanotgensui') {
+    if (!bell.playing) { A('mukaburi').loop = true; A('mukaburi').play(); A('depart').play(); bell.playing = true; }
+  } else if (m === 'full') {
+    if (bell.playing) { A('full').pause(); A('full').currentTime = 0; }
+    A('full').play(); bell.playing = true;
+  } else if (m === 'fullcut') {
+    if (!bell.playing) { A('fullcut').play(); bell.playing = true; }
+  } else if (!bell.playing) {
+    A('melody').loop = true; A('melody').play(); bell.playing = true;
+  }
+}
+function off() {
+  if (!cur) return;
+  const m = bell.method, mel = A('melody'), muk = A('mukaburi');
+  mel.removeEventListener('ended', nish);
+  btnSnd();
+  if (!bell.playing) return;
+  if (m === 'normal') { bell.playing = false; mel.loop = false; mel.pause(); mel.currentTime = 0; nish(); }
+  else if (m === 'tachikawa') { bell.playing = false; mel.loop = false; nish(); }
+  else if (m === 'nishiogikubo') { bell.playing = false; mel.loop = false; mel.addEventListener('ended', nish); }
+  else if (m === 'shinkansen') { bell.playing = false; muk.loop = false; muk.pause(); muk.currentTime = 0; A('gensui').pause(); A('gensui').currentTime = 0; }
+  else if (m === 'notgensui') { bell.playing = false; muk.loop = false; muk.pause(); muk.currentTime = 0; }
+  else if (m === 'shintachikawa' || m === 'shintachikawanotgensui') { bell.playing = false; muk.loop = false; }
+  else if (m === 'fullcut') { bell.playing = false; A('fullcut').pause(); A('fullcut').currentTime = 0; }
+}
+document.querySelectorAll('#onButton,#onText').forEach(e => e.addEventListener('click', on));
+document.querySelectorAll('#offButton,#offText').forEach(e => e.addEventListener('click', off));
+A('gensui').addEventListener('ended', () => { A('gensui').currentTime = 0; A('mukaburi').currentTime = 0; A('mukaburi').loop = true; A('mukaburi').play(); });
+A('full').addEventListener('ended', () => { A('full').currentTime = 0; bell.playing = false; });
+
+/* ---------- 実機スイッチ（Web Serial。DSR信号、または ON/OFF の文字列で操作） ---------- */
+const hw = { port: null, reader: null, keep: false, prev: null };
+const hwStat = t => { $('hwStatus').textContent = t; };
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function hwOpen(port) {
+  try {
+    try { await port.open({ baudRate: 115200 }); } catch (e) { /* 既にopenなら無視 */ }
+    hw.port = port; hw.keep = true; hw.prev = null;
+    hwStat('接続済み');
+    try {
+      const dec = new TextDecoderStream();
+      port.readable.pipeTo(dec.writable).catch(() => {});
+      hw.reader = dec.readable.getReader();
+      hwRead().catch(() => {});
+    } catch (e) { hw.reader = null; }
+    hwPoll().catch(() => {});
+  } catch (e) { console.error('実機スイッチの接続に失敗', e); }
+}
+async function hwPoll() {
+  while (hw.keep && hw.port) {
+    try {
+      const v = !!(await hw.port.getSignals()).dataSetReady;
+      if (hw.prev === null || v !== hw.prev) { hw.prev = v; if (v) on(); else off(); }
+    } catch (e) { await wait(500); continue; }
+    await wait(100);
+  }
+}
+async function hwRead() {
+  let buf = '';
+  try {
+    while (hw.keep && hw.reader) {
+      const { value, done } = await hw.reader.read();
+      if (done) break;
+      if (!value) continue;
+      buf += value;
+      const ls = buf.split(/\r?\n/); buf = ls.pop();
+      ls.forEach(x => { x = x.trim().toUpperCase(); if (x === 'ON') on(); else if (x === 'OFF') off(); });
     }
-    function renderUse() {
-      const sl = $('line'), old = use.line;
-      const names = [...new Set(stations().flatMap(s => s.feature.properties.platforms.map(q => q.line)).filter(Boolean))];
-      sl.textContent = '';
-      names.forEach(n => [['u', '上り'], ['d', '下り']].forEach(([k, t]) => sl.add(new Option(n + ' -' + t, encodeURIComponent(n) + '|' + k))));
-      if (!names.length) sl.add(new Option('（ホームを登録すると選べます）', ''));
-      if ([...sl.options].some(o => o.value === old)) sl.value = old;
-      use.line = sl.value;
-      const box = $('use-list');
-      box.textContent = '';
-      const [en, dk] = use.line.split('|');
-      if (!dk) return;
-      const name = decodeURIComponent(en), want = dk === 'u' ? 'up' : 'down';
-      const ln = lines().find(l => l.feature.properties.name === name);
-      const pts = ln ? [].concat(ln.getLatLngs()) : [];
-      const ord = s => pts.reduce((b, pt, i) => { const d = pt.distanceTo(s.getLatLng()); return d < b[0] ? [d, i] : b; }, [Infinity, 0])[1];
-      const list = stations()
-        .map(s => ({ s, pls: s.feature.properties.platforms.filter(q => q.line === name && (q.dir === 'both' || q.dir === want)) }))
-        .filter(x => x.pls.length)
-        .sort((a, b) => ord(a.s) - ord(b.s));
-      if (dk === 'u') list.reverse();
-      list.forEach(({ s, pls }) => {
-        const uid = s.feature.properties.uid;
-        const subs = pls.filter(q => q.type === 'sub'), mains = pls.filter(q => q.type !== 'sub');
-        const row = document.createElement('div'), left = document.createElement('div'), right = document.createElement('div'), h = document.createElement('h3');
-        row.className = 'stationes'; right.className = 'mn'; h.textContent = s.feature.properties.name;
-        const radio = (q, txt) => {
-          const w = document.createElement('div'), r = document.createElement('input'), lb = document.createElement('label');
-          r.type = 'radio'; r.name = 'st_' + uid; r.value = q.id; r.checked = use.sel[uid] === q.id;
-          r.onchange = () => { use.sel[uid] = r.value; saveUse(); };
-          lb.textContent = txt; lb.onclick = () => { r.checked = true; r.dispatchEvent(new Event('change')); };
-          w.append(r, lb);
-          return [w, r];
-        };
-        if (subs.length > 1) {
-          const cur = subs.find(q => q.id === use.sel[uid]) || subs[0];
-          const sl2 = document.createElement('select');
-          subs.forEach(q => sl2.add(new Option((q.no || '?') + '番線', q.id)));
-          sl2.value = cur.id;
-          const [w, r] = radio(cur, '副本線');
-          sl2.onchange = () => { r.value = sl2.value; if (r.checked) { use.sel[uid] = r.value; saveUse(); } };
-          left.append(sl2, w);
-        } else if (subs.length === 1) {
-          left.append(radio(subs[0], (subs[0].no || '?') + '番線(副)')[0]);
-        }
-        mains.forEach(q => right.append(radio(q, (q.no || '?') + '番線')[0]));
-        row.append(left, right, h);
-        box.append(row);
-      });
-    }
-    $('line').onchange = () => { use.line = $('line').value; saveUse(); renderUse(); };
-    $('mains').onclick = () => {
-      $('use-list').querySelectorAll('.stationes').forEach(row => {
-        const r = row.querySelector('.mn input');
-        if (r) { r.checked = true; r.dispatchEvent(new Event('change')); }
-      });
-    };
-    $('deletes').onclick = () => {
-      $('use-list').querySelectorAll('input[type=radio]').forEach(r => { r.checked = false; });
-      use.sel = {}; saveUse();
-    };
-    ['buttonon', 'changeon', 'placeoff'].forEach(id => { $(id).onchange = saveUse; });
-    
-    /* ---------- 位置情報：最寄り駅の選択ホームを表示 ---------- */
-    let cur = null, hasInit = false, lastSw = 0, autoT = null, urls = [];
-    function candidates() {
-      return [...$('use-list').querySelectorAll('input[type=radio]:checked')].map(r => {
-        const s = stations().find(x => x.feature.properties.uid === r.name.slice(3));
-        const q = s && s.feature.properties.platforms.find(x => x.id === r.value);
-        return s && q ? { s, q } : null;
-      }).filter(Boolean);
-    }
-    function getPos() {
-      return new Promise((res, rej) => {
-        if ($('placeoff').checked) return res(null);
-        if (!navigator.geolocation) return rej({ code: -1 });
-        navigator.geolocation.getCurrentPosition(p => res(L.latLng(p.coords.latitude, p.coords.longitude)), rej, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
-      });
-    }
-    async function locate(force) {
-      const cs = candidates();
-      if (!cs.length) { if (force) alert('停車駅・使用ホームを選択してください。'); return; }
-      let best = cs[0];
-      try {
-        const p = await getPos();
-        if (p) best = cs.reduce((a, b) => p.distanceTo(b.s.getLatLng()) < p.distanceTo(a.s.getLatLng()) ? b : a);
-      } catch (e) { if (force) alert('位置情報の取得に失敗しました。エラーコード：' + e.code); return; }
-      if (!force && cur && cur.s === best.s && cur.q.id === best.q.id) return;
-      if (!force && Date.now() - lastSw < 5000) return;
-      await show(best.s, best.q, true);
-      lastSw = Date.now();
-    }
-    $('forceReceiveBtn').onclick = async () => {
-      await locate(true);
-      hasInit = true;
-      if (!autoT) autoT = setInterval(() => { if (hasInit && !document.hidden) locate(false); }, 10000);
-    };
-    
-    /* ---------- 駅メロ再生（カスタムステーションベルの方式を移植） ---------- */
-    const bell = { method: 'normal', playing: false };
-    const A = k => $(EL[k]);
-    const nish = () => { A('tojime').currentTime = 0; A('tojime').play(); };
-    function stopAll() {
-      Object.keys(EL).forEach(k => { const a = A(k); a.pause(); a.currentTime = 0; a.loop = false; });
-      A('melody').removeEventListener('ended', nish);
-      bell.playing = false;
-    }
-    async function show(s, q, notify) {
-      cur = { s, q };
-      stopAll();
-      urls.forEach(u => URL.revokeObjectURL(u)); urls = [];
-      const uid = s.feature.properties.uid;
-      for (const k of Object.keys(SLOTS)) {
-        const r = await getF(fkey(uid, q.id, k));
-        if (r && r.blob) { const u = URL.createObjectURL(r.blob); urls.push(u); A(k).src = u; } else A(k).src = SIL;
-      }
-      bell.method = q.method;
-      $('sw').hidden = false;
-      $('jr_svg').style.display = q.method === 'full' ? 'none' : 'block';
-      $('metro_svg').style.display = q.method === 'full' ? 'block' : 'none';
-      $('cur').textContent = '現在: ' + s.feature.properties.name + '　' + (q.no || '?') + '番線（' + METHODS[q.method][0] + '）';
-      if (notify && !$('changeon').checked) (urls.length ? $('change') : $('notfound')).play().catch(() => {});
-    }
-    function applyIfCurrent(q) { if (cur && cur.q === q) show(cur.s, q, false); }
-    function btnSnd() { const b = $('button'); b.currentTime = 0; if (!$('buttonon').checked) b.play().catch(() => {}); }
-    function on() {
-      btnSnd();
-      const m = bell.method;
-      if (m === 'shinkansen' || m === 'shintachikawa') {
-        if (!bell.playing) { A('gensui').play(); A('depart').play(); bell.playing = true; }
-      } else if (m === 'notgensui' || m === 'shintachikawanotgensui') {
-        if (!bell.playing) { A('mukaburi').loop = true; A('mukaburi').play(); A('depart').play(); bell.playing = true; }
-      } else if (m === 'full') {
-        if (bell.playing) { A('full').pause(); A('full').currentTime = 0; }
-        A('full').play(); bell.playing = true;
-      } else if (m === 'fullcut') {
-        if (!bell.playing) { A('fullcut').play(); bell.playing = true; }
-      } else if (!bell.playing) {
-        A('melody').loop = true; A('melody').play(); bell.playing = true;
-      }
-    }
-    function off() {
-      const m = bell.method, mel = A('melody'), muk = A('mukaburi');
-      mel.removeEventListener('ended', nish);
-      btnSnd();
-      if (!bell.playing) return;
-      if (m === 'normal') { bell.playing = false; mel.loop = false; mel.pause(); mel.currentTime = 0; nish(); }
-      else if (m === 'tachikawa') { bell.playing = false; mel.loop = false; nish(); }
-      else if (m === 'nishiogikubo') { bell.playing = false; mel.loop = false; mel.addEventListener('ended', nish); }
-      else if (m === 'shinkansen') { bell.playing = false; muk.loop = false; muk.pause(); muk.currentTime = 0; A('gensui').pause(); A('gensui').currentTime = 0; }
-      else if (m === 'notgensui') { bell.playing = false; muk.loop = false; muk.pause(); muk.currentTime = 0; }
-      else if (m === 'shintachikawa' || m === 'shintachikawanotgensui') { bell.playing = false; muk.loop = false; }
-      else if (m === 'fullcut') { bell.playing = false; A('fullcut').pause(); A('fullcut').currentTime = 0; }
-    }
-    document.querySelectorAll('#onButton,#onText').forEach(e => e.addEventListener('click', on));
-    document.querySelectorAll('#offButton,#offText').forEach(e => e.addEventListener('click', off));
-    A('gensui').addEventListener('ended', () => { A('gensui').currentTime = 0; A('mukaburi').currentTime = 0; A('mukaburi').loop = true; A('mukaburi').play(); });
-    A('full').addEventListener('ended', () => { A('full').currentTime = 0; bell.playing = false; });
-    
-    /* ---------- 起動 ---------- */
-    const s0 = lsGet('railMapState'), u0 = lsGet('railUseState');
-    setBase(s0 ? s0.base : 0);
-    if (s0) {
-      labelsOn = s0.labels !== false;
-      if (HEX.test(s0.color)) $('rm-color').value = s0.color;
-      loadGeo(s0.geojson, true);
-      const v = s0.view;
-      if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng) && Number.isFinite(v.zoom)) map.setView([v.lat, v.lng], v.zoom);
-    }
-    if (u0) {
-      use.line = typeof u0.line === 'string' ? u0.line : '';
-      use.sel = u0.sel && typeof u0.sel === 'object' ? u0.sel : {};
-      $('buttonon').checked = !!u0.buttonon; $('changeon').checked = !!u0.changeon; $('placeoff').checked = !!u0.placeoff;
-    }
-    syncButtons(); stat(); renderUse();
-    ready = true;
-    })();
+  } catch (e) { /* 切断など */ } finally {
+    try { if (hw.reader) hw.reader.releaseLock(); } catch (e) {}
+    hw.reader = null;
+  }
+}
+async function hwClose() {
+  hw.keep = false; hw.prev = null;
+  try { if (hw.reader) await hw.reader.cancel(); } catch (e) {}
+  try { if (hw.port) await hw.port.close(); } catch (e) {}
+  hw.port = null; hwStat('未接続');
+}
+$('connectHardware').onclick = async () => {
+  if (!('serial' in navigator)) { alert('このブラウザは Web Serial API に対応していません。Chrome/Edge（HTTPS または localhost）で開いてください。'); return; }
+  try { await hwOpen(await navigator.serial.requestPort()); } catch (e) { hwStat('未接続'); }
+};
+if ('serial' in navigator) {
+  navigator.serial.addEventListener('connect', ev => { if (ev.port && !hw.port) hwOpen(ev.port); });
+  navigator.serial.addEventListener('disconnect', ev => { if (ev.port === hw.port) hwClose(); });
+  const auto = async () => { if (hw.port) return; try { const ps = await navigator.serial.getPorts(); if (ps[0]) hwOpen(ps[0]); } catch (e) {} };
+  auto(); setInterval(auto, 2000);
+}
+window.addEventListener('beforeunload', () => { hwClose(); });
+
+/* ---------- 起動 ---------- */
+const s0 = lsGet('railMapState'), u0 = lsGet('railUseState');
+setBase(s0 ? s0.base : 0);
+if (s0) {
+  labelsOn = s0.labels !== false;
+  if (HEX.test(s0.color)) $('rm-color').value = s0.color;
+  loadGeo(s0.geojson, true);
+  const v = s0.view;
+  if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng) && Number.isFinite(v.zoom)) map.setView([v.lat, v.lng], v.zoom);
+}
+if (u0) {
+  use.line = typeof u0.line === 'string' ? u0.line : '';
+  use.sel = u0.sel && typeof u0.sel === 'object' ? u0.sel : {};
+  $('buttonon').checked = !!u0.buttonon; $('changeon').checked = !!u0.changeon; $('placeoff').checked = !!u0.placeoff;
+}
+syncButtons(); stat(); renderUse();
+ready = true;
+})();
 
   </script>
 </body>
