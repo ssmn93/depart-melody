@@ -636,3 +636,16 @@ summary {
 .rm-card label {
   margin: 0;
 }
+
+.rm-mid {
+  background: rgba(255, 255, 255, 0.75);
+  border: 2px solid #3f7aa1;
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+#rm-hint {
+  font-size: 13px;
+  color: #555566;
+  margin: 4px 0;
+}
