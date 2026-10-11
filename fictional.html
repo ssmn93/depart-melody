@@ -332,6 +332,7 @@ function setBase(i) {
   const b = BASES[base];
   baseLayer = L.tileLayer(b.url, { maxNativeZoom: b.n, maxZoom: 19, attribution: b.attr }).addTo(map);
 }
+const eki = n => n + (n.endsWith('駅') ? '' : '駅');
 const cleanPl = q => ({
   id: String((q && q.id) || rid()).slice(0, 20),
   no: String((q && q.no) || '').slice(0, 10),
@@ -646,29 +647,42 @@ function renderUse() {
   list.forEach(({ s, pls }) => {
     const uid = s.feature.properties.uid;
     const subs = pls.filter(q => q.type === 'sub'), mains = pls.filter(q => q.type !== 'sub');
-    const row = document.createElement('div'), left = document.createElement('div'), right = document.createElement('div'), h = document.createElement('h3');
-    row.className = 'stationes'; right.className = 'mn'; h.textContent = s.feature.properties.name;
+    const row = document.createElement('div'), nm = document.createElement('div'), h = document.createElement('h3');
+    row.className = 'stationes';
+    h.textContent = eki(s.feature.properties.name); nm.append(h);
     const radio = (q, txt) => {
-      const w = document.createElement('div'), r = document.createElement('input'), lb = document.createElement('label');
+      const w = document.createElement('div'), r = document.createElement('input');
       r.type = 'radio'; r.name = 'st_' + uid; r.value = q.id; r.checked = use.sel[uid] === q.id;
       r.onchange = () => { use.sel[uid] = r.value; saveUse(); };
-      lb.textContent = txt; lb.onclick = () => { r.checked = true; r.dispatchEvent(new Event('change')); };
-      w.append(r, lb);
+      w.append(r);
+      if (txt !== null) {
+        const lb = document.createElement('label');
+        lb.textContent = txt; lb.onclick = () => { r.checked = true; r.dispatchEvent(new Event('change')); };
+        w.append(lb);
+      }
       return [w, r];
+    };
+    const ghost = () => {
+      const g = document.createElement('div'), r = document.createElement('input'), lb = document.createElement('label');
+      g.style.visibility = 'hidden'; r.type = 'radio'; r.disabled = true; lb.textContent = '(0)';
+      g.append(r, lb);
+      return g;
     };
     if (subs.length > 1) {
       const cur = subs.find(q => q.id === use.sel[uid]) || subs[0];
       const sl2 = document.createElement('select');
       subs.forEach(q => sl2.add(new Option('(' + (q.no || '?') + ')', q.id)));
       sl2.value = cur.id;
-      const [w, r] = radio(cur, '(' + (cur.no || '?') + ')');
-      sl2.onchange = () => { r.value = sl2.value; w.querySelector('label').textContent = '(' + ((subs.find(x => x.id === sl2.value) || {}).no || '?') + ')'; if (r.checked) { use.sel[uid] = r.value; saveUse(); } };
-      left.append(sl2, w);
+      const [w, r] = radio(cur, null);
+      sl2.onchange = () => { r.value = sl2.value; if (r.checked) { use.sel[uid] = r.value; saveUse(); } };
+      w.append(sl2);
+      row.append(w);
     } else if (subs.length === 1) {
-      left.append(radio(subs[0], '(' + (subs[0].no || '?') + ')')[0]);
-    }
-    mains.forEach(q => right.append(radio(q, '(' + (q.no || '?') + ')')[0]));
-    row.append(left, right, h);
+      row.append(radio(subs[0], '(' + (subs[0].no || '?') + ')')[0]);
+    } else row.append(ghost());
+    if (mains.length) mains.forEach(q => { const w = radio(q, '(' + (q.no || '?') + ')')[0]; w.classList.add('mn'); row.append(w); });
+    else row.append(ghost());
+    row.append(nm);
     box.append(row);
   });
 }
@@ -742,7 +756,7 @@ async function show(s, q, notify) {
   $('sw').hidden = false;
   $('jr_svg').style.display = q.method === 'full' ? 'none' : 'block';
   $('metro_svg').style.display = q.method === 'full' ? 'block' : 'none';
-  $('cur').textContent = '現在: ' + s.feature.properties.name + '　' + (q.no || '?') + '番線（' + METHODS[q.method][0] + '）';
+  $('cur').textContent = '現在: ' + eki(s.feature.properties.name) + '　' + (q.no || '?') + '番線（' + METHODS[q.method][0] + '）';
   if (notify && !$('changeon').checked) (urls.length ? $('change') : $('notfound')).play().catch(() => {});
 }
 function applyIfCurrent(q) { if (cur && cur.q === q) show(cur.s, q, false); }
