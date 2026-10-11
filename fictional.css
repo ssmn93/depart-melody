@@ -537,3 +537,102 @@ summary {
   height: 40px;   /* お好みで調整 */
   width: auto;
 }
+
+/* ===== 路線地図・駅メロ使用（架空鉄道） ===== */
+[hidden] {
+  display: none !important;
+}
+
+.rm-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+/* ボタンの見た目はカスタムステーションベル(custom.css)に合わせ、既定のまま。選択中の操作だけ色を付ける */
+.rm-bar button.on {
+  background-color: #3f7aa1;
+  color: #ffffff;
+}
+
+.rm-bar input[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 0;
+}
+
+#railmap {
+  width: 100%;
+  height: 60vh;
+  min-height: 360px;
+  border: 1px solid #b9c0c9;
+}
+
+/* 上の svg { width: 30vw; padding-top: 20px } を地図内では打ち消す */
+#railmap svg {
+  width: auto;
+  padding-top: 0;
+}
+
+.rm-dot {
+  background: #ffffff;
+  border: 3px solid #222222;
+  border-radius: 50%;
+}
+
+.rm-handle {
+  background: #ffffff;
+  border: 2px solid #3f7aa1;
+  box-sizing: border-box;
+}
+
+.leaflet-tooltip.rm-label {
+  background: rgba(255, 255, 255, 0.88);
+  border: 0;
+  box-shadow: none;
+  font-weight: 600;
+  padding: 1px 5px;
+}
+
+.leaflet-tooltip.rm-label:before {
+  display: none;
+}
+
+#railmap.rm-hide .rm-label {
+  display: none;
+}
+
+#rm-stat,
+#cur,
+#hwStatus {
+  font-size: 14px;
+  color: #555566;
+}
+
+#rm-panel {
+  border: 1px solid #b9c0c9;
+  padding: 8px 12px;
+  margin: 8px 0;
+}
+
+.rm-card {
+  border: 1px solid #d8e6ee;
+  border-radius: 6px;
+  padding: 8px;
+  margin: 6px 0;
+  background: #fbfdff;
+}
+
+.rm-card > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin: 4px 0;
+}
+
+.rm-card label {
+  margin: 0;
+}
