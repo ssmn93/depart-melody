@@ -55,6 +55,8 @@
     <audio id="fullcutml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
     <h1>駅・路線の作成</h1>
     <div class="rm-bar">
+      <button type="button" id="rm-undo" disabled title="直前の操作を取り消す（Ctrl+Z）">戻る</button>
+      <button type="button" id="rm-redo" disabled title="取り消した操作をやり直す（Ctrl+Y）">進む</button>
       <button type="button" data-rm="station" title="地図をクリックして駅を追加。もう一度押すと終了">駅を置く</button>
       <button type="button" data-rm="line" title="地図や駅をクリックして頂点を追加。ダブルクリックか「線を確定」で完了">路線を引く</button>
       <button type="button" data-rm="edit" title="駅のドラッグ、路線の頂点のドラッグ、路線上のダブルクリックで頂点追加">編集・移動</button>
@@ -351,6 +353,34 @@ function lineChain(lid) {
   }
   return path;
 }
+// 駅が路線に乗り入れているか（駅が路線の線上にあるか）。距離はメルカトル座標(m)で判定
+const mp = ll => L.CRS.EPSG3857.project(ll);
+const ON_LINE = 40;
+function segDist(p, ln) {
+  const a = ln.getLatLngs().map(mp);
+  let d = Infinity;
+  for (let i = 0; i < a.length - 1; i++) d = Math.min(d, L.LineUtil.pointToSegmentDistance(p, a[i], a[i + 1]));
+  return d;
+}
+function serves(st) {
+  const p = mp(st.getLatLng()), set = new Set();
+  lines().forEach(l => { if (segDist(p, l) <= ON_LINE) set.add(l.feature.properties.lid); });
+  return set;
+}
+// 駅を置く／動かしたとき、路線の近く(約12px以内)なら線上にぴったり吸着させる
+function snapStation(ll) {
+  const p = mp(ll);
+  let best = null;
+  lines().forEach(l => {
+    const a = l.getLatLngs().map(mp);
+    for (let i = 0; i < a.length - 1; i++) {
+      const c = L.LineUtil.closestPointOnSegment(p, a[i], a[i + 1]), d = c.distanceTo(p);
+      if (!best || d < best.d) best = { d, c };
+    }
+  });
+  const tol = 12 * 156543.03392 / Math.pow(2, map.getZoom());
+  return best && best.d <= tol ? L.CRS.EPSG3857.unproject(best.c) : ll;
+}
 function pruneLines() {
   const ok = new Set(lineList().map(p => p.lid));
   stations().forEach(s => s.feature.properties.platforms.forEach(q => { if (q.line && !ok.has(q.line)) q.line = ''; }));
@@ -418,7 +448,7 @@ function adopt(l, props) {
     if (mode === 'remove') { items.removeLayer(l); if (sel === l) select(null); buildHandles(); changed(); }
     else select(l);
   });
-  if (kind === 'station') l.on('dragend', changed);
+  if (kind === 'station') l.on('dragend', () => { l.setLatLng(snapStation(l.getLatLng())); changed(); if (sel === l) renderPlats(); });
   else l.on('dblclick', ev => { if (mode === 'edit') { L.DomEvent.stop(ev); insertVertex(l, ev.latlng); } });
   items.addLayer(l);
   if (kind === 'station' && mode === 'edit' && l.dragging) l.dragging.enable();
@@ -486,7 +516,7 @@ $('rm-pcolor').oninput = () => {
 $('rm-del').onclick = () => { if (!sel) return; items.removeLayer(sel); select(null); buildHandles(); changed(); };
 $('rm-addp').onclick = () => {
   if (!sel) return;
-  const p = sel.feature.properties, l0 = lineList()[0];
+  const p = sel.feature.properties, sv = serves(sel), l0 = lineList().find(x => sv.has(x.lid));
   const nq = cleanPl({ no: String(p.platforms.length + 1), line: l0 ? l0.lid : '' });
   if (mainClash(p.platforms, nq, null)) nq.type = 'sub';
   p.platforms.push(nq);
@@ -494,25 +524,36 @@ $('rm-addp').onclick = () => {
 };
 function mk(opts, val, cb) {
   const s = document.createElement('select');
-  opts.forEach(([v, t]) => s.add(new Option(t, v)));
+  opts.forEach(([v, t, dis]) => { const o = new Option(t, v); o.disabled = !!dis; s.add(o); });
   s.value = val; s.onchange = () => cb(s.value);
   return s;
 }
 function renderPlats() {
   const box = $('rm-plats'), st = sel.feature.properties;
   box.textContent = '';
+  const sv = serves(sel);
+  if (!sv.size) {
+    const n = document.createElement('div');
+    n.textContent = 'この駅に乗り入れる路線がありません。路線を引くとき、この駅をクリックして線を駅に接続してください。';
+    box.append(n);
+  }
   st.platforms.forEach(q => {
     const card = document.createElement('div'), r1 = document.createElement('div');
     card.className = 'rm-card';
     const no = document.createElement('input');
     no.type = 'text'; no.size = 4; no.placeholder = '番線'; no.value = q.no;
     no.oninput = () => { q.no = no.value; changed(); };
-    const lopts = [['', '路線を選択']].concat(lineOptions());
+    const bad = patch => !!mainClash(st.platforms, Object.assign({}, q, patch), q);
+    const lopts = [['', '路線を選択']].concat(lineOptions().filter(([lid]) => sv.has(lid) || lid === q.line).map(([lid, n]) => {
+      const dis = lid !== q.line && q.type === 'main' && bad({ line: lid });
+      return [lid, (sv.has(lid) ? n : n + '（乗り入れなし）') + (dis ? '（不可）' : ''), dis];
+    }));
+    const dopts = Object.entries(DIRS).map(([k, t]) => { const dis = k !== q.dir && q.type === 'main' && bad({ dir: k }); return [k, t + (dis ? '（不可）' : ''), dis]; });
+    const tdis = q.type !== 'main' && bad({ type: 'main' });
     const del = document.createElement('button');
     del.type = 'button'; del.textContent = 'このホームを削除';
     del.onclick = () => {
       st.platforms = st.platforms.filter(x => x !== q);
-      Object.keys(SLOTS).forEach(k => delF(fkey(st.uid, q.id, k)));
       renderPlats(); changed();
     };
     const set = (k, v) => {
@@ -525,8 +566,8 @@ function renderPlats() {
     };
     r1.append(no,
       mk(lopts, q.line, v => set('line', v)),
-      mk(Object.entries(DIRS), q.dir, v => set('dir', v)),
-      mk([['main', '本線'], ['sub', '副本線']], q.type, v => set('type', v)),
+      mk(dopts, q.dir, v => set('dir', v)),
+      mk([['main', '本線' + (tdis ? '（不可）' : ''), tdis], ['sub', '副本線']], q.type, v => set('type', v)),
       mk(Object.entries(METHODS).map(([k, v]) => [k, v[0]]), q.method, v => { q.method = v; renderPlats(); changed(); applyIfCurrent(q); }),
       del);
     card.append(r1);
@@ -636,7 +677,7 @@ map.on('click', e => {
   if (mode === 'station') {
     const def = '駅' + (stations().length + 1), nm = prompt('駅名を入力', def);
     if (nm === null) return;
-    adopt(L.marker(e.latlng, { icon: dot }), { name: nm || def });
+    adopt(L.marker(snapStation(e.latlng), { icon: dot }), { name: nm || def });
     changed();
   } else if (mode === 'line') addVertex(e.latlng);
   else select(null);
@@ -675,11 +716,47 @@ $('rm-clear').onclick = () => {
   items.clearLayers(); select(null); buildHandles(); changed();
 };
 
+/* ---------- 戻る／進む（駅・路線・ホーム登録の編集履歴。音声ファイルは対象外） ---------- */
+const hist = { stack: [], idx: -1 };
+const snapshot = () => JSON.stringify(items.toGeoJSON());
+function syncUndo() {
+  $('rm-undo').disabled = hist.idx <= 0;
+  $('rm-redo').disabled = hist.idx >= hist.stack.length - 1;
+}
+function pushHist() {
+  const j = snapshot();
+  if (hist.stack[hist.idx] === j) return;
+  hist.stack = hist.stack.slice(0, hist.idx + 1);
+  hist.stack.push(j);
+  if (hist.stack.length > 100) hist.stack.shift();
+  hist.idx = hist.stack.length - 1;
+  syncUndo();
+}
+function goHist(d) {
+  saveNow();
+  const i = hist.idx + d;
+  if (i < 0 || i >= hist.stack.length) return;
+  hist.idx = i;
+  clearDraft();
+  loadGeo(JSON.parse(hist.stack[i]), true);
+  hist.stack[i] = snapshot();
+  select(null); stat(); renderUse(); renderLineSel(); queueSave(); syncUndo();
+}
+$('rm-undo').onclick = () => goHist(-1);
+$('rm-redo').onclick = () => goHist(1);
+document.addEventListener('keydown', e => {
+  if (!(e.ctrlKey || e.metaKey) || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+  const k = e.key.toLowerCase();
+  if (k === 'z') { e.preventDefault(); goHist(e.shiftKey ? 1 : -1); }
+  else if (k === 'y') { e.preventDefault(); goHist(1); }
+});
+
 /* ---------- 地図の自動保存・復元 ---------- */
 function queueSave() { clearTimeout(timer); timer = setTimeout(saveNow, 300); }
 function saveNow() {
   clearTimeout(timer);
   if (!ready) return;
+  pushHist();
   const c = map.getCenter();
   lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value });
 }
@@ -962,6 +1039,7 @@ if (u0) {
 }
 syncButtons(); stat(); renderUse(); renderLineSel();
 ready = true;
+pushHist();
 })();
 
   </script>
