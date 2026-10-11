@@ -59,7 +59,8 @@
       <button type="button" data-rm="line" title="地図や駅をクリックして頂点を追加。ダブルクリックか「線を確定」で完了">路線を引く</button>
       <button type="button" data-rm="edit" title="駅のドラッグ、路線の頂点のドラッグ、路線上のダブルクリックで頂点追加">編集・移動</button>
       <button type="button" data-rm="remove" title="クリックした駅・路線を削除">削除</button>
-      <input type="color" id="rm-color" value="#e60012" title="路線の色">
+      <select id="rm-lsel" title="路線を引くとき、新しい路線にするか、既存路線の続き（延伸）にするかを選びます"><option value="">新規路線</option></select>
+      <input type="color" id="rm-color" value="#e60012" title="新規路線の色">
       <button type="button" id="rm-fin" hidden>線を確定</button>
       <button type="button" id="rm-cancel" hidden>描画を取消</button>
     </div>
@@ -325,6 +326,43 @@ const dot = L.divIcon({ className: 'rm-dot', iconSize: [16, 16], iconAnchor: [8,
 let base = 0, baseLayer, labelsOn = true, mode = null, sel = null, ready = false, timer;
 const stations = () => items.getLayers().filter(l => l.feature.properties.kind === 'station');
 const lines = () => items.getLayers().filter(l => l.feature.properties.kind === 'line');
+// 路線は名前ではなくIDで区別する。1つの路線は複数の区間（線）で構成できる（延伸）
+const lineList = () => { const m = new Map(); lines().forEach(l => { const p = l.feature.properties; if (!m.has(p.lid)) m.set(p.lid, p); }); return [...m.values()]; };
+const lineInfo = lid => lineList().find(p => p.lid === lid);
+function lineOptions() {
+  const seen = {};
+  return lineList().map(p => { const n = seen[p.name] = (seen[p.name] || 0) + 1; return [p.lid, n > 1 ? p.name + '（' + n + '）' : p.name]; });
+}
+function lineChain(lid) {
+  const segs = lines().filter(l => l.feature.properties.lid === lid).map(l => l.getLatLngs().slice());
+  if (!segs.length) return [];
+  let path = segs.shift();
+  while (segs.length) {
+    let bi = 0, bd = Infinity, bflip = false, bfront = false;
+    const p0 = path[0], p1 = path[path.length - 1];
+    segs.forEach((sg, i) => {
+      const a = sg[0], b = sg[sg.length - 1];
+      [[p1.distanceTo(a), false, false], [p1.distanceTo(b), true, false], [p0.distanceTo(b), false, true], [p0.distanceTo(a), true, true]]
+        .forEach(([d, f, fr]) => { if (d < bd) { bd = d; bi = i; bflip = f; bfront = fr; } });
+    });
+    let sg = segs.splice(bi, 1)[0];
+    if (bflip) sg = sg.reverse();
+    path = bfront ? sg.concat(path) : path.concat(sg);
+  }
+  return path;
+}
+function pruneLines() {
+  const ok = new Set(lineList().map(p => p.lid));
+  stations().forEach(s => s.feature.properties.platforms.forEach(q => { if (q.line && !ok.has(q.line)) q.line = ''; }));
+}
+function renderLineSel() {
+  const sl = $('rm-lsel'), old = sl.value;
+  sl.textContent = '';
+  sl.add(new Option('新規路線', ''));
+  lineOptions().forEach(([lid, n]) => sl.add(new Option('既存路線を延伸：' + n, lid)));
+  sl.value = [...sl.options].some(o => o.value === old) ? old : '';
+}
+const drawColor = () => { const i = $('rm-lsel').value && lineInfo($('rm-lsel').value); return i ? i.color : $('rm-color').value; };
 
 function setBase(i) {
   base = BASES[i] ? i : 0;
@@ -336,7 +374,7 @@ const eki = n => n + (n.endsWith('駅') ? '' : '駅');
 const cleanPl = q => ({
   id: String((q && q.id) || rid()).slice(0, 20),
   no: String((q && q.no) || '').slice(0, 10),
-  line: String((q && q.line) || '').slice(0, 100),
+  line: String((q && q.line) || '').replace(/[^\w-]/g, '').slice(0, 20),
   dir: q && ['up', 'down', 'both'].includes(q.dir) ? q.dir : 'both',
   type: q && q.type === 'sub' ? 'sub' : 'main',
   method: q && typeof q.method === 'string' && own(METHODS, q.method) ? q.method : 'normal'
@@ -363,6 +401,7 @@ function adopt(l, props) {
   const p = { kind, name: String((props && props.name) || '').slice(0, 100) };
   if (kind === 'line') {
     p.color = props && HEX.test(props.color) ? props.color : $('rm-color').value;
+    p.lid = String((props && props.lid) || '').replace(/[^\w-]/g, '').slice(0, 20) || rid();
     l.setStyle({ color: p.color, weight: 5 });
   } else {
     p.uid = String((props && props.uid) || '').slice(0, 20);
@@ -389,6 +428,23 @@ function loadGeo(geo, replace) {
   if (replace) { items.clearLayers(); select(null); }
   const src = geo && geo.type === 'FeatureCollection' ? geo.features : geo && geo.type === 'Feature' ? [geo] : [];
   const feats = (src || []).filter(f => f && f.geometry && ['Point', 'LineString'].includes(f.geometry.type));
+  const clean = v => String(v || '').replace(/[^\w-]/g, '').slice(0, 20);
+  const lidSet = new Set(), nameLid = {};
+  feats.forEach(f => {
+    if (f.geometry.type !== 'LineString') return;
+    const p = f.properties = f.properties || {};
+    const id = clean(p.lid) || nameLid[p.name] || rid();
+    nameLid[p.name] = nameLid[p.name] || id;
+    p.lid = id; lidSet.add(id);
+  });
+  const lm = replace ? null : {};
+  if (lm) lidSet.forEach(id => { lm[id] = rid(); });
+  const res = v => { const id = lidSet.has(v) ? v : nameLid[v]; return id ? (lm ? lm[id] : id) : ''; };
+  feats.forEach(f => {
+    const p = f.properties;
+    if (f.geometry.type === 'LineString') { if (lm) p.lid = lm[p.lid]; }
+    else if (p && Array.isArray(p.platforms)) p.platforms.forEach(q => { if (q) q.line = res(q.line); });
+  });
   L.geoJSON({ type: 'FeatureCollection', features: feats }, {
     pointToLayer: (f, ll) => L.marker(ll, { icon: dot }),
     onEachFeature: (f, l) => adopt(l, f.properties)
@@ -396,9 +452,9 @@ function loadGeo(geo, replace) {
   buildHandles();
 }
 function stat() {
-  $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lines().length;
+  $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lineList().length;
 }
-function changed() { queueSave(); stat(); renderUse(); }
+function changed() { pruneLines(); queueSave(); stat(); renderUse(); renderLineSel(); }
 
 /* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
 function select(l) {
@@ -416,21 +472,22 @@ function select(l) {
 }
 $('rm-name').oninput = () => {
   if (!sel) return;
-  const p = sel.feature.properties, old = p.name;
-  p.name = $('rm-name').value;
-  if (p.kind === 'line') stations().forEach(s => s.feature.properties.platforms.forEach(q => { if (q.line === old) q.line = p.name; }));
-  label(sel); changed();
+  const p = sel.feature.properties, v = $('rm-name').value;
+  if (p.kind === 'line') lines().filter(l => l.feature.properties.lid === p.lid).forEach(l => { l.feature.properties.name = v; label(l); });
+  else { p.name = v; label(sel); }
+  changed();
 };
 $('rm-pcolor').oninput = () => {
   if (!sel || sel.feature.properties.kind !== 'line') return;
-  sel.feature.properties.color = $('rm-pcolor').value;
-  sel.setStyle({ color: $('rm-pcolor').value }); queueSave();
+  const lid = sel.feature.properties.lid, c = $('rm-pcolor').value;
+  lines().filter(l => l.feature.properties.lid === lid).forEach(l => { l.feature.properties.color = c; l.setStyle({ color: c }); });
+  queueSave();
 };
 $('rm-del').onclick = () => { if (!sel) return; items.removeLayer(sel); select(null); buildHandles(); changed(); };
 $('rm-addp').onclick = () => {
   if (!sel) return;
-  const p = sel.feature.properties, l0 = lines()[0];
-  const nq = cleanPl({ no: String(p.platforms.length + 1), line: l0 ? l0.feature.properties.name : '' });
+  const p = sel.feature.properties, l0 = lineList()[0];
+  const nq = cleanPl({ no: String(p.platforms.length + 1), line: l0 ? l0.lid : '' });
   if (mainClash(p.platforms, nq, null)) nq.type = 'sub';
   p.platforms.push(nq);
   renderPlats(); changed();
@@ -444,14 +501,13 @@ function mk(opts, val, cb) {
 function renderPlats() {
   const box = $('rm-plats'), st = sel.feature.properties;
   box.textContent = '';
-  const names = [...new Set(lines().map(l => l.feature.properties.name))];
   st.platforms.forEach(q => {
     const card = document.createElement('div'), r1 = document.createElement('div');
     card.className = 'rm-card';
     const no = document.createElement('input');
     no.type = 'text'; no.size = 4; no.placeholder = '番線'; no.value = q.no;
     no.oninput = () => { q.no = no.value; changed(); };
-    const lopts = [['', '路線を選択']].concat((names.includes(q.line) || !q.line ? names : names.concat(q.line)).map(n => [n, n]));
+    const lopts = [['', '路線を選択']].concat(lineOptions());
     const del = document.createElement('button');
     del.type = 'button'; del.textContent = 'このホームを削除';
     del.onclick = () => {
@@ -511,7 +567,7 @@ function clearDraft() {
   $('rm-fin').hidden = $('rm-cancel').hidden = true;
 }
 function addVertex(ll) {
-  const c = $('rm-color').value;
+  const c = drawColor();
   draft.pts.push(ll);
   if (!draft.line) draft.line = L.polyline([], { color: c, weight: 5, dashArray: '8 6', interactive: false }).addTo(map);
   draft.line.setLatLngs(draft.pts);
@@ -521,10 +577,22 @@ function addVertex(ll) {
 function finishLine() {
   const px = p => map.latLngToContainerPoint(p);
   const pts = draft.pts.filter((p, i, a) => !i || px(p).distanceTo(px(a[i - 1])) > 4);
+  if (pts.length < 2) { clearDraft(); return; }
+  const ext = $('rm-lsel').value, info = ext && lineInfo(ext);
+  let props;
+  if (info) props = { lid: info.lid, name: info.name, color: info.color };
+  else {
+    let n = lineList().length + 1;
+    while (lineList().some(p => p.name === '路線' + n)) n++;
+    const def = '路線' + n, nm = prompt('新規路線の名前を入力', def);
+    if (nm === null) return;
+    const name = nm.trim() || def;
+    if (lineList().some(p => p.name === name)) { alert('同じ名前の路線があります。既存の路線に続けて引く場合は「既存路線を延伸」を選んでください。'); return; }
+    props = { lid: rid(), name, color: $('rm-color').value };
+  }
   clearDraft();
-  if (pts.length < 2) return;
-  const def = '路線' + (lines().length + 1), nm = prompt('路線名を入力', def);
-  adopt(L.polyline(pts, { color: $('rm-color').value, weight: 5 }), { name: nm || def, color: $('rm-color').value });
+  adopt(L.polyline(pts, { color: props.color, weight: 5 }), props);
+  $('rm-lsel').value = '';
   setMode(mode);
   changed();
 }
@@ -562,6 +630,7 @@ function setMode(m) {
 }
 document.querySelectorAll('[data-rm]').forEach(b => b.onclick = () => setMode(b.dataset.rm));
 $('rm-fin').onclick = finishLine;
+$('rm-lsel').onchange = () => { if (draft.line) draft.line.setStyle({ color: drawColor() }); };
 $('rm-cancel').onclick = clearDraft;
 map.on('click', e => {
   if (mode === 'station') {
@@ -625,22 +694,21 @@ function saveUse() {
 }
 function renderUse() {
   const sl = $('line'), old = use.line;
-  const names = [...new Set(stations().flatMap(s => s.feature.properties.platforms.map(q => q.line)).filter(Boolean))];
+  const opts = lineOptions().filter(([lid]) => stations().some(s => s.feature.properties.platforms.some(q => q.line === lid)));
   sl.textContent = '';
-  names.forEach(n => [['u', '上り'], ['d', '下り']].forEach(([k, t]) => sl.add(new Option(n + ' -' + t, encodeURIComponent(n) + '|' + k))));
-  if (!names.length) sl.add(new Option('（ホームを登録すると選べます）', ''));
+  opts.forEach(([lid, n]) => [['u', '上り'], ['d', '下り']].forEach(([k, t]) => sl.add(new Option(n + ' -' + t, lid + '|' + k))));
+  if (!opts.length) sl.add(new Option('（ホームを登録すると選べます）', ''));
   if ([...sl.options].some(o => o.value === old)) sl.value = old;
   use.line = sl.value;
   const box = $('use-list');
   box.textContent = '';
-  const [en, dk] = use.line.split('|');
+  const [lid, dk] = use.line.split('|');
   if (!dk) return;
-  const name = decodeURIComponent(en), want = dk === 'u' ? 'up' : 'down';
-  const ln = lines().find(l => l.feature.properties.name === name);
-  const pts = ln ? [].concat(ln.getLatLngs()) : [];
+  const want = dk === 'u' ? 'up' : 'down';
+  const pts = lineChain(lid);
   const ord = s => pts.reduce((b, pt, i) => { const d = pt.distanceTo(s.getLatLng()); return d < b[0] ? [d, i] : b; }, [Infinity, 0])[1];
   const list = stations()
-    .map(s => ({ s, pls: s.feature.properties.platforms.filter(q => q.line === name && (q.dir === 'both' || q.dir === want)) }))
+    .map(s => ({ s, pls: s.feature.properties.platforms.filter(q => q.line === lid && (q.dir === 'both' || q.dir === want)) }))
     .filter(x => x.pls.length)
     .sort((a, b) => ord(a.s) - ord(b.s));
   if (dk === 'u') list.reverse();
@@ -892,7 +960,7 @@ if (u0) {
   use.sel = u0.sel && typeof u0.sel === 'object' ? u0.sel : {};
   $('buttonon').checked = !!u0.buttonon; $('changeon').checked = !!u0.changeon; $('placeoff').checked = !!u0.placeoff;
 }
-syncButtons(); stat(); renderUse();
+syncButtons(); stat(); renderUse(); renderLineSel();
 ready = true;
 })();
 
