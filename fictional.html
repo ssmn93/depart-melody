@@ -59,7 +59,7 @@
       <button type="button" id="rm-redo" disabled title="取り消した操作をやり直す（Ctrl+Y）">進む</button>
       <button type="button" data-rm="station" title="地図をクリックして駅を追加。もう一度押すと終了">駅を置く</button>
       <button type="button" data-rm="line" title="地図や駅をクリックして頂点を追加。ダブルクリックか「線を確定」で完了">路線を引く</button>
-      <button type="button" data-rm="edit" title="全路線の曲がり角を表示。路線上のダブルクリックでも曲がり角を追加できます">編集・移動</button>
+      <button type="button" data-rm="edit" title="全路線の曲がり角を表示します">編集・移動</button>
       <button type="button" data-rm="remove" title="クリックした駅・路線を削除">削除</button>
       <select id="rm-lsel" title="路線を引くとき、新しい路線にするか、既存路線の続き（延伸）にするかを選びます"><option value="">新規路線</option></select>
       <input type="color" id="rm-color" value="#e60012" title="新規路線の色">
@@ -70,11 +70,12 @@
       <button type="button" id="rm-labels">駅名表示：ON</button>
       <button type="button" id="rm-base">背景地図切替</button>
       <button type="button" id="rm-export">エクスポート</button>
+      <button type="button" id="rm-export-audio" title="登録した音声ファイルも一緒に書き出します（ファイルが大きくなります）">音声込みエクスポート</button>
       <button type="button" id="rm-import">インポート</button>
       <button type="button" id="rm-clear">全消去</button>
       <input type="file" id="rm-file" accept=".geojson,.json,application/geo+json,application/json" hidden>
     </div>
-    <div id="rm-hint">駅はドラッグで移動できます（つながった路線も追従）。路線をクリックすると曲がり角が表示され、ドラッグで移動、辺の中央の小さな点をドラッグで曲がり角の追加、ダブルクリックで曲がり角の削除ができます。</div>
+    <div id="rm-hint">駅はドラッグで移動できます（つながった路線も追従）。路線をクリックすると曲がり角が表示され、ドラッグで移動できます。選択中の路線は、線上の好きな位置をクリックするか、辺の中央の小さな点をドラッグすると曲がり角を追加でき、曲がり角のダブルクリックで削除できます。</div>
     <div id="railmap"></div>
     <div id="rm-stat"></div>
     <div id="rm-panel" hidden>
@@ -82,6 +83,15 @@
         <input type="text" id="rm-name" maxlength="100" placeholder="名前">
         <input type="color" id="rm-pcolor">
         <button type="button" id="rm-del">この項目を削除</button></div>
+      <div id="rm-lineops" hidden>
+        <div class="rm-bar">
+          <button type="button" id="rm-split" title="路線を、クリックした位置で2つに分けます">分割</button>
+          <select id="rm-msel" title="この路線に併合する路線"></select><button type="button" id="rm-merge">併合</button>
+          <button type="button" id="rm-rev" title="路線の向きを逆にして、上り・下りの並びを入れ替えます">上下を逆転</button>
+          <label><input type="checkbox" id="rm-revdirs">ホームの上り・下りも入れ替える</label>
+        </div>
+        <div id="rm-opnote"></div>
+      </div>
       <div id="rm-plats"></div>
       <button type="button" id="rm-addp">ホームを追加</button>
     </div>
@@ -336,24 +346,26 @@ function lineOptions() {
   const seen = {};
   return lineList().map(p => { const n = seen[p.name] = (seen[p.name] || 0) + 1; return [p.lid, n > 1 ? p.name + '（' + n + '）' : p.name]; });
 }
-function lineChain(lid) {
-  const segs = lines().filter(l => l.feature.properties.lid === lid).map(l => l.getLatLngs().slice());
+// 1つの路線を構成する区間を、端点の近さでつないだ順に並べる（各区間の向きは路線の向きにそろえる）
+function orderedSegs(lid) {
+  const segs = lines().filter(l => l.feature.properties.lid === lid).map(ln => ({ ln, pts: ln.getLatLngs().slice(), rev: false }));
   if (!segs.length) return [];
-  let path = segs.shift();
+  const out = [segs.shift()];
   while (segs.length) {
+    const p0 = out[0].pts[0], last = out[out.length - 1].pts, p1 = last[last.length - 1];
     let bi = 0, bd = Infinity, bflip = false, bfront = false;
-    const p0 = path[0], p1 = path[path.length - 1];
     segs.forEach((sg, i) => {
-      const a = sg[0], b = sg[sg.length - 1];
+      const a = sg.pts[0], b = sg.pts[sg.pts.length - 1];
       [[p1.distanceTo(a), false, false], [p1.distanceTo(b), true, false], [p0.distanceTo(b), false, true], [p0.distanceTo(a), true, true]]
         .forEach(([d, f, fr]) => { if (d < bd) { bd = d; bi = i; bflip = f; bfront = fr; } });
     });
-    let sg = segs.splice(bi, 1)[0];
-    if (bflip) sg = sg.reverse();
-    path = bfront ? sg.concat(path) : path.concat(sg);
+    const sg = segs.splice(bi, 1)[0];
+    if (bflip) { sg.pts = sg.pts.slice().reverse(); sg.rev = true; }
+    if (bfront) out.unshift(sg); else out.push(sg);
   }
-  return path;
+  return out;
 }
+const lineChain = lid => [].concat(...orderedSegs(lid).map(x => x.pts));
 // 駅が路線に乗り入れているか（駅が路線の線上にあるか）。距離はメルカトル座標(m)で判定
 const mp = ll => L.CRS.EPSG3857.project(ll);
 const ON_LINE = 40;
@@ -403,7 +415,7 @@ function setBase(i) {
 }
 const eki = n => n + (n.endsWith('駅') ? '' : '駅');
 const cleanPl = q => ({
-  id: String((q && q.id) || rid()).slice(0, 20),
+  id: String((q && q.id) || '').replace(/[^\w-]/g, '').slice(0, 20) || rid(),
   no: String((q && q.no) || '').slice(0, 10),
   line: String((q && q.line) || '').replace(/[^\w-]/g, '').slice(0, 20),
   dir: q && ['up', 'down', 'both'].includes(q.dir) ? q.dir : 'both',
@@ -435,7 +447,7 @@ function adopt(l, props) {
     p.lid = String((props && props.lid) || '').replace(/[^\w-]/g, '').slice(0, 20) || rid();
     l.setStyle({ color: p.color, weight: 5 });
   } else {
-    p.uid = String((props && props.uid) || '').slice(0, 20);
+    p.uid = String((props && props.uid) || '').replace(/[^\w-]/g, '').slice(0, 20);
     if (!p.uid || stations().some(s => s.feature.properties.uid === p.uid)) p.uid = rid();
     p.platforms = ((props && Array.isArray(props.platforms)) ? props.platforms : []).slice(0, 30).map(cleanPl);
     fixMains(p.platforms);
@@ -443,10 +455,12 @@ function adopt(l, props) {
   l.feature = { type: 'Feature', properties: p };
   label(l);
   l.on('click', ev => {
+    if (splitLid && kind === 'line') { L.DomEvent.stopPropagation(ev); if (p.lid === splitLid) doSplit(l, ev.latlng); setSplit(null); return; }
     if (mode === 'line') { if (l instanceof L.Marker) addVertex(l.getLatLng()); return; }
     if (mode === 'station') return;
     L.DomEvent.stopPropagation(ev);
     if (mode === 'remove') { items.removeLayer(l); if (sel === l) select(null); buildHandles(); changed(); }
+    else if (kind === 'line' && sel && sel.feature.properties.kind === 'line' && sel.feature.properties.lid === p.lid) insertVertex(l, ev.latlng);
     else select(l);
   });
   if (kind === 'station') {
@@ -463,7 +477,6 @@ function adopt(l, props) {
       buildHandles(); changed(); if (sel === l) renderPlats();
     });
   }
-  else l.on('dblclick', ev => { if (mode === 'edit') { L.DomEvent.stop(ev); insertVertex(l, ev.latlng); } });
   items.addLayer(l);
   if (kind === 'station' && (!mode || mode === 'edit') && l.dragging) l.dragging.enable();
   if (kind === 'line' && mode === 'edit') buildHandles();
@@ -489,24 +502,47 @@ function loadGeo(geo, replace) {
     if (f.geometry.type === 'LineString') { if (lm) p.lid = lm[p.lid]; }
     else if (p && Array.isArray(p.platforms)) p.platforms.forEach(q => { if (q) q.line = res(q.line); });
   });
+  const uidMap = {};
   L.geoJSON({ type: 'FeatureCollection', features: feats }, {
     pointToLayer: (f, ll) => L.marker(ll, { icon: dot }),
-    onEachFeature: (f, l) => adopt(l, f.properties)
+    onEachFeature: (f, l) => {
+      adopt(l, f.properties);
+      const o = f.properties && f.properties.uid;
+      if (o && l.feature.properties.kind === 'station') uidMap[o] = l.feature.properties.uid;
+    }
   });
   buildHandles();
+  return uidMap;
 }
 function stat() {
   $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lineList().length;
 }
-function changed() { pruneLines(); queueSave(); stat(); renderUse(); renderLineSel(); }
+function changed() { pruneLines(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') fillMsel(); }
 
 /* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
+let splitLid = null;
+function setSplit(lid) {
+  splitLid = lid;
+  $('rm-split').textContent = lid ? '分割をやめる' : '分割';
+  $('rm-opnote').textContent = lid ? '分割する位置で、この路線の線上をクリックしてください（Escで取消）' : '';
+  map.getContainer().style.cursor = lid || mode === 'station' || mode === 'line' ? 'crosshair' : '';
+}
+function fillMsel() {
+  const sl = $('rm-msel'), old = sl.value, cur = sel && sel.feature.properties.lid;
+  sl.textContent = '';
+  sl.add(new Option('併合する路線を選択', ''));
+  lineOptions().filter(([lid]) => lid !== cur).forEach(([lid, n]) => sl.add(new Option(n, lid)));
+  sl.value = [...sl.options].some(o => o.value === old) ? old : '';
+}
 function select(l) {
   sel = l;
   buildHandles();
   $('rm-panel').hidden = !l;
-  if (!l) return;
+  if (!l) { if (splitLid) setSplit(null); return; }
   const p = l.feature.properties, st = p.kind === 'station';
+  if (splitLid && p.lid !== splitLid) setSplit(null);
+  $('rm-lineops').hidden = st;
+  if (!st) fillMsel();
   $('rm-kind').textContent = st ? '駅' : '路線';
   $('rm-name').value = p.name;
   $('rm-pcolor').hidden = st;
@@ -594,12 +630,14 @@ function renderPlats() {
     card.append(r1);
     METHODS[q.method][1].forEach(slot => {
       const row = document.createElement('div'), lb = document.createElement('span'), f = document.createElement('input'),
-        off = document.createElement('button'), stt = document.createElement('span');
+        pick = document.createElement('button'), off = document.createElement('button'), stt = document.createElement('span');
       lb.textContent = SLOTS[slot];
-      f.type = 'file'; f.accept = 'audio/*';
+      f.type = 'file'; f.accept = 'audio/*'; f.hidden = true;   // 標準の「選択されていません」表示は使わず、ファイル名を自前で表示する
+      pick.type = 'button'; pick.textContent = 'ファイルを選択';
       off.type = 'button'; off.textContent = 'オフ';
       const key = fkey(st.uid, q.id, slot);
-      const refresh = () => getF(key).then(r => { stt.textContent = r ? '登録済み: ' + r.name : '未登録（無音）'; });
+      const refresh = () => getF(key).then(r => { stt.textContent = r ? r.name : '選択されていません'; });
+      pick.onclick = () => f.click();
       f.onchange = () => {
         const file = f.files[0];
         if (file && file.type.startsWith('audio/')) putF(key, file).then(refresh).then(() => applyIfCurrent(q));
@@ -607,11 +645,81 @@ function renderPlats() {
       };
       off.onclick = () => delF(key).then(refresh).then(() => applyIfCurrent(q));
       refresh();
-      row.append(lb, f, off, stt); card.append(row);
+      row.append(lb, f, pick, stt, off); card.append(row);
     });
     box.append(card);
   });
 }
+
+/* ---------- 路線の分割・併合・上下の逆転 ---------- */
+const pathLen = a => a.reduce((t, q, i) => i ? t + mp(q).distanceTo(mp(a[i - 1])) : t, 0);
+function doSplit(ln, ll) {
+  const lid = ln.feature.properties.lid, color = ln.feature.properties.color, oldName = ln.feature.properties.name;
+  const os = orderedSegs(lid), k = os.findIndex(x => x.ln === ln);
+  if (k < 0) return;
+  const pts = os[k].pts, p = mp(ll);
+  let bj = 0, bd = Infinity, bc = null;
+  for (let j = 0; j < pts.length - 1; j++) {
+    const c = L.LineUtil.closestPointOnSegment(p, mp(pts[j]), mp(pts[j + 1])), d = c.distanceTo(p);
+    if (d < bd) { bd = d; bj = j; bc = c; }
+  }
+  if (!bc) return;
+  const cll = L.CRS.EPSG3857.unproject(bc);
+  const A = pts.slice(0, bj + 1).concat(cll), B = [cll].concat(pts.slice(bj + 1));
+  const aOk = pathLen(A) >= 2, bOk = pathLen(B) >= 2;
+  const before = os.slice(0, k).map(x => x.ln), after = os.slice(k + 1).map(x => x.ln);
+  if (aOk) before.push(ln); else if (bOk) after.unshift(ln);
+  if (!before.length || (!after.length && !(aOk && bOk))) { alert('路線の端では分割できません。路線の途中をクリックしてください。'); return; }
+  let n = 2;
+  while (lineList().some(x => x.name === oldName + '（' + n + '）')) n++;
+  const def = oldName + '（' + n + '）', nm0 = prompt('分割位置より先の側の、新しい路線名を入力', def);
+  if (nm0 === null) return;
+  const nm = nm0.trim() || def;
+  if (lineList().some(x => x.name === nm)) { alert('同じ名前の路線があります。別の名前にしてください。'); return; }
+  const nl = rid();
+  if (aOk && bOk) {
+    ln.setLatLngs(A);
+    adopt(L.polyline(B, { color, weight: 5 }), { lid: nl, name: nm, color });
+  }
+  after.forEach(l => { const q = l.feature.properties; q.lid = nl; q.name = nm; label(l); });
+  // 新しい路線側にだけ乗り入れる駅のホームは、新しい路線に付け替える
+  stations().forEach(s => {
+    const sv = serves(s);
+    s.feature.properties.platforms.forEach(q => { if (q.line === lid && sv.has(nl) && !sv.has(lid)) q.line = nl; });
+  });
+  buildHandles(); changed();
+}
+$('rm-split').onclick = () => {
+  if (!sel || sel.feature.properties.kind !== 'line') return;
+  setSplit(splitLid ? null : sel.feature.properties.lid);
+};
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && splitLid) setSplit(null); });
+$('rm-merge').onclick = () => {
+  if (!sel || sel.feature.properties.kind !== 'line') return;
+  const to = sel.feature.properties, from = $('rm-msel').value, fi = lineInfo(from);
+  if (!fi) { alert('併合する路線を選んでください。'); return; }
+  if (!confirm('「' + fi.name + '」を「' + to.name + '」に併合します。よろしいですか？')) return;
+  lines().filter(l => l.feature.properties.lid === from).forEach(l => {
+    const q = l.feature.properties;
+    q.lid = to.lid; q.name = to.name; q.color = to.color;
+    l.setStyle({ color: to.color }); label(l);
+  });
+  stations().forEach(s => {
+    const pl = s.feature.properties.platforms;
+    pl.forEach(q => { if (q.line === from) q.line = to.lid; });
+    fixMains(pl);
+  });
+  changed();
+};
+$('rm-rev').onclick = () => {
+  if (!sel || sel.feature.properties.kind !== 'line') return;
+  const lid = sel.feature.properties.lid;
+  lines().filter(l => l.feature.properties.lid === lid).forEach(l => l.setLatLngs(l.getLatLngs().slice().reverse()));
+  if ($('rm-revdirs').checked) {
+    stations().forEach(s => s.feature.properties.platforms.forEach(q => { if (q.line === lid && q.dir !== 'both') q.dir = q.dir === 'up' ? 'down' : 'up'; }));
+  }
+  buildHandles(); changed();
+};
 
 /* ---------- 地図の操作モード（駅を置く／路線を引く／編集／削除。駅名表示とは独立） ---------- */
 const draft = { pts: [], line: null, rub: null, dots: L.layerGroup().addTo(map) };
@@ -622,11 +730,13 @@ function syncButtons() {
   $('rm-labels').textContent = '駅名表示：' + (labelsOn ? 'ON' : 'OFF');
   $('railmap').classList.toggle('rm-hide', !labelsOn);
 }
+function clearRub() { if (draft.rub) { map.removeLayer(draft.rub); draft.rub = null; } }
 function clearDraft() {
   if (draft.line) map.removeLayer(draft.line);
-  if (draft.rub) map.removeLayer(draft.rub);
-  draft.line = draft.rub = null; draft.pts = []; draft.dots.clearLayers();
+  clearRub();
+  draft.line = null; draft.pts = []; draft.dots.clearLayers();
   $('rm-fin').hidden = $('rm-cancel').hidden = true;
+  queueSave();
 }
 function addVertex(ll) {
   const c = drawColor();
@@ -635,6 +745,7 @@ function addVertex(ll) {
   draft.line.setLatLngs(draft.pts);
   L.circleMarker(ll, { radius: 4, color: c, fillOpacity: 1, interactive: false }).addTo(draft.dots);
   $('rm-fin').hidden = $('rm-cancel').hidden = false;
+  queueSave();
 }
 function finishLine() {
   const px = p => map.latLngToContainerPoint(p);
@@ -655,17 +766,21 @@ function finishLine() {
   clearDraft();
   adopt(L.polyline(pts, { color: props.color, weight: 5 }), props);
   $('rm-lsel').value = '';
-  setMode(mode);
+  if (mode === 'line') setMode('line');
   changed();
 }
 function insertVertex(ln, ll) {
-  const a = ln.getLatLngs(), p = map.latLngToLayerPoint(ll);
-  let bi = 0, bd = Infinity;
+  const a = ln.getLatLngs(), p = mp(ll);
+  let bi = 0, bd = Infinity, bc = null;
   for (let i = 0; i < a.length - 1; i++) {
-    const d = L.LineUtil.pointToSegmentDistance(p, map.latLngToLayerPoint(a[i]), map.latLngToLayerPoint(a[i + 1]));
-    if (d < bd) { bd = d; bi = i; }
+    const c = L.LineUtil.closestPointOnSegment(p, mp(a[i]), mp(a[i + 1])), d = c.distanceTo(p);
+    if (d < bd) { bd = d; bi = i; bc = c; }
   }
-  a.splice(bi + 1, 0, ll); ln.setLatLngs(a); buildHandles(); changed();
+  if (!bc) return;
+  const tol = 4 * 156543.03392 / Math.pow(2, map.getZoom());   // 既存の曲がり角のすぐ近くでは追加しない
+  if (bc.distanceTo(mp(a[bi])) < tol || bc.distanceTo(mp(a[bi + 1])) < tol) return;
+  a.splice(bi + 1, 0, L.CRS.EPSG3857.unproject(bc));
+  ln.setLatLngs(a); buildHandles(); changed();
 }
 const mIcon = L.divIcon({ className: 'rm-mid', iconSize: [10, 10], iconAnchor: [5, 5] });
 function connectedVerts(st) {
@@ -717,7 +832,8 @@ function buildHandles() {
 }
 function setMode(m) {
   mode = mode === m ? null : m;
-  clearDraft();
+  if (splitLid) setSplit(null);
+  if (mode !== 'line') clearRub();
   map.doubleClickZoom[mode === 'line' || mode === 'edit' ? 'disable' : 'enable']();
   map.getContainer().style.cursor = mode === 'station' || mode === 'line' ? 'crosshair' : '';
   stations().forEach(s => { if (s.dragging) s.dragging[!mode || mode === 'edit' ? 'enable' : 'disable'](); });
@@ -728,6 +844,7 @@ $('rm-fin').onclick = finishLine;
 $('rm-lsel').onchange = () => { if (draft.line) draft.line.setStyle({ color: drawColor() }); };
 $('rm-cancel').onclick = clearDraft;
 map.on('click', e => {
+  if (splitLid) { setSplit(null); return; }
   if (mode === 'station') {
     const def = '駅' + (stations().length + 1), nm = prompt('駅名を入力', def);
     if (nm === null) return;
@@ -748,11 +865,47 @@ document.addEventListener('keydown', e => {
 });
 $('rm-base').onclick = () => { setBase((base + 1) % BASES.length); queueSave(); };
 $('rm-labels').onclick = () => { labelsOn = !labelsOn; syncButtons(); queueSave(); };
-$('rm-export').onclick = () => {
+function download(obj, suffix) {
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(items.toGeoJSON(), null, 2)], { type: 'application/geo+json' }));
-  a.download = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '.geojson';
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/geo+json' }));
+  a.download = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + suffix + '.geojson';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+async function collectAudio() {
+  const keys = await idb('readonly', st => st.getAllKeys()).catch(() => []);
+  const pre = [];
+  stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
+  const out = {};
+  for (const k of keys) {
+    if (!pre.some(x => String(k).startsWith(x))) continue;
+    const r = await getF(k);
+    if (!r || !r.blob) continue;
+    out[k] = { name: r.name, data: await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(r.blob); }) };
+  }
+  return out;
+}
+async function importAudio(audio, uidMap) {
+  if (!audio || typeof audio !== 'object') return 0;
+  let n = 0;
+  for (const [k, v] of Object.entries(audio)) {
+    const m = /^([\w-]{1,20}):([\w-]{1,20}):(\w+)$/.exec(k);
+    if (!m || !own(SLOTS, m[3]) || !v || typeof v.data !== 'string' || !v.data.startsWith('data:audio/')) continue;
+    try {
+      const blob = await (await fetch(v.data)).blob();
+      await putF((uidMap[m[1]] || m[1]) + ':' + m[2] + ':' + m[3], new File([blob], String(v.name || 'audio').slice(0, 100), { type: blob.type }));
+      n++;
+    } catch (e) { /* 壊れた音声データは読み飛ばす */ }
+  }
+  return n;
+}
+$('rm-export').onclick = () => download(items.toGeoJSON(), '');
+$('rm-export-audio').onclick = async () => {
+  try {
+    const fc = items.toGeoJSON();
+    fc.railAudio = await collectAudio();
+    if (!Object.keys(fc.railAudio).length) alert('登録済みの音声ファイルがないため、地図データのみ書き出します。');
+    download(fc, '_audio');
+  } catch (err) { alert('書き出せませんでした。\n' + err.message); }
 };
 $('rm-import').onclick = () => $('rm-file').click();
 $('rm-file').onchange = async e => {
@@ -760,9 +913,11 @@ $('rm-file').onchange = async e => {
   if (!f) return;
   try {
     const geo = JSON.parse(await f.text());
-    loadGeo(geo, !items.getLayers().length || confirm('今のデータを消して読み込みますか？\nOK＝置き換え／キャンセル＝追加で読み込み'));
+    const uidMap = loadGeo(geo, !items.getLayers().length || confirm('今のデータを消して読み込みますか？\nOK＝置き換え／キャンセル＝追加で読み込み'));
+    const n = await importAudio(geo && geo.railAudio, uidMap);
     if (items.getLayers().length) map.fitBounds(items.getBounds().pad(0.1));
     changed();
+    if (n) $('rm-stat').textContent += '　音声 ' + n + ' 件を読み込みました';
   } catch (err) { alert('読み込めませんでした。GeoJSONファイルを選んでください。\n' + err.message); }
 };
 $('rm-clear').onclick = () => {
@@ -791,7 +946,6 @@ function goHist(d) {
   const i = hist.idx + d;
   if (i < 0 || i >= hist.stack.length) return;
   hist.idx = i;
-  clearDraft();
   loadGeo(JSON.parse(hist.stack[i]), true);
   hist.stack[i] = snapshot();
   select(null); stat(); renderUse(); renderLineSel(); queueSave(); syncUndo();
@@ -812,7 +966,7 @@ function saveNow() {
   if (!ready) return;
   pushHist();
   const c = map.getCenter();
-  lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value });
+  lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
 }
 map.on('moveend', queueSave);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
@@ -1092,6 +1246,10 @@ if (u0) {
   $('buttonon').checked = !!u0.buttonon; $('changeon').checked = !!u0.changeon; $('placeoff').checked = !!u0.placeoff;
 }
 syncButtons(); stat(); renderUse(); renderLineSel();
+if (s0 && Array.isArray(s0.draft)) {
+  if (typeof s0.lsel === 'string' && [...$('rm-lsel').options].some(o => o.value === s0.lsel)) $('rm-lsel').value = s0.lsel;
+  s0.draft.forEach(q => { if (Array.isArray(q) && Number.isFinite(q[0]) && Number.isFinite(q[1])) addVertex(L.latLng(q[0], q[1])); });
+}
 ready = true;
 pushHist();
 })();
