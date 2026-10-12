@@ -649,3 +649,19 @@ summary {
   color: #555566;
   margin: 4px 0;
 }
+
+.rm-route {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 10px;
+}
+
+#rm-dist input {
+  width: 5em;
+}
+
+#rm-hereinfo {
+  font-size: 14px;
+  color: #555566;
+}
