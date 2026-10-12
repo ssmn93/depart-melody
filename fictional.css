@@ -662,3 +662,20 @@ summary {
   font-size: 14px;
   color: #555566;
 }
+
+#use-hint {
+  font-size: 13px;
+  color: #555566;
+  margin: 4px 0;
+}
+
+/* ホームを選んでいない駅（通過駅） */
+.stationes.rm-pass {
+  opacity: 0.6;
+}
+
+.stationes.rm-pass h3::after {
+  content: "（通過）";
+  font-weight: normal;
+  color: #666666;
+}
