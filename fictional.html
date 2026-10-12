@@ -369,6 +369,17 @@ function orderedSegs(lid) {
   return out;
 }
 const lineChain = lid => [].concat(...orderedSegs(lid).map(x => x.pts));
+// 路線の始点から、その駅に最も近い線上の点までの距離（路線に沿った位置）。駅の並び順に使う
+function alongLine(pts, ll) {
+  const p = mp(ll), a = pts.map(mp);
+  let best = Infinity, pos = 0, cum = 0;
+  for (let i = 0; i < a.length - 1; i++) {
+    const c = L.LineUtil.closestPointOnSegment(p, a[i], a[i + 1]), d = c.distanceTo(p);
+    if (d < best - 1e-9) { best = d; pos = cum + a[i].distanceTo(c); }
+    cum += a[i].distanceTo(a[i + 1]);
+  }
+  return pos;
+}
 // 駅が路線に乗り入れているか（駅が路線の線上にあるか）。距離はメルカトル座標(m)で判定
 const mp = ll => L.CRS.EPSG3857.project(ll);
 const dist = { line: 10, stn: 100 };   // 乗り入れ判定の距離(m)（固定）：路線の線から／その路線の駅から
@@ -1085,7 +1096,7 @@ function renderUse() {
   if (!dk) return;
   const want = dk === 'u' ? 'up' : 'down';
   const pts = lineChain(lid);
-  const ord = s => pts.reduce((b, pt, i) => { const d = pt.distanceTo(s.getLatLng()); return d < b[0] ? [d, i] : b; }, [Infinity, 0])[1];
+  const ord = s => alongLine(pts, s.getLatLng());   // 下り＝路線を描いた向き、上り＝その逆
   const list = stations()
     .map(s => ({ s, pls: s.feature.properties.platforms.filter(q => q.routes.some(r => r.line === lid && (r.dir === 'both' || r.dir === want))) }))
     .filter(x => x.pls.length)
