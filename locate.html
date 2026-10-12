@@ -3684,5 +3684,22 @@
       });
     })();
   </script>
+  <script>
+    // ホームを選んでいない駅は「通過駅」として扱う（半透明で表示し、駅名の後ろに「（通過）」と付ける）。
+    // 最寄り駅の判定は、これまでどおりホームを選んだ駅だけで行われる。既存のロジックは変更しない。
+    (() => {
+      function markPass() {
+        document.querySelectorAll('.stationes').forEach((row) => {
+          row.classList.toggle('rm-pass', !row.querySelector('input[type="radio"]:checked'));
+        });
+      }
+      window.markPass = markPass;
+      // ラジオの選択・解除、「本線選択」「全消去」、保存した選択の復元など、選択状態が変わりうる操作のあとに更新する
+      document.addEventListener('click', () => setTimeout(markPass, 0));
+      document.addEventListener('change', () => setTimeout(markPass, 0));
+      document.addEventListener('DOMContentLoaded', markPass);
+      window.addEventListener('load', () => { markPass(); setTimeout(markPass, 300); });
+    })();
+  </script>
 </body>
 </html>
