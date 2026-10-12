@@ -427,48 +427,42 @@ function setBase(i) {
   baseLayer = L.tileLayer(b.url, { maxNativeZoom: b.n, maxZoom: 19, attribution: b.attr }).addTo(map);
 }
 const eki = n => n + (n.endsWith('駅') ? '' : '駅');
-const cleanRoute = r => ({
+const cleanRoute = (r, dt) => ({
   line: String((r && r.line) || '').replace(/[^\w-]/g, '').slice(0, 20),
-  dir: r && ['up', 'down', 'both'].includes(r.dir) ? r.dir : 'both'
+  dir: r && ['up', 'down', 'both'].includes(r.dir) ? r.dir : 'both',
+  type: (r && r.type ? r.type : dt) === 'sub' ? 'sub' : 'main'   // 本線／副本線（旧形式はホーム単位の区分を引き継ぐ）
 });
 function cleanRoutes(q) {
+  const dt = q && q.type;
   const src = Array.isArray(q && q.routes) ? q.routes : (q && q.line ? [{ line: q.line, dir: q.dir }] : []);   // 旧形式(line/dir)も読み込む
   const out = [];
-  src.slice(0, 20).map(cleanRoute).forEach(r => { if (r.line && !out.some(x => x.line === r.line)) out.push(r); });
+  src.slice(0, 20).map(r => cleanRoute(r, dt)).forEach(r => { if (r.line && !out.some(x => x.line === r.line)) out.push(r); });
   return out;
 }
 const cleanPl = q => ({
   id: String((q && q.id) || '').replace(/[^\w-]/g, '').slice(0, 20) || rid(),
   no: String((q && q.no) || '').slice(0, 10),
   routes: cleanRoutes(q),
-  type: q && q.type === 'sub' ? 'sub' : 'main',
   method: q && typeof q.method === 'string' && own(METHODS, q.method) ? q.method : 'normal'
 });
 const dirOverlap = (a, b) => a === 'both' || b === 'both' || a === b;
-const routesClash = (a, b) => a.some(r => r.line && b.some(x => x.line === r.line && dirOverlap(x.dir, r.dir)));
-const mainClash = (pls, t, self) => t.type === 'main' && pls.find(x => x !== self && x.type === 'main' && routesClash(t.routes, x.routes));
+// 同じ路線で方向が重なる「本線」が、別のホームにもあるか
+const routesClash = (a, b) => a.some(r => r.type === 'main' && r.line && b.some(x => x.type === 'main' && x.line === r.line && dirOverlap(x.dir, r.dir)));
+const mainClash = (pls, t, self) => pls.find(x => x !== self && routesClash(t.routes, x.routes));
+const clashWith = (pls, q, r) => !!r.line && pls.some(x => x !== q && x.routes.some(rx => rx.type === 'main' && rx.line === r.line && dirOverlap(rx.dir, r.dir)));
 function fixMains(pls) {
   const seen = [];
-  pls.forEach(q => {
-    if (q.type !== 'main') return;
-    if (seen.some(x => routesClash(q.routes, x.routes))) q.type = 'sub'; else seen.push(q);
-  });
-}
-// 本線にできるか。「上下兼用」の路線は、空いている方向に自動で変えて対応する。できなければ null
-function tryMain(pls, q) {
-  const rts = q.routes.map(r => Object.assign({}, r));
-  for (const r of rts) {
-    const clash = d => pls.some(x => x !== q && x.type === 'main' && routesClash([Object.assign({}, r, { dir: d })], x.routes));
-    if (!clash(r.dir)) continue;
-    const d = r.dir === 'both' ? ['up', 'down'].find(x => !clash(x)) : null;
-    if (!d) return null;
-    r.dir = d;
-  }
-  return rts;
+  pls.forEach(q => q.routes.forEach(r => {
+    if (r.type !== 'main') return;
+    if (seen.some(x => x.line === r.line && dirOverlap(x.dir, r.dir))) r.type = 'sub'; else seen.push(r);
+  }));
 }
 const dedupeRoutes = rs => {
   const out = [];
-  rs.forEach(r => { const x = out.find(y => y.line === r.line); if (!x) out.push(r); else if (x.dir !== r.dir) x.dir = 'both'; });
+  rs.forEach(r => {
+    const x = out.find(y => y.line === r.line);
+    if (!x) out.push(r); else { if (x.dir !== r.dir) x.dir = 'both'; if (r.type === 'main') x.type = 'main'; }
+  });
   return out;
 };
 function label(l) {
@@ -612,8 +606,8 @@ $('rm-del').onclick = () => { if (!sel) return; items.removeLayer(sel); select(n
 $('rm-addp').onclick = () => {
   if (!sel) return;
   const p = sel.feature.properties, sv = serves(sel), l0 = lineList().find(x => sv.has(x.lid));
-  const nq = cleanPl({ no: String(p.platforms.length + 1), routes: l0 ? [{ line: l0.lid, dir: 'both' }] : [] });
-  if (mainClash(p.platforms, nq, null)) nq.type = 'sub';
+  const nq = cleanPl({ no: String(p.platforms.length + 1), routes: l0 ? [{ line: l0.lid, dir: 'both', type: 'main' }] : [] });
+  if (mainClash(p.platforms, nq, null)) nq.routes.forEach(r => { r.type = 'sub'; });
   p.platforms.push(nq);
   renderPlats(); changed();
 };
@@ -638,29 +632,14 @@ function renderPlats() {
     const no = document.createElement('input');
     no.type = 'text'; no.size = 4; no.placeholder = '番線'; no.value = q.no;
     no.oninput = () => { q.no = no.value; changed(); };
-    const bad = patch => !!mainClash(st.platforms, Object.assign({}, q, patch), q);
-    const auto = q.type !== 'main' && bad({ type: 'main' }) ? tryMain(st.platforms, q) : null;
-    const tdis = q.type !== 'main' && bad({ type: 'main' }) && !auto;
-    const typeSel = mk([['main', '本線' + (tdis ? '（不可）' : auto ? '（方向を自動調整）' : ''), tdis], ['sub', '副本線']], q.type, v => {
-      if (v === 'main' && bad({ type: 'main' })) {
-        const rts = tryMain(st.platforms, q);
-        if (!rts) {
-          const c = mainClash(st.platforms, Object.assign({}, q, { type: 'main' }), q);
-          alert('同じ路線・同じ方向の本線は1つのホームしか登録できません。\n（' + (c.no || '?') + '番線が本線として登録済みです。「上下兼用」は上り・下りの両方に含まれます。）');
-          renderPlats(); return;
-        }
-        q.routes = rts;
-      }
-      q.type = v; changed(); renderPlats();
-    });
     const del = document.createElement('button');
     del.type = 'button'; del.textContent = 'このホームを削除';
     del.onclick = () => { st.platforms = st.platforms.filter(x => x !== q); renderPlats(); changed(); };
-    r1.append(no, typeSel,
+    r1.append(no,
       mk(Object.entries(METHODS).map(([k, v]) => [k, v[0]]), q.method, v => { q.method = v; renderPlats(); changed(); applyIfCurrent(q); }),
       del);
     card.append(r1);
-    // 乗り入れ路線（複数選択）と、路線ごとの上り・下り・上下兼用
+    // 乗り入れ路線（複数選択）。路線ごとに「上り・下り・上下兼用」と「本線・副本線」を選ぶ
     const lb0 = document.createElement('span');
     lb0.textContent = '路線：';
     r2.append(lb0);
@@ -670,20 +649,35 @@ function renderPlats() {
       const cur = q.routes.find(r => r.line === lid), w = document.createElement('div'), cb = document.createElement('input'), tx = document.createElement('span');
       w.className = 'rm-route';
       cb.type = 'checkbox'; cb.checked = !!cur;
-      const freeDir = q.type === 'main' ? ['both', 'up', 'down'].find(d => !bad({ routes: q.routes.concat({ line: lid, dir: d }) })) : 'both';
-      cb.disabled = !cur && !freeDir;
-      tx.textContent = (sv.has(lid) ? n : n + '（乗り入れなし）') + (cb.disabled ? '（不可）' : '');
+      tx.textContent = sv.has(lid) ? n : n + '（乗り入れなし）';
       cb.onchange = () => {
-        q.routes = cb.checked ? q.routes.concat({ line: lid, dir: freeDir }) : q.routes.filter(r => r.line !== lid);
+        if (cb.checked) {
+          const free = ['both', 'up', 'down'].find(d => !clashWith(st.platforms, q, { line: lid, dir: d }));
+          q.routes = q.routes.concat(free ? { line: lid, dir: free, type: 'main' } : { line: lid, dir: 'both', type: 'sub' });   // 本線が空いていなければ副本線として追加
+        } else q.routes = q.routes.filter(r => r.line !== lid);
         changed(); renderPlats();
       };
       w.append(cb, tx);
       if (cur) {
         const dopts = Object.entries(DIRS).map(([k, t]) => {
-          const dis = k !== cur.dir && q.type === 'main' && bad({ routes: q.routes.map(r => r.line === lid ? Object.assign({}, r, { dir: k }) : r) });
+          const dis = k !== cur.dir && cur.type === 'main' && clashWith(st.platforms, q, { line: lid, dir: k });
           return [k, t + (dis ? '（不可）' : ''), dis];
         });
         w.append(mk(dopts, cur.dir, v => { cur.dir = v; changed(); renderPlats(); }));
+        const mainBad = cur.type !== 'main' && clashWith(st.platforms, q, cur);
+        const autoD = mainBad && cur.dir === 'both' ? ['up', 'down'].find(d => !clashWith(st.platforms, q, { line: lid, dir: d })) : null;
+        const tdis = mainBad && !autoD;
+        w.append(mk([['main', '本線' + (tdis ? '（不可）' : autoD ? '（' + DIRS[autoD] + 'になります）' : ''), tdis], ['sub', '副本線']], cur.type, v => {
+          if (v === 'main' && clashWith(st.platforms, q, cur)) {
+            if (autoD) cur.dir = autoD;
+            else {
+              const c = st.platforms.find(x => x !== q && x.routes.some(rx => rx.type === 'main' && rx.line === lid && dirOverlap(rx.dir, cur.dir)));
+              alert('同じ路線・同じ方向の本線は1つのホームしか登録できません。\n（' + ((c && c.no) || '?') + '番線が本線として登録済みです。「上下兼用」は上り・下りの両方に含まれます。）');
+              renderPlats(); return;
+            }
+          }
+          cur.type = v; changed(); renderPlats();
+        }));
       }
       r2.append(w);
     });
@@ -1059,7 +1053,8 @@ function renderUse() {
   if (dk === 'u') list.reverse();
   list.forEach(({ s, pls }) => {
     const uid = s.feature.properties.uid;
-    const subs = pls.filter(q => q.type === 'sub'), mains = pls.filter(q => q.type !== 'sub');
+    const rt = q => (q.routes.find(r => r.line === lid && (r.dir === 'both' || r.dir === want)) || {}).type;
+    const subs = pls.filter(q => rt(q) === 'sub'), mains = pls.filter(q => rt(q) !== 'sub');
     const row = document.createElement('div'), nm = document.createElement('div'), h = document.createElement('h3');
     row.className = 'stationes';
     h.textContent = eki(s.feature.properties.name); nm.append(h);
