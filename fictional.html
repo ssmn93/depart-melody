@@ -1178,7 +1178,7 @@ function getPos(force) {
     if (!navigator.geolocation) return rej({ code: -1 });
     // 位置の監視中は、直近の測位結果を使う（強制受信のときは1.5秒以内のものだけ）
     if (lastPos && Date.now() - lastPos.t < (force ? 1500 : 8000)) return res(lastPos.ll);
-    navigator.geolocation.getCurrentPosition(p => res(L.latLng(p.coords.latitude, p.coords.longitude)), rej, { enableHighAccuracy: true, maximumAge: force ? 0 : 1000, timeout: 10000 });
+    navigator.geolocation.getCurrentPosition(p => res($('placeoff').checked ? null : L.latLng(p.coords.latitude, p.coords.longitude)), rej, { enableHighAccuracy: true, maximumAge: force ? 0 : 1000, timeout: 10000 });
   });
 }
 async function locate(force) {
@@ -1220,7 +1220,7 @@ $('forceReceiveBtn').onclick = async () => {
 };
 
 /* ---------- 現在地の表示（常時ON。位置情報を連続取得） ---------- */
-let watchId = null, lastPos = null, hereDot = null, hereAcc = null, firstFix = false, denied = false;
+let watchId = null, watchGen = 0, lastPos = null, hereDot = null, hereAcc = null, firstFix = false, denied = false;
 function clearHere() {
   if (hereDot) { map.removeLayer(hereDot); map.removeLayer(hereAcc); hereDot = hereAcc = null; }
   $('rm-hereinfo').textContent = '';
@@ -1235,19 +1235,22 @@ function drawHere() {
   if (firstFix) { firstFix = false; map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); }
 }
 function onPos(p) {
+  if ($('placeoff').checked) return;   // 「位置情報オフ」のときは、遅れて届いた測位結果も使わない
   lastPos = { ll: L.latLng(p.coords.latitude, p.coords.longitude), acc: p.coords.accuracy || 0, t: Date.now() };
   drawHere();
 }
 function stopWatch() {
   if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-  watchId = null; lastPos = null; clearHere();
+  watchId = null; watchGen++; lastPos = null; clearHere();   // watchGen を進めて、停止前に開始した取得の結果を無効にする
 }
 // 「位置情報オフ」にチェックが入っていない間は、常に位置情報を連続取得して現在地を表示する
 function applyWatch() {
   const ok = 'geolocation' in navigator, off = $('placeoff').checked;
   if (ok && !off && !denied && watchId === null) {
     $('rm-hereinfo').textContent = '測位中…';
-    watchId = navigator.geolocation.watchPosition(onPos, e => {
+    const gen = ++watchGen;
+    watchId = navigator.geolocation.watchPosition(p => { if (gen === watchGen) onPos(p); }, e => {
+      if (gen !== watchGen || $('placeoff').checked) return;
       if (e.code === 1) { denied = true; stopWatch(); $('rm-hereinfo').textContent = '位置情報の利用が許可されていません'; }
       else $('rm-hereinfo').textContent = '位置情報を取得できません（エラーコード：' + e.code + '）';
     }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
