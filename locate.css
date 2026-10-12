@@ -521,3 +521,14 @@ summary {
   transform: translateY(-50%);
   width: fit-content;
 }
+
+/* ホームを選んでいない駅（通過駅） */
+.stationes.rm-pass {
+  opacity: 0.6;
+}
+
+.stationes.rm-pass h3::after {
+  content: "（通過）";
+  font-weight: normal;
+  color: #666666;
+}
