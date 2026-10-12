@@ -1161,7 +1161,7 @@ $('deletes').onclick = () => {
 ['buttonon', 'changeon', 'placeoff'].forEach(id => { $(id).onchange = saveUse; });
 
 /* ---------- 位置情報：最寄り駅の選択ホームを表示 ---------- */
-let cur = null, hasInit = false, lastSw = 0, autoT = null, urls = [], locating = false;
+let cur = null, hasInit = false, lastSw = 0, autoT = null, urls = [], locating = false, manualHold = false;
 const AUTO_MS = 3000;        // 自動判定の間隔(ms)。短くすると切り替わりは速くなりますが、電池の消費が増えます
 const MIN_SWITCH_MS = 2000;  // ホームを切り替えたあと、次に切り替えるまでの最短間隔(ms)
 const HYST_M = 20;           // 現在の駅より何m以上近くなったら切り替えるか（駅の中間での行き来を防ぐ）
@@ -1182,7 +1182,7 @@ function getPos(force) {
   });
 }
 async function locate(force) {
-  if (!force && locating) return;
+  if (!force && (locating || manualHold)) return;   // 「開く」で手動表示している間は、最寄り駅への自動切替をしない
   locating = true;
   try {
     const cs = candidates();
@@ -1209,12 +1209,14 @@ function startAuto() {
 }
 // 「開く」：その駅で選択中のホームの駅メロ操作スイッチを即時に表示（以降は自動判定も有効）
 async function openPlatform(s, q) {
+  manualHold = true;
   await show(s, q, true);
   lastSw = Date.now();
   startAuto();
   $('sw').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 $('forceReceiveBtn').onclick = async () => {
+  manualHold = false;   // 「強制受信」で、最寄り駅の自動切替に戻す
   await locate(true);
   if (cur) startAuto();
 };
@@ -1284,7 +1286,7 @@ async function show(s, q, notify) {
   $('sw').hidden = false;
   $('jr_svg').style.display = q.method === 'full' ? 'none' : 'block';
   $('metro_svg').style.display = q.method === 'full' ? 'block' : 'none';
-  $('cur').textContent = '現在: ' + eki(s.feature.properties.name) + '　' + (q.no || '?') + '番線（' + METHODS[q.method][0] + '）';
+  $('cur').textContent = '現在: ' + eki(s.feature.properties.name) + '　' + (q.no || '?') + '番線（' + METHODS[q.method][0] + '）' + (manualHold ? '　【手動表示中：「強制受信」で最寄り駅の自動切替に戻ります】' : '');
   if (notify && !$('changeon').checked) (urls.length ? $('change') : $('notfound')).play().catch(() => {});
 }
 function applyIfCurrent(q) { if (cur && cur.q === q) show(cur.s, q, false); }
