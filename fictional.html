@@ -69,19 +69,13 @@
     <div class="rm-bar">
       <button type="button" id="rm-labels">駅名表示：ON</button>
       <button type="button" id="rm-base">背景地図切替</button>
-      <button type="button" id="rm-here">現在地：OFF</button>
-      <button type="button" id="rm-here-go" hidden>現在地へ移動</button>
+      <button type="button" id="rm-here-go">現在地へ移動</button>
       <span id="rm-hereinfo"></span>
       <button type="button" id="rm-export">エクスポート</button>
       <button type="button" id="rm-export-audio" title="登録した音声ファイルも一緒に書き出します（ファイルが大きくなります）">音声込みエクスポート</button>
       <button type="button" id="rm-import">インポート</button>
       <button type="button" id="rm-clear">全消去</button>
       <input type="file" id="rm-file" accept=".geojson,.json,application/geo+json,application/json" hidden>
-    </div>
-    <div class="rm-bar" id="rm-dist">
-      <span>乗り入れ判定：</span>
-      <label>路線の線から<input type="number" id="rm-dline" min="0" max="5000" step="1" value="30">m以内</label>
-      <label>または、その路線の駅から<input type="number" id="rm-dstn" min="0" max="5000" step="1" value="100">m以内</label>
     </div>
     <div id="rm-hint">駅はドラッグで移動できます（つながった路線も追従）。路線をクリックすると曲がり角が表示され、ドラッグで移動できます。選択中の路線は、線上の好きな位置をクリックするか、辺の中央の小さな点をドラッグすると曲がり角を追加でき、曲がり角のダブルクリックで削除できます。</div>
     <div id="railmap"></div>
@@ -376,7 +370,7 @@ function orderedSegs(lid) {
 const lineChain = lid => [].concat(...orderedSegs(lid).map(x => x.pts));
 // 駅が路線に乗り入れているか（駅が路線の線上にあるか）。距離はメルカトル座標(m)で判定
 const mp = ll => L.CRS.EPSG3857.project(ll);
-const dist = { line: 30, stn: 100 };   // 乗り入れ判定の距離(m)：路線の線から／その路線の駅から
+const dist = { line: 30, stn: 100 };   // 乗り入れ判定の距離(m)（固定）：路線の線から／その路線の駅から
 function segDist(p, ln) {
   const a = ln.getLatLngs().map(mp);
   let d = Infinity;
@@ -1032,7 +1026,7 @@ function saveNow() {
   if (!ready) return;
   pushHist();
   const c = map.getCenter();
-  lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value, dist: { line: dist.line, stn: dist.stn } });
+  lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
 }
 map.on('moveend', queueSave);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
@@ -1186,8 +1180,8 @@ $('forceReceiveBtn').onclick = async () => {
   if (cur) startAuto();
 };
 
-/* ---------- 現在地の表示（位置情報の連続取得） ---------- */
-let watchId = null, lastPos = null, hereDot = null, hereAcc = null, showHere = false, firstFix = true;
+/* ---------- 現在地の表示（常時ON。位置情報を連続取得） ---------- */
+let watchId = null, lastPos = null, hereDot = null, hereAcc = null, firstFix = false, denied = false;
 function clearHere() {
   if (hereDot) { map.removeLayer(hereDot); map.removeLayer(hereAcc); hereDot = hereAcc = null; }
   $('rm-hereinfo').textContent = '';
@@ -1198,38 +1192,33 @@ function drawHere() {
     hereAcc = L.circle(lastPos.ll, { radius: lastPos.acc, color: '#1a73e8', weight: 1, fillColor: '#1a73e8', fillOpacity: 0.12, interactive: false }).addTo(map);
     hereDot = L.circleMarker(lastPos.ll, { radius: 7, color: '#ffffff', weight: 2, fillColor: '#1a73e8', fillOpacity: 1, interactive: false }).addTo(map);
   } else { hereDot.setLatLng(lastPos.ll); hereAcc.setLatLng(lastPos.ll); hereAcc.setRadius(lastPos.acc); }
-  $('rm-hereinfo').textContent = '精度 ±' + Math.round(lastPos.acc) + 'm';
+  $('rm-hereinfo').textContent = '';
   if (firstFix) { firstFix = false; map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); }
 }
 function onPos(p) {
   lastPos = { ll: L.latLng(p.coords.latitude, p.coords.longitude), acc: p.coords.accuracy || 0, t: Date.now() };
-  if (showHere) drawHere();
+  drawHere();
 }
-function syncHere() {
-  $('rm-here').textContent = '現在地：' + (showHere ? 'ON' : 'OFF');
-  $('rm-here-go').hidden = !showHere;
+function stopWatch() {
+  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  watchId = null; lastPos = null; clearHere();
 }
-// 現在地の表示中、または自動判定中だけ位置情報を連続取得する（「位置情報オフ」のときは取得しない）
+// 「位置情報オフ」にチェックが入っていない間は、常に位置情報を連続取得して現在地を表示する
 function applyWatch() {
-  const want = (showHere || hasInit) && !$('placeoff').checked && 'geolocation' in navigator;
-  if (want && watchId === null) {
-    firstFix = true;
+  const ok = 'geolocation' in navigator, off = $('placeoff').checked;
+  if (ok && !off && !denied && watchId === null) {
+    $('rm-hereinfo').textContent = '測位中…';
     watchId = navigator.geolocation.watchPosition(onPos, e => {
-      $('rm-hereinfo').textContent = '位置情報を取得できません（エラーコード：' + e.code + '）';
-      if (e.code === 1 && showHere) { showHere = false; syncHere(); clearHere(); alert('位置情報の利用が許可されていません。ブラウザの設定を確認してください。'); }
+      if (e.code === 1) { denied = true; stopWatch(); $('rm-hereinfo').textContent = '位置情報の利用が許可されていません'; }
+      else $('rm-hereinfo').textContent = '位置情報を取得できません（エラーコード：' + e.code + '）';
     }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
   }
-  if (!want && watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; lastPos = null; clearHere(); }
+  if ((off || !ok) && watchId !== null) stopWatch();
+  if (off) $('rm-hereinfo').textContent = '位置情報オフ';
+  else if (!ok) $('rm-hereinfo').textContent = 'このブラウザは位置情報に対応していません';
 }
-$('rm-here').onclick = () => {
-  if ($('placeoff').checked) { alert('「位置情報オフ」にチェックが入っています。外すと現在地を表示できます。'); return; }
-  if (!('geolocation' in navigator)) { alert('このブラウザは位置情報に対応していません。'); return; }
-  showHere = !showHere;
-  if (showHere) { firstFix = true; $('rm-hereinfo').textContent = lastPos ? '' : '測位中…'; drawHere(); } else clearHere();
-  syncHere(); applyWatch();
-};
 $('rm-here-go').onclick = () => { if (lastPos) map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); };
-$('placeoff').addEventListener('change', () => { if ($('placeoff').checked) { showHere = false; syncHere(); } applyWatch(); });
+$('placeoff').addEventListener('change', () => { denied = false; applyWatch(); });
 
 /* ---------- 駅メロ再生（カスタムステーションベルの方式を移植） ---------- */
 const bell = { method: 'normal', playing: false };
@@ -1357,19 +1346,6 @@ window.addEventListener('beforeunload', () => { hwClose(); });
 
 /* ---------- 起動 ---------- */
 const s0 = lsGet('railMapState'), u0 = lsGet('railUseState');
-if (s0 && s0.dist) {
-  const a = Number(s0.dist.line), b = Number(s0.dist.stn);
-  if (Number.isFinite(a) && a >= 0) dist.line = Math.min(a, 5000);
-  if (Number.isFinite(b) && b >= 0) dist.stn = Math.min(b, 5000);
-}
-$('rm-dline').value = dist.line; $('rm-dstn').value = dist.stn;
-$('rm-dline').onchange = $('rm-dstn').onchange = () => {
-  dist.line = Math.max(0, Math.min(5000, Number($('rm-dline').value) || 0));
-  dist.stn = Math.max(0, Math.min(5000, Number($('rm-dstn').value) || 0));
-  $('rm-dline').value = dist.line; $('rm-dstn').value = dist.stn;
-  if (sel && sel.feature.properties.kind === 'station') renderPlats();
-  queueSave();
-};
 setBase(s0 ? s0.base : 0);
 if (s0) {
   labelsOn = s0.labels !== false;
@@ -1390,6 +1366,8 @@ if (s0 && Array.isArray(s0.draft)) {
 }
 ready = true;
 pushHist();
+firstFix = !s0;
+applyWatch();
 })();
 
   </script>
