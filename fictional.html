@@ -103,6 +103,7 @@
       <p>①路線を選択してください。</p>
       <select id="line"></select>
       <p>②停車駅・使用ホームを選択してください。</p>
+      <div id="use-hint">ラジオボタンをダブルクリックすると選択を解除できます。ホームを選んでいない駅は通過駅として飛ばします。</div>
       <div class="rm-bar"><button class="butt" type="button" id="mains">本線選択</button><button class="butt" type="button" id="deletes">全消去</button></div>
       <div class="lines" id="use-list"></div>
       <p>③指定の始発駅到着後に「強制受信」ボタンを押し、操作を開始してください。</p>
@@ -1066,6 +1067,10 @@ const use = { line: '', sel: {} };
 function saveUse() {
   lsSet('railUseState', { line: use.line, sel: use.sel, buttonon: $('buttonon').checked, changeon: $('changeon').checked, placeoff: $('placeoff').checked });
 }
+// ホームが選ばれていない駅は通過駅として扱う（最寄り駅の判定は、ホームを選んだ駅だけで行う）
+function markPass() {
+  $('use-list').querySelectorAll('.stationes').forEach(row => row.classList.toggle('rm-pass', !row.querySelector('input[type=radio]:checked')));
+}
 function renderUse() {
   const sl = $('line'), old = use.line;
   const opts = lineOptions().filter(([lid]) => stations().some(s => s.feature.properties.platforms.some(q => q.routes.some(r => r.line === lid))));
@@ -1096,11 +1101,14 @@ function renderUse() {
     const radio = (q, txt) => {
       const w = document.createElement('div'), r = document.createElement('input');
       r.type = 'radio'; r.name = 'st_' + uid; r.value = q.id; r.checked = use.sel[uid] === q.id;
-      r.onchange = () => { use.sel[uid] = r.value; saveUse(); };
+      const clr = () => { r.checked = false; delete use.sel[uid]; saveUse(); markPass(); };   // ダブルクリックで選択解除
+      r.onchange = () => { use.sel[uid] = r.value; saveUse(); markPass(); };
+      r.ondblclick = clr;
       w.append(r);
       if (txt !== null) {
         const lb = document.createElement('label');
         lb.textContent = txt; lb.onclick = () => { r.checked = true; r.dispatchEvent(new Event('change')); };
+        lb.ondblclick = clr;
         w.append(lb);
       }
       return [w, r];
@@ -1137,6 +1145,7 @@ function renderUse() {
     row.append(open);
     box.append(row);
   });
+  markPass();
 }
 $('line').onchange = () => { use.line = $('line').value; saveUse(); renderUse(); };
 $('mains').onclick = () => {
@@ -1147,7 +1156,7 @@ $('mains').onclick = () => {
 };
 $('deletes').onclick = () => {
   $('use-list').querySelectorAll('input[type=radio]').forEach(r => { r.checked = false; });
-  use.sel = {}; saveUse();
+  use.sel = {}; saveUse(); markPass();
 };
 ['buttonon', 'changeon', 'placeoff'].forEach(id => { $(id).onchange = saveUse; });
 
