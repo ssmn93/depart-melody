@@ -69,11 +69,19 @@
     <div class="rm-bar">
       <button type="button" id="rm-labels">駅名表示：ON</button>
       <button type="button" id="rm-base">背景地図切替</button>
+      <button type="button" id="rm-here">現在地：OFF</button>
+      <button type="button" id="rm-here-go" hidden>現在地へ移動</button>
+      <span id="rm-hereinfo"></span>
       <button type="button" id="rm-export">エクスポート</button>
       <button type="button" id="rm-export-audio" title="登録した音声ファイルも一緒に書き出します（ファイルが大きくなります）">音声込みエクスポート</button>
       <button type="button" id="rm-import">インポート</button>
       <button type="button" id="rm-clear">全消去</button>
       <input type="file" id="rm-file" accept=".geojson,.json,application/geo+json,application/json" hidden>
+    </div>
+    <div class="rm-bar" id="rm-dist">
+      <span>乗り入れ判定：</span>
+      <label>路線の線から<input type="number" id="rm-dline" min="0" max="5000" step="1" value="30">m以内</label>
+      <label>または、その路線の駅から<input type="number" id="rm-dstn" min="0" max="5000" step="1" value="100">m以内</label>
     </div>
     <div id="rm-hint">駅はドラッグで移動できます（つながった路線も追従）。路線をクリックすると曲がり角が表示され、ドラッグで移動できます。選択中の路線は、線上の好きな位置をクリックするか、辺の中央の小さな点をドラッグすると曲がり角を追加でき、曲がり角のダブルクリックで削除できます。</div>
     <div id="railmap"></div>
@@ -368,17 +376,28 @@ function orderedSegs(lid) {
 const lineChain = lid => [].concat(...orderedSegs(lid).map(x => x.pts));
 // 駅が路線に乗り入れているか（駅が路線の線上にあるか）。距離はメルカトル座標(m)で判定
 const mp = ll => L.CRS.EPSG3857.project(ll);
-const ON_LINE = 40;
+const dist = { line: 30, stn: 100 };   // 乗り入れ判定の距離(m)：路線の線から／その路線の駅から
 function segDist(p, ln) {
   const a = ln.getLatLngs().map(mp);
   let d = Infinity;
   for (let i = 0; i < a.length - 1; i++) d = Math.min(d, L.LineUtil.pointToSegmentDistance(p, a[i], a[i + 1]));
   return d;
 }
-function serves(st) {
-  const p = mp(st.getLatLng()), set = new Set();
-  lines().forEach(l => { if (segDist(p, l) <= ON_LINE) set.add(l.feature.properties.lid); });
+// 路線の線が近くを通る路線
+function geomServes(st) {
+  const ll = st.getLatLng(), p = mp(ll), k = Math.cos(ll.lat * Math.PI / 180), set = new Set();
+  lines().forEach(l => { if (segDist(p, l) * k <= dist.line) set.add(l.feature.properties.lid); });
   return set;
+}
+// 乗り入れ路線：「指定距離内に路線の線がある」または「指定距離内にその路線の駅がある」
+function serves(st) {
+  const set = geomServes(st), ll = st.getLatLng();
+  stations().forEach(o => {
+    if (o === st || o.getLatLng().distanceTo(ll) > dist.stn) return;
+    o.feature.properties.platforms.forEach(q => q.routes.forEach(r => { if (r.line) set.add(r.line); }));
+  });
+  const ok = new Set(lineList().map(x => x.lid));
+  return new Set([...set].filter(x => ok.has(x)));
 }
 // 駅を置く／動かしたとき、路線の近く(約12px以内)なら線上にぴったり吸着させる
 function snapStation(ll) {
@@ -396,7 +415,7 @@ function snapStation(ll) {
 }
 function pruneLines() {
   const ok = new Set(lineList().map(p => p.lid));
-  stations().forEach(s => s.feature.properties.platforms.forEach(q => { if (q.line && !ok.has(q.line)) q.line = ''; }));
+  stations().forEach(s => s.feature.properties.platforms.forEach(q => { q.routes = q.routes.filter(r => ok.has(r.line)); }));
 }
 function renderLineSel() {
   const sl = $('rm-lsel'), old = sl.value;
@@ -414,23 +433,50 @@ function setBase(i) {
   baseLayer = L.tileLayer(b.url, { maxNativeZoom: b.n, maxZoom: 19, attribution: b.attr }).addTo(map);
 }
 const eki = n => n + (n.endsWith('駅') ? '' : '駅');
+const cleanRoute = r => ({
+  line: String((r && r.line) || '').replace(/[^\w-]/g, '').slice(0, 20),
+  dir: r && ['up', 'down', 'both'].includes(r.dir) ? r.dir : 'both'
+});
+function cleanRoutes(q) {
+  const src = Array.isArray(q && q.routes) ? q.routes : (q && q.line ? [{ line: q.line, dir: q.dir }] : []);   // 旧形式(line/dir)も読み込む
+  const out = [];
+  src.slice(0, 20).map(cleanRoute).forEach(r => { if (r.line && !out.some(x => x.line === r.line)) out.push(r); });
+  return out;
+}
 const cleanPl = q => ({
   id: String((q && q.id) || '').replace(/[^\w-]/g, '').slice(0, 20) || rid(),
   no: String((q && q.no) || '').slice(0, 10),
-  line: String((q && q.line) || '').replace(/[^\w-]/g, '').slice(0, 20),
-  dir: q && ['up', 'down', 'both'].includes(q.dir) ? q.dir : 'both',
+  routes: cleanRoutes(q),
   type: q && q.type === 'sub' ? 'sub' : 'main',
   method: q && typeof q.method === 'string' && own(METHODS, q.method) ? q.method : 'normal'
 });
 const dirOverlap = (a, b) => a === 'both' || b === 'both' || a === b;
-const mainClash = (pls, t, self) => t.type === 'main' && t.line && pls.find(x => x !== self && x.type === 'main' && x.line === t.line && dirOverlap(x.dir, t.dir));
+const routesClash = (a, b) => a.some(r => r.line && b.some(x => x.line === r.line && dirOverlap(x.dir, r.dir)));
+const mainClash = (pls, t, self) => t.type === 'main' && pls.find(x => x !== self && x.type === 'main' && routesClash(t.routes, x.routes));
 function fixMains(pls) {
   const seen = [];
   pls.forEach(q => {
-    if (q.type !== 'main' || !q.line) return;
-    if (seen.some(x => x.line === q.line && dirOverlap(x.dir, q.dir))) q.type = 'sub'; else seen.push(q);
+    if (q.type !== 'main') return;
+    if (seen.some(x => routesClash(q.routes, x.routes))) q.type = 'sub'; else seen.push(q);
   });
 }
+// 本線にできるか。「上下兼用」の路線は、空いている方向に自動で変えて対応する。できなければ null
+function tryMain(pls, q) {
+  const rts = q.routes.map(r => Object.assign({}, r));
+  for (const r of rts) {
+    const clash = d => pls.some(x => x !== q && x.type === 'main' && routesClash([Object.assign({}, r, { dir: d })], x.routes));
+    if (!clash(r.dir)) continue;
+    const d = r.dir === 'both' ? ['up', 'down'].find(x => !clash(x)) : null;
+    if (!d) return null;
+    r.dir = d;
+  }
+  return rts;
+}
+const dedupeRoutes = rs => {
+  const out = [];
+  rs.forEach(r => { const x = out.find(y => y.line === r.line); if (!x) out.push(r); else if (x.dir !== r.dir) x.dir = 'both'; });
+  return out;
+};
 function label(l) {
   const p = l.feature.properties, el = document.createElement('span');
   el.textContent = p.name || '';
@@ -500,7 +546,11 @@ function loadGeo(geo, replace) {
   feats.forEach(f => {
     const p = f.properties;
     if (f.geometry.type === 'LineString') { if (lm) p.lid = lm[p.lid]; }
-    else if (p && Array.isArray(p.platforms)) p.platforms.forEach(q => { if (q) q.line = res(q.line); });
+    else if (p && Array.isArray(p.platforms)) p.platforms.forEach(q => {
+      if (!q) return;
+      if (Array.isArray(q.routes)) q.routes.forEach(r => { if (r) r.line = res(r.line); });
+      if (q.line !== undefined) q.line = res(q.line);
+    });
   });
   const uidMap = {};
   L.geoJSON({ type: 'FeatureCollection', features: feats }, {
@@ -568,7 +618,7 @@ $('rm-del').onclick = () => { if (!sel) return; items.removeLayer(sel); select(n
 $('rm-addp').onclick = () => {
   if (!sel) return;
   const p = sel.feature.properties, sv = serves(sel), l0 = lineList().find(x => sv.has(x.lid));
-  const nq = cleanPl({ no: String(p.platforms.length + 1), line: l0 ? l0.lid : '' });
+  const nq = cleanPl({ no: String(p.platforms.length + 1), routes: l0 ? [{ line: l0.lid, dir: 'both' }] : [] });
   if (mainClash(p.platforms, nq, null)) nq.type = 'sub';
   p.platforms.push(nq);
   renderPlats(); changed();
@@ -585,49 +635,65 @@ function renderPlats() {
   const sv = serves(sel);
   if (!sv.size) {
     const n = document.createElement('div');
-    n.textContent = 'この駅に乗り入れる路線がありません。路線を引くとき、この駅をクリックして線を駅に接続してください。';
+    n.textContent = 'この駅に乗り入れる路線がありません。路線の線から' + dist.line + 'm以内、またはその路線の駅から' + dist.stn + 'm以内に駅を置くと選べます（路線を引くとき駅をクリックして接続しても構いません）。';
     box.append(n);
   }
   st.platforms.forEach(q => {
-    const card = document.createElement('div'), r1 = document.createElement('div');
+    const card = document.createElement('div'), r1 = document.createElement('div'), r2 = document.createElement('div');
     card.className = 'rm-card';
     const no = document.createElement('input');
     no.type = 'text'; no.size = 4; no.placeholder = '番線'; no.value = q.no;
     no.oninput = () => { q.no = no.value; changed(); };
     const bad = patch => !!mainClash(st.platforms, Object.assign({}, q, patch), q);
-    const lopts = [['', '路線を選択']].concat(lineOptions().filter(([lid]) => sv.has(lid) || lid === q.line).map(([lid, n]) => {
-      const dis = lid !== q.line && q.type === 'main' && bad({ line: lid });
-      return [lid, (sv.has(lid) ? n : n + '（乗り入れなし）') + (dis ? '（不可）' : ''), dis];
-    }));
-    const dopts = Object.entries(DIRS).map(([k, t]) => { const dis = k !== q.dir && q.type === 'main' && bad({ dir: k }); return [k, t + (dis ? '（不可）' : ''), dis]; });
-    const autoDir = q.type !== 'main' && q.dir === 'both' && bad({ type: 'main' }) ? ['up', 'down'].find(d => !bad({ type: 'main', dir: d })) : null;
-    const tdis = q.type !== 'main' && bad({ type: 'main' }) && !autoDir;
+    const auto = q.type !== 'main' && bad({ type: 'main' }) ? tryMain(st.platforms, q) : null;
+    const tdis = q.type !== 'main' && bad({ type: 'main' }) && !auto;
+    const typeSel = mk([['main', '本線' + (tdis ? '（不可）' : auto ? '（方向を自動調整）' : ''), tdis], ['sub', '副本線']], q.type, v => {
+      if (v === 'main' && bad({ type: 'main' })) {
+        const rts = tryMain(st.platforms, q);
+        if (!rts) {
+          const c = mainClash(st.platforms, Object.assign({}, q, { type: 'main' }), q);
+          alert('同じ路線・同じ方向の本線は1つのホームしか登録できません。\n（' + (c.no || '?') + '番線が本線として登録済みです。「上下兼用」は上り・下りの両方に含まれます。）');
+          renderPlats(); return;
+        }
+        q.routes = rts;
+      }
+      q.type = v; changed(); renderPlats();
+    });
     const del = document.createElement('button');
     del.type = 'button'; del.textContent = 'このホームを削除';
-    del.onclick = () => {
-      st.platforms = st.platforms.filter(x => x !== q);
-      renderPlats(); changed();
-    };
-    const set = (k, v) => {
-      const patch = { [k]: v };
-      let c = bad(patch);
-      if (c && k === 'type' && v === 'main' && q.dir === 'both') {
-        const d = ['up', 'down'].find(x => !bad({ type: 'main', dir: x }));   // 空いている方向があれば、その方向の本線にする
-        if (d) { patch.dir = d; c = false; }
-      }
-      if (c) {
-        alert('同じ路線・同じ方向の本線は1つのホームしか登録できません。\n（' + (c.no || '?') + '番線が本線として登録済みです。「上下兼用」は上り・下りの両方に含まれます。）');
-        renderPlats(); return;
-      }
-      Object.assign(q, patch); changed(); renderPlats();
-    };
-    r1.append(no,
-      mk(lopts, q.line, v => set('line', v)),
-      mk(dopts, q.dir, v => set('dir', v)),
-      mk([['main', '本線' + (tdis ? '（不可）' : autoDir ? '（' + DIRS[autoDir] + '本線になります）' : ''), tdis], ['sub', '副本線']], q.type, v => set('type', v)),
+    del.onclick = () => { st.platforms = st.platforms.filter(x => x !== q); renderPlats(); changed(); };
+    r1.append(no, typeSel,
       mk(Object.entries(METHODS).map(([k, v]) => [k, v[0]]), q.method, v => { q.method = v; renderPlats(); changed(); applyIfCurrent(q); }),
       del);
     card.append(r1);
+    // 乗り入れ路線（複数選択）と、路線ごとの上り・下り・上下兼用
+    const lb0 = document.createElement('span');
+    lb0.textContent = '路線：';
+    r2.append(lb0);
+    const cands = lineOptions().filter(([lid]) => sv.has(lid) || q.routes.some(r => r.line === lid));
+    if (!cands.length) r2.append(document.createTextNode('選べる路線がありません'));
+    cands.forEach(([lid, n]) => {
+      const cur = q.routes.find(r => r.line === lid), w = document.createElement('div'), cb = document.createElement('input'), tx = document.createElement('span');
+      w.className = 'rm-route';
+      cb.type = 'checkbox'; cb.checked = !!cur;
+      const freeDir = q.type === 'main' ? ['both', 'up', 'down'].find(d => !bad({ routes: q.routes.concat({ line: lid, dir: d }) })) : 'both';
+      cb.disabled = !cur && !freeDir;
+      tx.textContent = (sv.has(lid) ? n : n + '（乗り入れなし）') + (cb.disabled ? '（不可）' : '');
+      cb.onchange = () => {
+        q.routes = cb.checked ? q.routes.concat({ line: lid, dir: freeDir }) : q.routes.filter(r => r.line !== lid);
+        changed(); renderPlats();
+      };
+      w.append(cb, tx);
+      if (cur) {
+        const dopts = Object.entries(DIRS).map(([k, t]) => {
+          const dis = k !== cur.dir && q.type === 'main' && bad({ routes: q.routes.map(r => r.line === lid ? Object.assign({}, r, { dir: k }) : r) });
+          return [k, t + (dis ? '（不可）' : ''), dis];
+        });
+        w.append(mk(dopts, cur.dir, v => { cur.dir = v; changed(); renderPlats(); }));
+      }
+      r2.append(w);
+    });
+    card.append(r2);
     METHODS[q.method][1].forEach(slot => {
       const row = document.createElement('div'), lb = document.createElement('span'), f = document.createElement('input'),
         pick = document.createElement('button'), off = document.createElement('button'), stt = document.createElement('span');
@@ -684,8 +750,8 @@ function doSplit(ln, ll) {
   after.forEach(l => { const q = l.feature.properties; q.lid = nl; q.name = nm; label(l); });
   // 新しい路線側にだけ乗り入れる駅のホームは、新しい路線に付け替える
   stations().forEach(s => {
-    const sv = serves(s);
-    s.feature.properties.platforms.forEach(q => { if (q.line === lid && sv.has(nl) && !sv.has(lid)) q.line = nl; });
+    const sv = geomServes(s);
+    s.feature.properties.platforms.forEach(q => q.routes.forEach(r => { if (r.line === lid && sv.has(nl) && !sv.has(lid)) r.line = nl; }));
   });
   buildHandles(); changed();
 }
@@ -706,7 +772,7 @@ $('rm-merge').onclick = () => {
   });
   stations().forEach(s => {
     const pl = s.feature.properties.platforms;
-    pl.forEach(q => { if (q.line === from) q.line = to.lid; });
+    pl.forEach(q => { q.routes.forEach(r => { if (r.line === from) r.line = to.lid; }); q.routes = dedupeRoutes(q.routes); });
     fixMains(pl);
   });
   changed();
@@ -716,7 +782,7 @@ $('rm-rev').onclick = () => {
   const lid = sel.feature.properties.lid;
   lines().filter(l => l.feature.properties.lid === lid).forEach(l => l.setLatLngs(l.getLatLngs().slice().reverse()));
   if ($('rm-revdirs').checked) {
-    stations().forEach(s => s.feature.properties.platforms.forEach(q => { if (q.line === lid && q.dir !== 'both') q.dir = q.dir === 'up' ? 'down' : 'up'; }));
+    stations().forEach(s => s.feature.properties.platforms.forEach(q => q.routes.forEach(r => { if (r.line === lid && r.dir !== 'both') r.dir = r.dir === 'up' ? 'down' : 'up'; })));
   }
   buildHandles(); changed();
 };
@@ -966,7 +1032,7 @@ function saveNow() {
   if (!ready) return;
   pushHist();
   const c = map.getCenter();
-  lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
+  lsSet('railMapState', { v: 2, geojson: items.toGeoJSON(), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value, dist: { line: dist.line, stn: dist.stn } });
 }
 map.on('moveend', queueSave);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
@@ -979,7 +1045,7 @@ function saveUse() {
 }
 function renderUse() {
   const sl = $('line'), old = use.line;
-  const opts = lineOptions().filter(([lid]) => stations().some(s => s.feature.properties.platforms.some(q => q.line === lid)));
+  const opts = lineOptions().filter(([lid]) => stations().some(s => s.feature.properties.platforms.some(q => q.routes.some(r => r.line === lid))));
   sl.textContent = '';
   opts.forEach(([lid, n]) => [['u', '上り'], ['d', '下り']].forEach(([k, t]) => sl.add(new Option(n + ' -' + t, lid + '|' + k))));
   if (!opts.length) sl.add(new Option('（ホームを登録すると選べます）', ''));
@@ -993,7 +1059,7 @@ function renderUse() {
   const pts = lineChain(lid);
   const ord = s => pts.reduce((b, pt, i) => { const d = pt.distanceTo(s.getLatLng()); return d < b[0] ? [d, i] : b; }, [Infinity, 0])[1];
   const list = stations()
-    .map(s => ({ s, pls: s.feature.properties.platforms.filter(q => q.line === lid && (q.dir === 'both' || q.dir === want)) }))
+    .map(s => ({ s, pls: s.feature.properties.platforms.filter(q => q.routes.some(r => r.line === lid && (r.dir === 'both' || r.dir === want))) }))
     .filter(x => x.pls.length)
     .sort((a, b) => ord(a.s) - ord(b.s));
   if (dk === 'u') list.reverse();
@@ -1062,7 +1128,10 @@ $('deletes').onclick = () => {
 ['buttonon', 'changeon', 'placeoff'].forEach(id => { $(id).onchange = saveUse; });
 
 /* ---------- 位置情報：最寄り駅の選択ホームを表示 ---------- */
-let cur = null, hasInit = false, lastSw = 0, autoT = null, urls = [];
+let cur = null, hasInit = false, lastSw = 0, autoT = null, urls = [], locating = false;
+const AUTO_MS = 3000;        // 自動判定の間隔(ms)。短くすると切り替わりは速くなりますが、電池の消費が増えます
+const MIN_SWITCH_MS = 2000;  // ホームを切り替えたあと、次に切り替えるまでの最短間隔(ms)
+const HYST_M = 20;           // 現在の駅より何m以上近くなったら切り替えるか（駅の中間での行き来を防ぐ）
 function candidates() {
   return [...$('use-list').querySelectorAll('input[type=radio]:checked')].map(r => {
     const s = stations().find(x => x.feature.properties.uid === r.name.slice(3));
@@ -1070,29 +1139,40 @@ function candidates() {
     return s && q ? { s, q } : null;
   }).filter(Boolean);
 }
-function getPos() {
+function getPos(force) {
   return new Promise((res, rej) => {
     if ($('placeoff').checked) return res(null);
     if (!navigator.geolocation) return rej({ code: -1 });
-    navigator.geolocation.getCurrentPosition(p => res(L.latLng(p.coords.latitude, p.coords.longitude)), rej, { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 });
+    // 位置の監視中は、直近の測位結果を使う（強制受信のときは1.5秒以内のものだけ）
+    if (lastPos && Date.now() - lastPos.t < (force ? 1500 : 8000)) return res(lastPos.ll);
+    navigator.geolocation.getCurrentPosition(p => res(L.latLng(p.coords.latitude, p.coords.longitude)), rej, { enableHighAccuracy: true, maximumAge: force ? 0 : 1000, timeout: 10000 });
   });
 }
 async function locate(force) {
-  const cs = candidates();
-  if (!cs.length) { if (force) alert('停車駅・使用ホームを選択してください。'); return; }
-  let best = cs[0];
+  if (!force && locating) return;
+  locating = true;
   try {
-    const p = await getPos();
-    if (p) best = cs.reduce((a, b) => p.distanceTo(b.s.getLatLng()) < p.distanceTo(a.s.getLatLng()) ? b : a);
-  } catch (e) { if (force) alert('位置情報の取得に失敗しました。エラーコード：' + e.code); return; }
-  if (!force && cur && cur.s === best.s && cur.q.id === best.q.id) return;
-  if (!force && Date.now() - lastSw < 5000) return;
-  await show(best.s, best.q, true);
-  lastSw = Date.now();
+    const cs = candidates();
+    if (!cs.length) { if (force) alert('停車駅・使用ホームを選択してください。'); return; }
+    let best = cs[0], p = null;
+    try {
+      p = await getPos(force);
+      if (p) best = cs.reduce((a, b) => p.distanceTo(b.s.getLatLng()) < p.distanceTo(a.s.getLatLng()) ? b : a);
+    } catch (e) { if (force) alert('位置情報の取得に失敗しました。エラーコード：' + e.code); return; }
+    if (!force && cur && cur.s === best.s && cur.q.id === best.q.id) return;
+    if (!force && Date.now() - lastSw < MIN_SWITCH_MS) return;
+    if (!force && p && cur) {
+      const cc = cs.find(c => c.s === cur.s && c.q.id === cur.q.id);
+      if (cc && p.distanceTo(cc.s.getLatLng()) - p.distanceTo(best.s.getLatLng()) < HYST_M) return;
+    }
+    await show(best.s, best.q, true);
+    lastSw = Date.now();
+  } finally { locating = false; }
 }
 function startAuto() {
   hasInit = true;
-  if (!autoT) autoT = setInterval(() => { if (hasInit && !document.hidden) locate(false); }, 10000);
+  applyWatch();
+  if (!autoT) autoT = setInterval(() => { if (hasInit && !document.hidden) locate(false); }, AUTO_MS);
 }
 // 「開く」：その駅で選択中のホームの駅メロ操作スイッチを即時に表示（以降は自動判定も有効）
 async function openPlatform(s, q) {
@@ -1105,6 +1185,51 @@ $('forceReceiveBtn').onclick = async () => {
   await locate(true);
   if (cur) startAuto();
 };
+
+/* ---------- 現在地の表示（位置情報の連続取得） ---------- */
+let watchId = null, lastPos = null, hereDot = null, hereAcc = null, showHere = false, firstFix = true;
+function clearHere() {
+  if (hereDot) { map.removeLayer(hereDot); map.removeLayer(hereAcc); hereDot = hereAcc = null; }
+  $('rm-hereinfo').textContent = '';
+}
+function drawHere() {
+  if (!lastPos) return;
+  if (!hereDot) {
+    hereAcc = L.circle(lastPos.ll, { radius: lastPos.acc, color: '#1a73e8', weight: 1, fillColor: '#1a73e8', fillOpacity: 0.12, interactive: false }).addTo(map);
+    hereDot = L.circleMarker(lastPos.ll, { radius: 7, color: '#ffffff', weight: 2, fillColor: '#1a73e8', fillOpacity: 1, interactive: false }).addTo(map);
+  } else { hereDot.setLatLng(lastPos.ll); hereAcc.setLatLng(lastPos.ll); hereAcc.setRadius(lastPos.acc); }
+  $('rm-hereinfo').textContent = '精度 ±' + Math.round(lastPos.acc) + 'm';
+  if (firstFix) { firstFix = false; map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); }
+}
+function onPos(p) {
+  lastPos = { ll: L.latLng(p.coords.latitude, p.coords.longitude), acc: p.coords.accuracy || 0, t: Date.now() };
+  if (showHere) drawHere();
+}
+function syncHere() {
+  $('rm-here').textContent = '現在地：' + (showHere ? 'ON' : 'OFF');
+  $('rm-here-go').hidden = !showHere;
+}
+// 現在地の表示中、または自動判定中だけ位置情報を連続取得する（「位置情報オフ」のときは取得しない）
+function applyWatch() {
+  const want = (showHere || hasInit) && !$('placeoff').checked && 'geolocation' in navigator;
+  if (want && watchId === null) {
+    firstFix = true;
+    watchId = navigator.geolocation.watchPosition(onPos, e => {
+      $('rm-hereinfo').textContent = '位置情報を取得できません（エラーコード：' + e.code + '）';
+      if (e.code === 1 && showHere) { showHere = false; syncHere(); clearHere(); alert('位置情報の利用が許可されていません。ブラウザの設定を確認してください。'); }
+    }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
+  }
+  if (!want && watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; lastPos = null; clearHere(); }
+}
+$('rm-here').onclick = () => {
+  if ($('placeoff').checked) { alert('「位置情報オフ」にチェックが入っています。外すと現在地を表示できます。'); return; }
+  if (!('geolocation' in navigator)) { alert('このブラウザは位置情報に対応していません。'); return; }
+  showHere = !showHere;
+  if (showHere) { firstFix = true; $('rm-hereinfo').textContent = lastPos ? '' : '測位中…'; drawHere(); } else clearHere();
+  syncHere(); applyWatch();
+};
+$('rm-here-go').onclick = () => { if (lastPos) map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); };
+$('placeoff').addEventListener('change', () => { if ($('placeoff').checked) { showHere = false; syncHere(); } applyWatch(); });
 
 /* ---------- 駅メロ再生（カスタムステーションベルの方式を移植） ---------- */
 const bell = { method: 'normal', playing: false };
@@ -1232,6 +1357,19 @@ window.addEventListener('beforeunload', () => { hwClose(); });
 
 /* ---------- 起動 ---------- */
 const s0 = lsGet('railMapState'), u0 = lsGet('railUseState');
+if (s0 && s0.dist) {
+  const a = Number(s0.dist.line), b = Number(s0.dist.stn);
+  if (Number.isFinite(a) && a >= 0) dist.line = Math.min(a, 5000);
+  if (Number.isFinite(b) && b >= 0) dist.stn = Math.min(b, 5000);
+}
+$('rm-dline').value = dist.line; $('rm-dstn').value = dist.stn;
+$('rm-dline').onchange = $('rm-dstn').onchange = () => {
+  dist.line = Math.max(0, Math.min(5000, Number($('rm-dline').value) || 0));
+  dist.stn = Math.max(0, Math.min(5000, Number($('rm-dstn').value) || 0));
+  $('rm-dline').value = dist.line; $('rm-dstn').value = dist.stn;
+  if (sel && sel.feature.properties.kind === 'station') renderPlats();
+  queueSave();
+};
 setBase(s0 ? s0.base : 0);
 if (s0) {
   labelsOn = s0.labels !== false;
