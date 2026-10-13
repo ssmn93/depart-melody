@@ -382,7 +382,7 @@ function alongLine(pts, ll) {
 }
 // 駅が路線に乗り入れているか（駅が路線の線上にあるか）。距離はメルカトル座標(m)で判定
 const mp = ll => L.CRS.EPSG3857.project(ll);
-const dist = { line: 10, stn: 100 };   // 乗り入れ判定の距離(m)（固定）：路線の線から／その路線の駅から
+const dist = { line: 5, stn: 100 };   // 乗り入れ判定の距離(m)（固定）：路線の線から／その路線の駅から
 function segDist(p, ln) {
   const a = ln.getLatLngs().map(mp);
   let d = Infinity;
