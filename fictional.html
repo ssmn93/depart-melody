@@ -9,11 +9,11 @@
   <link rel="stylesheet" href="fictional.css">
   <meta property="og:image" content="https://cdn.glitch.global/f6b8403f-df22-44d1-8c21-1151b6811bd0/tv_onsei.png">
   <meta property="og:description" content="自作の架空鉄道に発メロを入れてみよう！">
-  <meta property="og:title" content="架空鉄道駅メロ再現システム(仮称)">
+  <meta property="og:title" content="くうそうステーションベル">
   <meta property="og:url" content="https://dkst.net">
   <meta name="twitter:card" content="summary_large_image">
-  <meta property="og:site_name" content="架空鉄道駅メロ再現システム(仮称)">
-  <title>架空鉄道駅メロ再現システム(仮称)</title>
+  <meta property="og:site_name" content="くうそうステーションベル">
+  <title>くうそうステーションベル</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
@@ -21,7 +21,7 @@
     <div class="header-left">
       <a href="https://dkst.net/locate.html" class="title-link">
         <img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/常磐緩行線アイコン.png" alt="アイコン" class="logo" id="header">
-        <h1 class="title">架空鉄道駅メロ再現システム(仮称)</h1>
+        <h1 class="title">くうそうステーションベル</h1>
       </a>
     </div>
     <nav class="nav">
@@ -33,13 +33,13 @@
   </header>
     <div class="background-image">
       <div class="content">
-        <h1>架空鉄道駅メロ再現システム(仮称)</h1>
+        <h1>くうそうステーションベル</h1>
       </div>
       <div class="car">
         <a href="../"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/総武緩行線.png" alt="どこでもステーションベル" class="logo"></a>
         <a href="../custom.html"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/京浜東北線.png" alt="カスタムステーションベル" class="logo"></a>
         <a href="../locate.html"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/横須賀線.png" alt="ここからステーションベル" class="logo"></a>
-        <a href="../fictional.html"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/常磐緩行線.png" alt="架空鉄道駅メロ再現システム(仮称)" class="logo"></a>
+        <a href="../fictional.html"><img src="https://raw.github.com/ssmn93/depart-melody/main/picture/常磐緩行線.png" alt="くうそうステーションベル" class="logo"></a>
       </div>
     </div>
   <div class="main">
@@ -278,7 +278,7 @@
         <li><a href="https://dkst.net/ikst/ikst.html">IKST動静</a></li>
         <li><a href="https://dkst.net/custom.html">カスタムステーションベル</a></li>
         <li><a href="https://dkst.net/locate.html">ここからステーションベル</a></li>
-        <li><a href="https://dkst.net/fictional.html">架空鉄道駅メロ再現システム(仮称)</a></li>
+        <li><a href="https://dkst.net/fictional.html">くうそうステーションベル</a></li>
         <li><a href="https://status.dkst.net">ステータス</a></li>
       </ul>
     </div>
@@ -382,7 +382,7 @@ function alongLine(pts, ll) {
 }
 // 駅が路線に乗り入れているか（駅が路線の線上にあるか）。距離はメルカトル座標(m)で判定
 const mp = ll => L.CRS.EPSG3857.project(ll);
-const dist = { line: 10, stn: 50 };   // 乗り入れ判定の距離(m)（固定）：路線の線から／その路線の駅から
+const dist = { line: 20, stn: 40 };   // 乗り入れ判定の距離(m)（固定）：路線の線から／その路線の駅から
 function segDist(p, ln) {
   const a = ln.getLatLngs().map(mp);
   let d = Infinity;
