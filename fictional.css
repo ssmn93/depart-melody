@@ -679,3 +679,10 @@ summary {
   font-weight: normal;
   color: #666666;
 }
+
+/* 選択されていない路線の曲がり角（小さな四角。色は路線ごとにスクリプトで指定） */
+.rm-bend span {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
