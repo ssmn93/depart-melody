@@ -686,3 +686,9 @@ summary {
   width: 100%;
   height: 100%;
 }
+
+#rm-lineinfo {
+  font-size: 14px;
+  color: #555566;
+  margin: 4px 0;
+}
