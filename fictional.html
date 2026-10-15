@@ -583,7 +583,7 @@ function loadGeo(geo, replace) {
 function stat() {
   $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lineList().length;
 }
-function changed() { pruneLines(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') fillMsel(); }
+function changed() { pruneLines(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') fillMsel(); drawBends(); }
 
 /* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
 let splitLid = null;
@@ -829,6 +829,8 @@ $('rm-rev').onclick = () => {
 /* ---------- 地図の操作モード（駅を置く／路線を引く／編集／削除。駅名表示とは独立） ---------- */
 const draft = { pts: [], line: null, rub: null, dots: L.layerGroup().addTo(map) };
 const handles = L.layerGroup().addTo(map);
+const bends = L.layerGroup().addTo(map);   // 選択されていない路線の曲がり角（路線の色を少し濃くした小さな点）
+const BEND_SHADE = 0.8;                    // 1に近いほど路線の色に近く、小さいほど濃くなる
 const hIcon = L.divIcon({ className: 'rm-handle', iconSize: [12, 12], iconAnchor: [6, 6] });
 function syncButtons() {
   document.querySelectorAll('[data-rm]').forEach(b => b.classList.toggle('on', b.dataset.rm === mode));
@@ -911,11 +913,29 @@ function endVertex(ln, i, ll) {
   setTimeout(buildHandles, 0);
   changed();
 }
+const shade = (hex, f) => '#' + [1, 3, 5].map(i => Math.max(0, Math.min(255, Math.round(parseInt(hex.slice(i, i + 2), 16) * f))).toString(16).padStart(2, '0')).join('');
+function handleTargets() {
+  if (mode === 'edit') return lines();
+  if (!mode && sel && sel.feature.properties.kind === 'line') return lines().filter(l => l.feature.properties.lid === sel.feature.properties.lid);
+  return [];
+}
+// 曲がり角ハンドルを表示していない路線の曲がり角を、路線の色を少し変えた小さな点で示す
+function drawBends() {
+  bends.clearLayers();
+  const hs = new Set(handleTargets()), stPts = stations().map(s => mp(s.getLatLng()));
+  lines().forEach(ln => {
+    if (hs.has(ln)) return;
+    const c = shade(ln.feature.properties.color, BEND_SHADE), a = ln.getLatLngs();
+    a.forEach((v, j) => {
+      if (j === 0 || j === a.length - 1 || stPts.some(q => q.distanceTo(mp(v)) < 2)) return;
+      L.circleMarker(v, { radius: 3.5, color: c, weight: 1, fillColor: c, fillOpacity: 1, interactive: false }).addTo(bends).bringToFront();
+    });
+  });
+}
 function buildHandles() {
   handles.clearLayers();
-  let targets = [];
-  if (mode === 'edit') targets = lines();
-  else if (!mode && sel && sel.feature.properties.kind === 'line') targets = lines().filter(l => l.feature.properties.lid === sel.feature.properties.lid);
+  drawBends();
+  const targets = handleTargets();
   if (!targets.length) return;
   const stPts = stations().map(s => mp(s.getLatLng()));
   targets.forEach(ln => {
