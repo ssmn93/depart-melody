@@ -86,6 +86,7 @@
         <input type="color" id="rm-pcolor">
         <button type="button" id="rm-del">この項目を削除</button></div>
       <div id="rm-lineops" hidden>
+        <div id="rm-lineinfo"></div>
         <div class="rm-bar">
           <button type="button" id="rm-split" title="路線を、クリックした位置で2つに分けます">分割</button>
           <select id="rm-msel" title="この路線に併合する路線"></select><button type="button" id="rm-merge">併合</button>
@@ -390,6 +391,18 @@ function segDist(p, ln) {
   for (let i = 0; i < a.length - 1; i++) d = Math.min(d, L.LineUtil.pointToSegmentDistance(p, a[i], a[i + 1]));
   return d;
 }
+// 路線の長さ(m)。区間ごとに、曲がり角をつないだ実際の距離（球面上）を合計する
+const segLen = ln => ln.getLatLngs().reduce((t, v, i, a) => i ? t + a[i - 1].distanceTo(v) : t, 0);
+const lineLen = lid => lines().filter(l => l.feature.properties.lid === lid).reduce((t, l) => t + segLen(l), 0);
+const totalLen = () => lines().reduce((t, l) => t + segLen(l), 0);
+const fmtLen = m => m < 1000 ? Math.round(m) + ' m' : (m / 1000).toFixed(2) + ' km';
+// 路線の駅：その路線のホームを登録している駅、または路線の線上にある駅
+const lineStations = lid => stations().filter(s => s.feature.properties.platforms.some(q => q.routes.some(r => r.line === lid)) || geomServes(s).has(lid));
+function updateLineInfo() {
+  if (!sel || sel.feature.properties.kind !== 'line') return;
+  const lid = sel.feature.properties.lid;
+  $('rm-lineinfo').textContent = '駅数：' + lineStations(lid).length + '　／　路線の長さ：' + fmtLen(lineLen(lid));
+}
 // 路線の線が近くを通る路線
 function geomServes(st) {
   const ll = st.getLatLng(), p = mp(ll), k = Math.cos(ll.lat * Math.PI / 180), set = new Set();
@@ -581,9 +594,9 @@ function loadGeo(geo, replace) {
   return uidMap;
 }
 function stat() {
-  $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lineList().length;
+  $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lineList().length + ' ／ 総延長 ' + fmtLen(totalLen());
 }
-function changed() { pruneLines(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') fillMsel(); drawBends(); }
+function changed() { pruneLines(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') { fillMsel(); updateLineInfo(); } drawBends(); }
 
 /* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
 let splitLid = null;
@@ -608,7 +621,7 @@ function select(l) {
   const p = l.feature.properties, st = p.kind === 'station';
   if (splitLid && p.lid !== splitLid) setSplit(null);
   $('rm-lineops').hidden = st;
-  if (!st) fillMsel();
+  if (!st) { fillMsel(); updateLineInfo(); }
   $('rm-kind').textContent = st ? '駅' : '路線';
   $('rm-name').value = p.name;
   $('rm-pcolor').hidden = st;
