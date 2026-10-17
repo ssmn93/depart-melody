@@ -652,9 +652,34 @@ summary {
 
 .rm-route {
   display: flex;
+  flex-wrap: wrap;            /* 狭い画面では、2つ目の役割を次の行へ折り返す */
+  align-items: center;
+  gap: 4px 8px;
+  margin-right: 10px;
+  max-width: 100%;
+}
+
+.rm-role {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 4px;
-  margin-right: 10px;
+  max-width: 100%;
+}
+
+.rm-card {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.rm-card select {
+  max-width: 100%;
+}
+
+#rm-next {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 10px 0 0;
 }
 
 
