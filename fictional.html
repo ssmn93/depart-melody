@@ -19,7 +19,7 @@
 <body>
   <header>
     <div class="header-left">
-      <a href="https://dkst.net/fictional.html" class="title-link">
+      <a href="https://dkst.net/locate.html" class="title-link">
         <img src="https://raw.githubusercontent.com/ssmn93/depart-melody/main/picture/常磐緩行線アイコン.png" alt="アイコン" class="logo" id="header">
         <h1 class="title">くうそうステーションベル</h1>
       </a>
@@ -111,6 +111,7 @@
       <div class="rm-bar"><button class="GPS" type="button" id="forceReceiveBtn">強制受信</button><span id="cur"></span></div>
     </div>
     <div id="sw" hidden>
+      <div id="rm-next"></div>
       <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" version="1.1" fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" viewbox="0.0 0.0 960.0 720.0" id="jr_svg">
       <clippath id="p.0">
         <path d="m0 0l960.0 0l0 720.0l-960.0 0l0 -720.0z" clip-rule="nonzero"/>
@@ -279,6 +280,7 @@
         <li><a href="https://dkst.net/ikst/ikst.html">IKST動静</a></li>
         <li><a href="https://dkst.net/custom.html">カスタムステーションベル</a></li>
         <li><a href="https://dkst.net/locate.html">ここからステーションベル</a></li>
+        <li><a href="https://dkst.net/fictional.html">くうそうステーションベル</a></li>
         <li><a href="https://dkst.net/fictional.html">くうそうステーションベル</a></li>
         <li><a href="https://status.dkst.net">ステータス</a></li>
       </ul>
@@ -675,9 +677,12 @@ function renderPlats() {
     const del = document.createElement('button');
     del.type = 'button'; del.textContent = 'このホームを削除';
     del.onclick = () => { st.platforms = st.platforms.filter(x => x !== q); renderPlats(); changed(); };
+    const opn = document.createElement('button');
+    opn.type = 'button'; opn.textContent = 'このホームを開く'; opn.title = '駅メロ操作のスイッチを、このホームで表示します';
+    opn.onclick = () => openPlatform(sel, q);
     r1.append(no,
       mk(Object.entries(METHODS).map(([k, v]) => [k, v[0]]), q.method, v => { q.method = v; renderPlats(); changed(); applyIfCurrent(q); }),
-      del);
+      opn, del);
     card.append(r1);
     // 乗り入れ路線（複数選択）。路線ごとに「上り・下り・上下兼用」と「本線・副本線」を選ぶ
     const lb0 = document.createElement('span');
@@ -704,7 +709,7 @@ function renderPlats() {
         const bad = e.type !== 'main' && clashWith(st.platforms, q, e);
         const autoD = bad && e.dir === 'both' ? ['up', 'down'].find(d => !clashWith(st.platforms, q, { line: lid, dir: d })) : null;
         const tdis = bad && !autoD;
-        return mk([['main', '本線' + (tdis ? '（不可）' : autoD ? '（' + DIRS[autoD] + 'になります）' : ''), tdis], ['sub', '副本線']], e.type, v => {
+        return mk([['main', '本線' + (autoD ? '（' + DIRS[autoD] + 'になります）' : ''), tdis], ['sub', '副本線']], e.type, v => {
           if (v === 'main' && clashWith(st.platforms, q, e)) {
             if (autoD) e.dir = autoD;
             else {
@@ -723,14 +728,20 @@ function renderPlats() {
         const dopts = Object.entries(DIRS).map(([k, t]) => {
           let dis = false;
           if (k !== e1.dir) dis = e2 ? (k === 'both' || !okMain(e1, k) || !okMain(e2, OPP[k])) : !okMain(e1, k);
-          return [k, t + (dis ? '（不可）' : ''), dis];
+          return [k, t, dis];
         });
-        w.append(mk(dopts, e1.dir, v => { e1.dir = v; if (e2) e2.dir = OPP[v]; changed(); renderPlats(); }), typeSel(e1));
+        const role1 = document.createElement('div');
+        role1.className = 'rm-role';
+        role1.append(mk(dopts, e1.dir, v => { e1.dir = v; if (e2) e2.dir = OPP[v]; changed(); renderPlats(); }), typeSel(e1));
+        w.append(role1);
         if (e2) {
           const minus = document.createElement('button');
           minus.type = 'button'; minus.textContent = '−'; minus.title = '反対方向の設定を削除';
           minus.onclick = () => { q.routes = q.routes.filter(r => r !== e2); changed(); renderPlats(); };
-          w.append(mk([[e2.dir, DIRS[e2.dir]]], e2.dir, () => {}), typeSel(e2), minus);
+          const role2 = document.createElement('div');
+          role2.className = 'rm-role';
+          role2.append(mk([[e2.dir, DIRS[e2.dir]]], e2.dir, () => {}), typeSel(e2), minus);
+          w.append(role2);
         } else if (e1.dir !== 'both') {
           const plus = document.createElement('button');
           plus.type = 'button'; plus.textContent = '+'; plus.title = '反対方向の設定を追加';
@@ -739,7 +750,7 @@ function renderPlats() {
             q.routes = q.routes.concat({ line: lid, dir: d, type: clashWith(st.platforms, q, { line: lid, dir: d }) ? 'sub' : 'main' });
             changed(); renderPlats();
           };
-          w.append(plus);
+          role1.append(plus);
         }
       }
       r2.append(w);
@@ -1125,8 +1136,20 @@ function saveUse() {
   lsSet('railUseState', { line: use.line, sel: use.sel, buttonon: $('buttonon').checked, changeon: $('changeon').checked, placeoff: $('placeoff').checked });
 }
 // ホームが選ばれていない駅は通過駅として扱う（最寄り駅の判定は、ホームを選んだ駅だけで行う）
+// スイッチの直上に、次に停まる駅（選択中の路線・方向で、ホームを選んでいる次の駅）を表示する
+function updateNext() {
+  const el = $('rm-next');
+  if (!cur) { el.textContent = ''; return; }
+  const name = 'st_' + cur.s.feature.properties.uid;
+  const rows = [...$('use-list').querySelectorAll('.stationes')];
+  const i = rows.findIndex(r => [...r.querySelectorAll('input[type=radio]')].some(x => x.name === name));
+  if (i < 0) { el.textContent = ''; return; }
+  const nx = rows.slice(i + 1).find(r => r.querySelector('input[type=radio]:checked'));
+  el.textContent = '次駅：' + (nx ? nx.querySelector('h3').textContent : 'なし（終点）');
+}
 function markPass() {
   $('use-list').querySelectorAll('.stationes').forEach(row => row.classList.toggle('rm-pass', !row.querySelector('input[type=radio]:checked')));
+  updateNext();
 }
 function renderUse() {
   const sl = $('line'), old = use.line;
@@ -1341,6 +1364,7 @@ async function show(s, q, notify) {
   }
   bell.method = q.method;
   $('sw').hidden = false;
+  updateNext();
   $('jr_svg').style.display = q.method === 'full' ? 'none' : 'block';
   $('metro_svg').style.display = q.method === 'full' ? 'block' : 'none';
   $('cur').textContent = '現在: ' + eki(s.feature.properties.name) + '　' + (q.no || '?') + '番線（' + METHODS[q.method][0] + '）';
