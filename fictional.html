@@ -100,22 +100,20 @@
     </div>
 
     <div id="rm-conn">
-      <div><b>直通（路線の接続）</b>：2つの路線の直通を登録します。</div>
+      <div><b>直通（直通系統）</b>：直通系統名をつけて、直通する路線を順に（最大8路線まで）登録します。路線選択では、ここで付けた直通系統名で選べます。</div>
+      <div class="rm-bar"><span>直通系統名</span><input type="text" id="cn-name" maxlength="30" placeholder="例：快速A"></div>
+      <div id="cn-legs"></div>
       <div class="rm-bar">
-        <select id="cn-a"></select><span>と</span><select id="cn-b"></select>
-        <span>を、接続駅</span><select id="cn-s"></select><span>で</span>
-        <select id="cn-m">
-          <option value="same">同じ向きに続く（下り→下り、上り→上り）</option>
-          <option value="flip">反対向きに続く（下り→上り、上り→下り）</option>
-        </select>
-        <button type="button" id="cn-add">直通を追加</button>
+        <button type="button" id="cn-addleg">路線を追加</button>
+        <button type="button" id="cn-add">直通系統を登録</button>
+        <button type="button" id="cn-cancel" hidden>編集を取消</button>
       </div>
       <div id="cn-list"></div>
     </div>
 
     <h1>設定</h1>
     <div class="trains">
-      <p>①路線を選択してください。</p>
+      <p>①路線（直通系統）を選択してください。</p>
       <select id="line"></select>
       <p>②停車駅・使用ホームを選択してください。</p>
       <div id="use-hint">ラジオボタンをダブルクリックすると選択を解除できます。ホームを選んでいない駅は通過駅として飛ばします。</div>
@@ -359,9 +357,15 @@ const dot = L.divIcon({ className: 'rm-dot', iconSize: [16, 16], iconAnchor: [8,
 let base = 0, baseLayer, labelsOn = true, mode = null, sel = null, ready = false, timer;
 const stations = () => items.getLayers().filter(l => l.feature.properties.kind === 'station');
 const lines = () => items.getLayers().filter(l => l.feature.properties.kind === 'line');
-// 直通（路線の接続）：{ id, a, b, at(接続駅のuid), map('same'|'flip') }。向きの対応は自動判定せず、設定した内容を使う
-let conns = [];
-const withConns = fc => Object.assign(fc, { railConnections: conns.map(c => Object.assign({}, c)) });
+// 直通系統：{ id, name(直通系統名), legs:[{ lid, at, map }] }。直通する路線を順に並べたもの（最大 MAX_LEGS 路線）
+//   legs[0] は起点の路線（at・mapなし）。legs[i] は、1つ前の路線と接続駅 at(駅のuid) で続く路線で、
+//   map('same'|'flip') は向きの対応（同じ向き／反対向きに続く）。向きの対応は自動判定せず、設定した内容を使う
+const MAX_LEGS = 8;
+let svcs = [];
+const withSvcs = fc => Object.assign(fc, { railServices: svcs.map(v => ({ id: v.id, name: v.name, legs: v.legs.map(g => Object.assign({}, g)) })) });
+// 直通系統を、隣り合う路線どうしの接続（継ぎ目）に分けたもの。経路づくりで使う
+const svcJoints = v => v.legs.slice(1).map((g, i) => ({ id: v.id + '_' + (i + 1), a: v.legs[i].lid, b: g.lid, at: g.at, map: g.map }));
+const jointList = () => [].concat(...svcs.map(svcJoints));
 // 路線は名前ではなくIDで区別する。1つの路線は複数の区間（線）で構成できる（延伸）
 const lineList = () => { const m = new Map(); lines().forEach(l => { const p = l.feature.properties; if (!m.has(p.lid)) m.set(p.lid, p); }); return [...m.values()]; };
 const lineInfo = lid => lineList().find(p => p.lid === lid);
@@ -608,22 +612,42 @@ function loadGeo(geo, replace) {
       if (o && l.feature.properties.kind === 'station') uidMap[o] = l.feature.properties.uid;
     }
   });
-  const rc = geo && Array.isArray(geo.railConnections) ? geo.railConnections : [];
   const lidOf = v => { const id = clean(v); return lidSet.has(id) ? (lm ? lm[id] : id) : ''; };
-  const cl = rc.slice(0, 200).map(c => ({ id: clean(c && c.id) || rid(), a: lidOf(c && c.a), b: lidOf(c && c.b), at: uidMap[c && c.at] || '', map: c && c.map === 'flip' ? 'flip' : 'same' }))
-    .filter(c => c.a && c.b && c.at && c.a !== c.b);
-  if (replace) conns = cl; else conns = conns.concat(cl.map(c => Object.assign(c, { id: rid() })));
+  const legOf = (g, first) => ({ lid: lidOf(g && g.lid), at: first ? '' : (uidMap[g && g.at] || ''), map: !first && g && g.map === 'flip' ? 'flip' : 'same' });
+  const okLegs = legs => legs.length >= 2 && legs.every((g, i) => g.lid && (i === 0 || g.at)) && new Set(legs.map(g => g.lid)).size === legs.length;
+  const nameOf = lid => (lineInfo(lid) || {}).name || '路線';
+  let sv = [];
+  if (geo && Array.isArray(geo.railServices)) {
+    geo.railServices.slice(0, 200).forEach(x => {
+      const legs = (Array.isArray(x && x.legs) ? x.legs.slice(0, MAX_LEGS) : []).map((g, i) => legOf(g, i === 0));
+      if (okLegs(legs)) sv.push({ id: clean(x.id) || rid(), name: String(x.name || '').trim().slice(0, 30) || (nameOf(legs[0].lid) + '直通'), legs });
+    });
+  } else if (geo && Array.isArray(geo.railConnections)) {
+    // 旧形式（2つの路線の接続）：2路線の直通系統として読み込む
+    geo.railConnections.slice(0, 200).forEach(c => {
+      const legs = [legOf({ lid: c && c.a }, true), legOf({ lid: c && c.b, at: c && c.at, map: c && c.map }, false)];
+      if (okLegs(legs)) sv.push({ id: clean(c.id) || rid(), name: nameOf(legs[0].lid) + '⇄' + nameOf(legs[1].lid), legs });
+    });
+  }
+  if (replace) svcs = sv;
+  else {
+    sv.forEach(v => {
+      let m = v.name, k = 2;
+      while (svcs.some(x => x.name === m)) m = v.name + '（' + k++ + '）';
+      svcs.push(Object.assign(v, { id: rid(), name: m }));
+    });
+  }
   buildHandles();
   return uidMap;
 }
 function stat() {
   $('rm-stat').textContent = '駅 ' + stations().length + ' ／ 路線 ' + lineList().length + ' ／ 総延長 ' + fmtLen(totalLen());
 }
-function pruneConns() {
+function pruneSvcs() {
   const ok = new Set(lineList().map(x => x.lid)), us = new Set(stations().map(x => x.feature.properties.uid));
-  conns = conns.filter(c => ok.has(c.a) && ok.has(c.b) && us.has(c.at) && c.a !== c.b);
+  svcs = svcs.filter(v => v.legs.length >= 2 && v.legs.length <= MAX_LEGS && v.legs.every((g, i) => ok.has(g.lid) && (i === 0 || us.has(g.at))) && new Set(v.legs.map(g => g.lid)).size === v.legs.length);
 }
-function changed() { pruneLines(); pruneConns(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') { fillMsel(); updateLineInfo(); } drawBends(); }
+function changed() { pruneLines(); pruneSvcs(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') { fillMsel(); updateLineInfo(); } drawBends(); }
 
 /* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
 let splitLid = null;
@@ -1082,10 +1106,10 @@ async function importAudio(audio, uidMap) {
   }
   return n;
 }
-$('rm-export').onclick = () => download(withConns(items.toGeoJSON()), '');
+$('rm-export').onclick = () => download(withSvcs(items.toGeoJSON()), '');
 $('rm-export-audio').onclick = async () => {
   try {
-    const fc = withConns(items.toGeoJSON());
+    const fc = withSvcs(items.toGeoJSON());
     fc.railAudio = await collectAudio();
     if (!Object.keys(fc.railAudio).length) alert('登録済みの音声ファイルがないため、地図データのみ書き出します。');
     download(fc, '_audio');
@@ -1111,7 +1135,7 @@ $('rm-clear').onclick = () => {
 
 /* ---------- 戻る／進む（駅・路線・ホーム登録の編集履歴。音声ファイルは対象外） ---------- */
 const hist = { stack: [], idx: -1 };
-const snapshot = () => JSON.stringify(withConns(items.toGeoJSON()));
+const snapshot = () => JSON.stringify(withSvcs(items.toGeoJSON()));
 function syncUndo() {
   $('rm-undo').disabled = hist.idx <= 0;
   $('rm-redo').disabled = hist.idx >= hist.stack.length - 1;
@@ -1150,7 +1174,7 @@ function saveNow() {
   if (!ready) return;
   pushHist();
   const c = map.getCenter();
-  lsSet('railMapState', { v: 2, geojson: withConns(items.toGeoJSON()), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
+  lsSet('railMapState', { v: 2, geojson: withSvcs(items.toGeoJSON()), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
 }
 map.on('moveend', queueSave);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
@@ -1196,11 +1220,11 @@ function connNext(c, lid, dk) {
   return t ? { lid: t, dk: c.map === 'flip' ? flipDk(dk) : dk } : null;
 }
 const stUid = r => r.s.feature.properties.uid;
-// 路線lid・向きdkから、接続cidsを順にたどった駅の並び。つなげられなければ null
-function buildRoute(lid, dk, cids) {
+// 路線lid・向きdkから、接続cidsを順にたどった駅の並び。つなげられなければ null（jsは接続の一覧）
+function buildRoute(lid, dk, cids, js = jointList()) {
   let rows = legRows(lid, dk), cl = lid, cd = dk, jIdx = -1;
   for (const cid of cids) {
-    const c = conns.find(x => x.id === cid), nx = c && connNext(c, cl, cd);
+    const c = js.find(x => x.id === cid), nx = c && connNext(c, cl, cd);
     if (!nx) return null;
     const i = rows.findIndex(r => stUid(r) === c.at);
     if (i < 0 || i <= jIdx || (i === 0 && jIdx < 0)) return null;   // 起点の駅での乗り換えだけの行先は作らない
@@ -1214,67 +1238,119 @@ function buildRoute(lid, dk, cids) {
   }
   return rows;
 }
-// 路線・向きから選べる行先（直通先を含む）。接続は最大3回までたどる
-function allVariants(lid, dk) {
-  const out = [];
-  const walk = (cids, legs, depth) => {
-    const rows = buildRoute(lid, dk, cids);
-    if (!rows) return;
-    out.push({ cids, legs, rows });
-    if (depth >= 3) return;
-    const last = legs[legs.length - 1];
-    conns.forEach(c => {
-      if (cids.includes(c.id)) return;
-      const nx = connNext(c, last.lid, last.dk);
-      if (nx) walk(cids.concat(c.id), legs.concat(nx), depth + 1);
-    });
-  };
-  walk([], [{ lid, dk }], 0);
+// 直通系統で選べる走り方。最初の路線から（上り・下り）、または最後の路線から逆向きに（上り・下り）。つながるものだけ返す
+function svcVariants(v) {
+  const js = svcJoints(v), ids = js.map(j => j.id), out = [];
+  [[v.legs[0].lid, ids], [v.legs[v.legs.length - 1].lid, ids.slice().reverse()]].forEach(([lid, cids]) => ['u', 'd'].forEach(dk => {
+    const rows = buildRoute(lid, dk, cids, js);
+    if (rows && rows.length) out.push({ lid, dk, cids, rows });
+  }));
   return out;
 }
-// ---------- 直通（路線の接続）の設定画面 ----------
+// ---------- 直通（直通系統）の設定画面 ----------
+let cnDraft = [{ lid: '', at: '', map: 'same' }, { lid: '', at: '', map: 'same' }], cnEdit = null;
+const cnHas = (s, lid) => s.feature.properties.platforms.some(q => q.routes.some(r => r.line === lid));
+function cnReset() {
+  cnEdit = null; cnDraft = [{ lid: '', at: '', map: 'same' }, { lid: '', at: '', map: 'same' }];
+  $('cn-name').value = '';
+}
 function renderConn() {
-  const opts = lineOptions(), A = $('cn-a'), B = $('cn-b'), S = $('cn-s'), keep = [A.value, B.value, S.value];
-  [A, B].forEach(x => { x.textContent = ''; opts.forEach(([lid, n]) => x.add(new Option(n, lid))); });
-  if (opts.some(o => o[0] === keep[0])) A.value = keep[0];
-  if (opts.some(o => o[0] === keep[1])) B.value = keep[1]; else if (opts[1]) B.value = opts[1][0];
-  const has = (s, lid) => s.feature.properties.platforms.some(q => q.routes.some(r => r.line === lid));
-  S.textContent = '';
-  stations().filter(s => has(s, A.value) && has(s, B.value)).forEach(s => S.add(new Option(eki(s.feature.properties.name), s.feature.properties.uid)));
-  if ([...S.options].some(o => o.value === keep[2])) S.value = keep[2];
-  const box = $('cn-list');
+  const opts = lineOptions(), valid = new Set(opts.map(o => o[0])), box = $('cn-legs');
+  cnDraft.forEach(g => { if (!valid.has(g.lid)) g.lid = ''; });
+  // 未選択の路線には、まだ使っていない路線を順に当てる
+  cnDraft.forEach(g => { if (!g.lid) { const o = opts.find(x => !cnDraft.some(y => y.lid === x[0])); if (o) g.lid = o[0]; } });
   box.textContent = '';
-  conns.forEach(c => {
-    const row = document.createElement('div'), del = document.createElement('button'), nm = lid => (lineInfo(lid) || {}).name || '?';
-    const st = stations().find(x => x.feature.properties.uid === c.at);
-    row.textContent = nm(c.a) + ' ⇄ ' + nm(c.b) + '（' + eki(st ? st.feature.properties.name : '?') + 'で接続・' + (c.map === 'flip' ? '反対向きに続く' : '同じ向きに続く') + '）　';
+  cnDraft.forEach((g, i) => {
+    const row = document.createElement('div'), L = document.createElement('select');
+    row.className = 'rm-bar';
+    const lab = document.createElement('span'); lab.textContent = (i + 1) + '路線目'; row.append(lab);
+    opts.forEach(([lid, n]) => L.add(new Option(n, lid)));
+    L.value = g.lid;
+    L.onchange = () => { g.lid = L.value; renderConn(); };
+    row.append(L);
+    if (i > 0) {
+      const prev = cnDraft[i - 1].lid, S = document.createElement('select'), M = document.createElement('select');
+      stations().filter(s => cnHas(s, prev) && cnHas(s, g.lid)).forEach(s => S.add(new Option(eki(s.feature.properties.name), s.feature.properties.uid)));
+      if ([...S.options].some(o => o.value === g.at)) S.value = g.at; else g.at = S.value;
+      S.onchange = () => { g.at = S.value; };
+      M.add(new Option('同じ向きに続く（下り→下り、上り→上り）', 'same'));
+      M.add(new Option('反対向きに続く（下り→上り、上り→下り）', 'flip'));
+      M.value = g.map === 'flip' ? 'flip' : 'same';
+      M.onchange = () => { g.map = M.value; };
+      const t1 = document.createElement('span'), t2 = document.createElement('span');
+      t1.textContent = '　前の路線との接続駅'; t2.textContent = 'で';
+      row.append(t1, S, t2, M);
+    }
+    if (cnDraft.length > 2) {
+      const del = document.createElement('button'); del.type = 'button'; del.textContent = 'この路線を外す';
+      del.onclick = () => { cnDraft.splice(i, 1); renderConn(); };
+      row.append(del);
+    }
+    box.append(row);
+  });
+  const addLeg = $('cn-addleg');
+  addLeg.textContent = '路線を追加（' + cnDraft.length + '/' + MAX_LEGS + '）';
+  addLeg.disabled = cnDraft.length >= MAX_LEGS;
+  $('cn-add').textContent = cnEdit ? '直通系統を更新' : '直通系統を登録';
+  $('cn-cancel').hidden = !cnEdit;
+  const list = $('cn-list');
+  list.textContent = '';
+  const nm = lid => (lineInfo(lid) || {}).name || '?';
+  svcs.forEach(v => {
+    const row = document.createElement('div'), ed = document.createElement('button'), del = document.createElement('button');
+    const joint = v.legs.slice(1).map((g, i) => {
+      const st = stations().find(x => x.feature.properties.uid === g.at);
+      return eki(st ? st.feature.properties.name : '?') + (g.map === 'flip' ? '・反対向き' : '');
+    }).join('／');
+    row.textContent = v.name + '：' + v.legs.map(g => nm(g.lid)).join(' → ') + '（接続：' + joint + '）　';
+    ed.type = 'button'; ed.textContent = '編集';
+    ed.onclick = () => {
+      cnEdit = v.id; cnDraft = v.legs.map(g => Object.assign({}, g));
+      $('cn-name').value = v.name; renderConn();
+    };
     del.type = 'button'; del.textContent = '削除';
-    del.onclick = () => { conns = conns.filter(x => x !== c); changed(); };
-    row.append(del); box.append(row);
+    del.onclick = () => { svcs = svcs.filter(x => x !== v); if (cnEdit === v.id) cnReset(); changed(); };
+    row.append(ed, del); list.append(row);
   });
 }
-$('cn-a').onchange = $('cn-b').onchange = renderConn;
+$('cn-addleg').onclick = () => {
+  if (cnDraft.length >= MAX_LEGS) return;
+  cnDraft.push({ lid: '', at: '', map: 'same' });
+  renderConn();
+};
+$('cn-cancel').onclick = () => { cnReset(); renderConn(); };
 $('cn-add').onclick = () => {
-  const a = $('cn-a').value, b = $('cn-b').value, at = $('cn-s').value;
-  if (!a || !b || a === b) { alert('接続する2つの路線を選んでください。'); return; }
-  if (!at) { alert('接続駅がありません。両方の路線のホームを登録した駅が必要です。'); return; }
-  if (conns.some(c => c.at === at && ((c.a === a && c.b === b) || (c.a === b && c.b === a)))) { alert('同じ接続が登録済みです。'); return; }
-  conns.push({ id: rid(), a, b, at, map: $('cn-m').value === 'flip' ? 'flip' : 'same' });
-  changed();
+  const name = $('cn-name').value.trim();
+  if (!name) { alert('直通系統名を入力してください。（例：快速、特急、各駅停車）'); return; }
+  if (svcs.some(x => x.name === name && x.id !== cnEdit)) { alert('同じ名前の直通系統が登録済みです。別の名前にしてください。'); return; }
+  const ls = cnDraft.map(g => g.lid);
+  if (ls.length < 2 || ls.some(x => !x)) { alert('直通する路線を2つ以上選んでください。'); return; }
+  if (new Set(ls).size !== ls.length) { alert('同じ路線を2回以上は登録できません。'); return; }
+  const miss = cnDraft.findIndex((g, i) => i > 0 && !g.at);
+  if (miss >= 0) { alert((miss + 1) + '路線目：前の路線との接続駅がありません。両方の路線のホームを登録した駅が必要です。'); return; }
+  const legs = cnDraft.map((g, i) => ({ lid: g.lid, at: i ? g.at : '', map: i && g.map === 'flip' ? 'flip' : 'same' }));
+  const v = { id: cnEdit || rid(), name, legs };
+  if (!svcVariants(v).length) { alert('この組み合わせでは、直通する駅の並びを作れません。\n接続駅・向きの対応・各路線のホーム登録を確認してください。'); return; }
+  if (cnEdit) svcs = svcs.map(x => x.id === cnEdit ? v : x); else svcs.push(v);
+  cnReset(); changed();
 };
 function renderUse() {
   renderConn();
   const sl = $('line'), old = use.line;
   const named = lineOptions().filter(([lid]) => stations().some(s => s.feature.properties.platforms.some(q => q.routes.some(r => r.line === lid))));
   sl.textContent = '';
-  named.forEach(([lid, n]) => [['u', '上り'], ['d', '下り']].forEach(([k, t]) => {
-    const vs = allVariants(lid, k);
-    vs.forEach(v => {
-      const via = v.legs.slice(1).map(g => (lineInfo(g.lid) || {}).name).join(' → ');
-      const term = v.rows.length ? eki(v.rows[v.rows.length - 1].s.feature.properties.name) : '';
-      sl.add(new Option(n + ' -' + t + (via ? ' → ' + via : '') + (vs.length > 1 ? '（' + term + '方面）' : ''), lid + '|' + k + (v.cids.length ? '|' + v.cids.join(',') : '')));
-    });
+  const plain = [], thru = [];
+  named.forEach(([lid, n]) => [['u', '上り'], ['d', '下り']].forEach(([k, t]) => plain.push(new Option(n + ' -' + t, lid + '|' + k))));
+  svcs.forEach(v => svcVariants(v).forEach(x => {
+    const f = x.rows[0].s.feature.properties.name, e = x.rows[x.rows.length - 1].s.feature.properties.name;
+    thru.push(new Option(v.name + ' -' + (x.dk === 'u' ? '上り' : '下り') + '（' + eki(f) + '→' + eki(e) + '）', x.lid + '|' + x.dk + '|' + x.cids.join(',')));
   }));
+  if (thru.length) {
+    const g1 = document.createElement('optgroup'), g2 = document.createElement('optgroup');
+    g1.label = '路線'; g2.label = '直通系統';
+    plain.forEach(o => g1.append(o)); thru.forEach(o => g2.append(o));
+    sl.append(g1, g2);
+  } else plain.forEach(o => sl.add(o));
   if (!sl.options.length) sl.add(new Option('（ホームを登録すると選べます）', ''));
   if ([...sl.options].some(o => o.value === old)) sl.value = old;
   use.line = sl.value;
