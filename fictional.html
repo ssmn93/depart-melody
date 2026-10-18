@@ -1190,10 +1190,13 @@ function saveUse() {
 function updateNext() {
   const el = $('rm-next');
   if (!cur) { el.textContent = ''; return; }
+  // スイッチで開いている駅（ホーム）までの、現在地からの直線距離
+  let curTxt = '現在駅：' + eki(cur.s.feature.properties.name);
+  if (lastPos) curTxt += '　あと' + Math.round(lastPos.ll.distanceTo(cur.s.getLatLng())).toLocaleString() + 'm';
   const name = 'st_' + cur.s.feature.properties.uid;
   const rows = [...$('use-list').querySelectorAll('.stationes')];
   const i = rows.findIndex(r => [...r.querySelectorAll('input[type=radio]')].some(x => x.name === name));
-  if (i < 0) { el.textContent = ''; return; }
+  if (i < 0) { el.textContent = curTxt; return; }
   const nx = rows.slice(i + 1).find(r => r.querySelector('input[type=radio]:checked'));
   let txt = '次駅：' + (nx ? nx.querySelector('h3').textContent : 'なし（終点）');
   // 位置情報を取得するたびに、次駅までの直線距離を「あと◯m」で更新する
@@ -1202,7 +1205,7 @@ function updateNext() {
     const ns = stations().find(x => x.feature.properties.uid === uid);
     if (ns) txt += '　あと' + Math.round(lastPos.ll.distanceTo(ns.getLatLng())).toLocaleString() + 'm';
   }
-  el.textContent = txt;
+  el.textContent = curTxt + '　／　' + txt;
 }
 function markPass() {
   $('use-list').querySelectorAll('.stationes').forEach(row => row.classList.toggle('rm-pass', !row.querySelector('input[type=radio]:checked')));
@@ -1443,14 +1446,11 @@ const AUTO_MS = 3000;        // 自動判定の間隔(ms)。短くすると切�
 const MIN_SWITCH_MS = 2000;  // ホームを切り替えたあと、次に切り替えるまでの最短間隔(ms)
 const HYST_M = 20;           // 現在の駅より何m以上近くなったら切り替えるか（駅の中間での行き来を防ぐ）
 function candidates() {
-  const cs = [...$('use-list').querySelectorAll('input[type=radio]:checked')].map(r => {
+  return [...$('use-list').querySelectorAll('input[type=radio]:checked')].map(r => {
     const s = stations().find(x => x.feature.properties.uid === r.name.slice(3));
     const q = s && s.feature.properties.platforms.find(x => x.id === r.value);
     return s && q ? { s, q } : null;
   }).filter(Boolean);
-  // いまスイッチで開いている駅・ホームも、現在地からの距離を調べる対象に含める（一覧で選んでいなくても対象にする）
-  if (cur && items.hasLayer(cur.s) && cur.s.feature.properties.platforms.includes(cur.q) && !cs.some(c => c.s === cur.s && c.q.id === cur.q.id)) cs.push({ s: cur.s, q: cur.q });
-  return cs;
 }
 function getPos(force) {
   return new Promise((res, rej) => {
