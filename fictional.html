@@ -1198,7 +1198,7 @@ function updateNext() {
   let txt = '次駅：' + (nx ? nx.querySelector('h3').textContent : 'なし（終点）');
   // 位置情報を取得するたびに、次駅までの直線距離を「あと◯m」で更新する
   if (nx && lastPos) {
-    const uid = nx.querySelector('input[type=radio]').name.slice(3);
+    const uid = nx.querySelector('input[type=radio]:checked').name.slice(3);   // 先頭のラジオは非表示の空き枠（name無し）のことがあるので、選択中のものから取る
     const ns = stations().find(x => x.feature.properties.uid === uid);
     if (ns) txt += '　あと' + Math.round(lastPos.ll.distanceTo(ns.getLatLng())).toLocaleString() + 'm';
   }
