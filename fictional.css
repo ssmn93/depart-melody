@@ -606,6 +606,7 @@ summary {
 
 #rm-stat,
 #cur,
+#rm-next,
 #hwStatus {
   font-size: 14px;
   color: #555566;
@@ -674,12 +675,6 @@ summary {
 
 .rm-card select {
   max-width: 100%;
-}
-
-#rm-next {
-  font-size: 18px;
-  font-weight: 600;
-  margin: 10px 0 0;
 }
 
 
