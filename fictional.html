@@ -1195,7 +1195,14 @@ function updateNext() {
   const i = rows.findIndex(r => [...r.querySelectorAll('input[type=radio]')].some(x => x.name === name));
   if (i < 0) { el.textContent = ''; return; }
   const nx = rows.slice(i + 1).find(r => r.querySelector('input[type=radio]:checked'));
-  el.textContent = '次駅：' + (nx ? nx.querySelector('h3').textContent : 'なし（終点）');
+  let txt = '次駅：' + (nx ? nx.querySelector('h3').textContent : 'なし（終点）');
+  // 位置情報を取得するたびに、次駅までの直線距離を「あと◯m」で更新する
+  if (nx && lastPos) {
+    const uid = nx.querySelector('input[type=radio]').name.slice(3);
+    const ns = stations().find(x => x.feature.properties.uid === uid);
+    if (ns) txt += '　あと' + Math.round(lastPos.ll.distanceTo(ns.getLatLng())).toLocaleString() + 'm';
+  }
+  el.textContent = txt;
 }
 function markPass() {
   $('use-list').querySelectorAll('.stationes').forEach(row => row.classList.toggle('rm-pass', !row.querySelector('input[type=radio]:checked')));
@@ -1510,10 +1517,11 @@ function onPos(p) {
   if ($('placeoff').checked) return;   // 「位置情報オフ」のときは、遅れて届いた測位結果も使わない
   lastPos = { ll: L.latLng(p.coords.latitude, p.coords.longitude), acc: p.coords.accuracy || 0, t: Date.now() };
   drawHere();
+  updateNext();   // 測位のたびに「あと◯m」を更新
 }
 function stopWatch() {
   if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-  watchId = null; watchGen++; lastPos = null; clearHere();   // watchGen を進めて、停止前に開始した取得の結果を無効にする
+  watchId = null; watchGen++; lastPos = null; clearHere(); updateNext();   // watchGen を進めて、停止前に開始した取得の結果を無効にする
 }
 // 「位置情報オフ」にチェックが入っていない間は、常に位置情報を連続取得して現在地を表示する
 function applyWatch() {
