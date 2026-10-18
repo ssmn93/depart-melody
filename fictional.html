@@ -1455,7 +1455,7 @@ function getPos(force) {
     if (!navigator.geolocation) return rej({ code: -1 });
     // 位置の監視中は、直近の測位結果を使う（強制受信のときは1.5秒以内のものだけ）
     if (lastPos && Date.now() - lastPos.t < (force ? 1500 : 8000)) return res(lastPos.ll);
-    navigator.geolocation.getCurrentPosition(p => res($('placeoff').checked ? null : L.latLng(p.coords.latitude, p.coords.longitude)), rej, { enableHighAccuracy: true, maximumAge: force ? 0 : 1000, timeout: 10000 });
+    navigator.geolocation.getCurrentPosition(p => { if ($('placeoff').checked) return res(null); onPos(p); res(L.latLng(p.coords.latitude, p.coords.longitude)); }, rej, { enableHighAccuracy: true, maximumAge: force ? 0 : 1000, timeout: 10000 });
   });
 }
 async function locate(force) {
