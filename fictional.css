@@ -717,3 +717,21 @@ summary {
   color: #555566;
   margin: 4px 0;
 }
+
+/* 直通（路線の接続）の設定 */
+#rm-conn {
+  border: 1px solid #b9c0c9;
+  padding: 8px 12px;
+  margin: 12px 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+#rm-conn select {
+  max-width: 100%;
+}
+
+#cn-list > div {
+  margin: 4px 0;
+  font-size: 14px;
+}
