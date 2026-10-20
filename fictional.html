@@ -1719,11 +1719,11 @@ applyWatch();
   const css = document.createElement('style');
   css.textContent = [
     '#rm-wrap{position:relative}',
-    '#railmap.rm-float{position:fixed !important;right:12px;bottom:12px;width:min(340px,80vw);height:240px;min-height:0;z-index:1500;box-shadow:0 4px 16px rgba(0,0,0,.35)}',
+    '#railmap.rm-float{position:fixed !important;right:12px;bottom:12px;width:min(340px,80vw);height:240px;min-height:0;z-index:1500;border:1px solid #b9c0c9}',
     '#railmap.rm-in-pip{width:100vw;height:100vh;min-height:0;border:0;touch-action:none}',
     '#railmap.rm-in-pip .leaflet-marker-icon{pointer-events:none !important}',
     '.rm-tri{background:none;border:0}',
-    '#rm-pipbtn{position:fixed;right:12px;bottom:12px;z-index:1600;padding:8px 14px;border:0;border-radius:20px;background:#3f7aa1;color:#fff;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}',
+    '#rm-pipbtn{position:fixed;right:12px;bottom:12px;z-index:1600;padding:10px 16px;border:0;border-radius:5px;background:#3f7aa1;color:#ffffff;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer}',
     '#rm-pipbtn.up{bottom:264px}'
   ].join('\n');
   document.head.appendChild(css);
@@ -1740,7 +1740,7 @@ applyWatch();
     $('rm-pip').textContent = on ? 'ミニ地図を戻す' : 'ミニ地図(PiP)';
     btn.hidden = !(floating || (offscreen && !pipWin));
     btn.classList.toggle('up', floating);
-    btn.textContent = floating ? '✕ ミニ地図を閉じる' : (hasDPiP ? '🗺 地図をPiPで表示' : '🗺 地図をミニ表示');
+    btn.textContent = floating ? 'ミニ地図を閉じる' : (hasDPiP ? '地図をPiPで表示' : '地図をミニ表示');
   }
 
   // 別ウィンドウ内では、Leafletのドラッグ（メインのdocumentを監視している）が使えないため、ポインタで移動を代替する
