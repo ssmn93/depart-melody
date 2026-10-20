@@ -70,6 +70,7 @@
       <button type="button" id="rm-labels">駅名表示：ON</button>
       <button type="button" id="rm-base">背景地図切替</button>
       <button type="button" id="rm-here-go">現在地へ移動</button>
+      <button type="button" id="rm-pip" title="地図を別ウィンドウ（ピクチャインピクチャ）に出して、スクロールしても見られるようにします">ミニ地図(PiP)</button>
       <span id="rm-hereinfo"></span>
       <button type="button" id="rm-export">エクスポート</button>
       <button type="button" id="rm-export-audio" title="登録した音声ファイルも一緒に書き出します（ファイルが大きくなります）">音声込みエクスポート</button>
@@ -78,7 +79,7 @@
       <input type="file" id="rm-file" accept=".geojson,.json,application/geo+json,application/json" hidden>
     </div>
     <div id="rm-hint">駅はドラッグで移動できます（つながった路線も追従）。路線をクリックすると曲がり角が表示され、ドラッグで移動できます。選択中の路線は、線上の好きな位置をクリックするか、辺の中央の小さな点をドラッグすると曲がり角を追加でき、曲がり角のダブルクリックで削除できます。路線を引くときや曲がり角を動かすときは、既存の駅や曲がり角の近く（約8〜12px以内）に吸着して同じ位置に重ねられます（描画中にAltキーを押しながらクリックすると吸着しません）。駅を置くモードで既存の駅をクリックすると、同じ位置に駅を重ねて置けます（重なった駅は、クリックするたびに選択が切り替わります）。</div>
-    <div id="railmap"></div>
+    <div id="rm-wrap"><div id="railmap"></div></div>
     <div id="rm-stat"></div>
     <div id="rm-panel" hidden>
       <div class="rm-bar"><b id="rm-kind"></b>
@@ -904,8 +905,25 @@ const draft = { pts: [], line: null, rub: null, dots: L.layerGroup().addTo(map) 
 const handles = L.layerGroup().addTo(map);
 const bends = L.layerGroup().addTo(map);   // 選択されていない路線の曲がり角（路線の色を少し濃くした小さな四角）
 const BEND_SHADE = 0.9;                    // 1に近いほど路線の色に近く、小さいほど濃くなる
-const BEND_PX = 4;                         // 四角の一辺(px)。路線の太さ(5px)をはみ出さない大きさ
-const hIcon = L.divIcon({ className: 'rm-handle', iconSize: [12, 12], iconAnchor: [6, 6] });
+const BEND_PX = 9;                         // 曲がり角の三角形の大きさ(px)
+const HANDLE_PX = 16;                      // 編集用ハンドル（三角形）の大きさ(px)
+// 曲がり角での進行方向（下り＝路線を描いた向き）を、画面上の角度(度、右向き=0、時計回りが正)で返す。
+// 曲がり角では、手前の辺と先の辺の向きの中間を向く
+function dirAngle(a, i) {
+  const v = mp(a[i]), unit = (p, q) => { const dx = q.x - p.x, dy = q.y - p.y, d = Math.hypot(dx, dy); return d ? [dx / d, dy / d] : [0, 0]; };
+  const inn = i > 0 ? unit(mp(a[i - 1]), v) : null, out = i < a.length - 1 ? unit(v, mp(a[i + 1])) : null;
+  let sx = (inn ? inn[0] : 0) + (out ? out[0] : 0), sy = (inn ? inn[1] : 0) + (out ? out[1] : 0);
+  if (Math.hypot(sx, sy) < 1e-6) { const u = inn || out || [1, 0]; sx = u[0]; sy = u[1]; }   // 真逆に折り返す場合は手前の向き
+  return Math.atan2(-sy, sx) * 180 / Math.PI;                                               // メルカトルのyは北が正なので反転
+}
+function triIcon(deg, px, fill, stroke) {
+  const st = stroke ? ' stroke="' + stroke + '" stroke-width="1" stroke-linejoin="round"' : '';
+  return L.divIcon({
+    className: 'rm-tri',
+    html: '<svg viewBox="0 0 10 10" style="width:' + px + 'px;height:' + px + 'px;padding:0;display:block;overflow:visible;transform:rotate(' + deg.toFixed(1) + 'deg)"><polygon points="9.5,5 1.5,0.8 1.5,9.2" fill="' + fill + '"' + st + '/></svg>',
+    iconSize: [px, px], iconAnchor: [px / 2, px / 2]
+  });
+}
 function syncButtons() {
   document.querySelectorAll('[data-rm]').forEach(b => b.classList.toggle('on', b.dataset.rm === mode));
   $('rm-labels').textContent = '駅名表示：' + (labelsOn ? 'ON' : 'OFF');
@@ -993,7 +1011,7 @@ function handleTargets() {
   if (!mode && sel && sel.feature.properties.kind === 'line') return lines().filter(l => l.feature.properties.lid === sel.feature.properties.lid);
   return [];
 }
-// 曲がり角ハンドルを表示していない路線の曲がり角を、路線の色を少し変えた小さな四角で示す
+// 曲がり角ハンドルを表示していない路線の曲がり角を、路線の色を少し濃くした三角形（下り＝描いた向きを指す）で示す
 function drawBends() {
   bends.clearLayers();
   const hs = new Set(handleTargets()), stPts = stations().map(s => mp(s.getLatLng()));
@@ -1002,8 +1020,7 @@ function drawBends() {
     const c = shade(ln.feature.properties.color, BEND_SHADE), a = ln.getLatLngs();
     a.forEach((v, j) => {
       if (j === 0 || j === a.length - 1 || stPts.some(q => q.distanceTo(mp(v)) < 2)) return;
-      const icon = L.divIcon({ className: 'rm-bend', html: '<span style="background:' + c + '"></span>', iconSize: [BEND_PX, BEND_PX], iconAnchor: [BEND_PX / 2, BEND_PX / 2] });
-      L.marker(v, { icon, interactive: false, keyboard: false, zIndexOffset: -500 }).addTo(bends);
+      L.marker(v, { icon: triIcon(dirAngle(a, j), BEND_PX, c), interactive: false, keyboard: false, zIndexOffset: -500 }).addTo(bends);
     });
   });
 }
@@ -1017,7 +1034,7 @@ function buildHandles() {
     const a = ln.getLatLngs();
     a.forEach((ll, i) => {
       if (stPts.some(q => q.distanceTo(mp(ll)) < 2)) return;   // 駅につながった頂点は駅をドラッグして動かす
-      const h = L.marker(ll, { draggable: true, icon: hIcon, zIndexOffset: 1000 });
+      const h = L.marker(ll, { draggable: true, icon: triIcon(dirAngle(a, i), HANDLE_PX, '#ffffff', '#3f7aa1'), zIndexOffset: 1000 });
       h.on('drag', () => { const arr = ln.getLatLngs(); arr[i] = h.getLatLng(); ln.setLatLngs(arr); });
       h.on('dragend', () => endVertex(ln, i, h.getLatLng()));
       h.on('dblclick', e => {
@@ -1694,6 +1711,117 @@ ready = true;
 pushHist();
 firstFix = !s0;
 applyWatch();
+/* ---------- ミニ地図（ピクチャインピクチャ） ----------
+   対応ブラウザ（Chrome/Edge系）では別ウィンドウに地図を出す。非対応ブラウザでは、画面の右下に小さく浮かべる。
+   ※別ウィンドウ内では地図の表示・ドラッグ移動・ズームのみ（駅や曲がり角の編集は元の地図で行う） */
+(() => {
+  const wrap = $('rm-wrap'), mapEl = $('railmap');
+  const css = document.createElement('style');
+  css.textContent = [
+    '#rm-wrap{position:relative}',
+    '#railmap.rm-float{position:fixed !important;right:12px;bottom:12px;width:min(340px,80vw);height:240px;min-height:0;z-index:1500;box-shadow:0 4px 16px rgba(0,0,0,.35)}',
+    '#railmap.rm-in-pip{width:100vw;height:100vh;min-height:0;border:0;touch-action:none}',
+    '#railmap.rm-in-pip .leaflet-marker-icon{pointer-events:none !important}',
+    '.rm-tri{background:none;border:0}',
+    '#rm-pipbtn{position:fixed;right:12px;bottom:12px;z-index:1600;padding:8px 14px;border:0;border-radius:20px;background:#3f7aa1;color:#fff;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.3)}',
+    '#rm-pipbtn.up{bottom:264px}'
+  ].join('\n');
+  document.head.appendChild(css);
+
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.id = 'rm-pipbtn'; btn.hidden = true;
+  document.body.appendChild(btn);
+
+  const hasDPiP = 'documentPictureInPicture' in window;
+  let pipWin = null, floating = false, manual = false, offscreen = false;
+
+  function sync() {
+    const on = !!(pipWin || floating);
+    $('rm-pip').textContent = on ? 'ミニ地図を戻す' : 'ミニ地図(PiP)';
+    btn.hidden = !(floating || (offscreen && !pipWin));
+    btn.classList.toggle('up', floating);
+    btn.textContent = floating ? '✕ ミニ地図を閉じる' : (hasDPiP ? '🗺 地図をPiPで表示' : '🗺 地図をミニ表示');
+  }
+
+  // 別ウィンドウ内では、Leafletのドラッグ（メインのdocumentを監視している）が使えないため、ポインタで移動を代替する
+  let pan = null, panMoved = false;
+  mapEl.addEventListener('pointerdown', e => {
+    if (!pipWin || e.button !== 0) return;
+    pan = { x: e.clientX, y: e.clientY }; panMoved = false;
+    try { mapEl.setPointerCapture(e.pointerId); } catch (x) {}
+  });
+  mapEl.addEventListener('pointermove', e => {
+    if (!pipWin || !pan) return;
+    const dx = pan.x - e.clientX, dy = pan.y - e.clientY;
+    if (!panMoved && Math.abs(dx) + Math.abs(dy) < 4) return;
+    panMoved = true; pan = { x: e.clientX, y: e.clientY };
+    map.panBy([dx, dy], { animate: false });
+  });
+  const panEnd = () => {
+    if (panMoved) {   // ドラッグの後のclickで、地図の選択解除や駅の配置が起きないようにする
+      const stop = ev => { ev.stopPropagation(); ev.preventDefault(); };
+      mapEl.addEventListener('click', stop, true);
+      setTimeout(() => mapEl.removeEventListener('click', stop, true), 0);
+    }
+    pan = null; panMoved = false;
+  };
+  mapEl.addEventListener('pointerup', panEnd);
+  mapEl.addEventListener('pointercancel', panEnd);
+
+  function closePip() {
+    if (pipWin) {
+      const w = pipWin; pipWin = null;
+      mapEl.classList.remove('rm-in-pip');
+      wrap.appendChild(mapEl);
+      map.dragging.enable();
+      try { if (!w.closed) w.close(); } catch (e) {}
+    } else if (floating) {
+      floating = false; mapEl.classList.remove('rm-float');
+    } else return;
+    manual = false; wrap.style.minHeight = '';
+    map.invalidateSize(); sync();
+  }
+
+  async function openPip(byUser) {
+    if (pipWin || floating) return;
+    manual = !!byUser;
+    wrap.style.minHeight = mapEl.offsetHeight + 'px';   // 地図が抜けても、ページの高さが変わらないようにする
+    if (hasDPiP) {
+      try {
+        const w = await window.documentPictureInPicture.requestWindow({ width: Math.max(320, Math.min(640, mapEl.offsetWidth)), height: 360 });
+        pipWin = w;
+        document.querySelectorAll('link[rel="stylesheet"], style').forEach(n => {
+          if (n.tagName === 'LINK') { const l = w.document.createElement('link'); l.rel = 'stylesheet'; l.href = n.href; w.document.head.appendChild(l); }
+          else w.document.head.appendChild(n.cloneNode(true));
+        });
+        w.document.body.style.margin = '0';
+        mapEl.classList.add('rm-in-pip');
+        w.document.body.appendChild(mapEl);
+        map.dragging.disable();
+        w.addEventListener('pagehide', closePip);
+        w.addEventListener('resize', () => map.invalidateSize());
+        setTimeout(() => map.invalidateSize(), 50);
+        sync();
+        return;
+      } catch (e) { pipWin = null; }   // 失敗したら、ページ内のミニ表示にする
+    }
+    floating = true; mapEl.classList.add('rm-float');
+    map.invalidateSize(); sync();
+  }
+
+  btn.onclick = () => { if (pipWin || floating) closePip(); else openPip(false); };
+  $('rm-pip').onclick = () => { if (pipWin || floating) closePip(); else openPip(true); };
+
+  // 元の地図が画面から外れたら案内ボタンを出し、戻ってきたらミニ地図を自動で戻す（ボタンから手動で出した場合は戻さない）
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(es => {
+      offscreen = es[0].intersectionRatio < 0.15;
+      if (!offscreen && !manual && (pipWin || floating)) closePip(); else sync();
+    }, { threshold: [0, 0.15, 1] }).observe(wrap);
+  }
+  sync();
+})();
+
 })();
 
   </script>
