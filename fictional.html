@@ -639,6 +639,7 @@ function loadGeo(geo, replace) {
     });
   }
   buildHandles();
+  markCur();
   return uidMap;
 }
 function stat() {
@@ -648,7 +649,16 @@ function pruneSvcs() {
   const ok = new Set(lineList().map(x => x.lid)), us = new Set(stations().map(x => x.feature.properties.uid));
   svcs = svcs.filter(v => v.legs.length >= 2 && v.legs.length <= MAX_LEGS && v.legs.every((g, i) => ok.has(g.lid) && (i === 0 || us.has(g.at))) && new Set(v.legs.map(g => g.lid)).size === v.legs.length);
 }
-function changed() { pruneLines(); pruneSvcs(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') { fillMsel(); updateLineInfo(); } drawBends(); }
+// いまスイッチで開いている駅の丸印を赤くする（駅が重なっている場所でも、赤い駅を手前に表示する）
+function markCur() {
+  const uid = cur && cur.s.feature.properties.uid;
+  stations().forEach(s => {
+    const on = !!uid && s.feature.properties.uid === uid, el = s.getElement && s.getElement();
+    if (el) el.classList.toggle('rm-cur', on);
+    s.setZIndexOffset(on ? 800 : 0);
+  });
+}
+function changed() { pruneLines(); pruneSvcs(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') { fillMsel(); updateLineInfo(); } drawBends(); markCur(); }
 
 /* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
 let splitLid = null;
@@ -1583,6 +1593,7 @@ async function show(s, q, notify) {
   bell.method = q.method;
   $('sw').hidden = false;
   updateNext();
+  markCur();
   $('jr_svg').style.display = q.method === 'full' ? 'none' : 'block';
   $('metro_svg').style.display = q.method === 'full' ? 'block' : 'none';
   $('cur').textContent = '現在: ' + eki(s.feature.properties.name) + '　' + (q.no || '?') + '番線（' + METHODS[q.method][0] + '）';
