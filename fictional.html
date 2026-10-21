@@ -16,41 +16,24 @@
   <title>くうそうステーションベル</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    /* 現在地の追跡ボタン（スマホでも押しやすい大きさ） */
-    #rm-here-go { min-height: 44px; padding: 8px 14px; font-size: 15px; touch-action: manipulation; }
+    /* 現在地の追跡ボタン（大きさは他のボタンと同じ。ONのときだけ色を付ける） */
+    #rm-here-go { touch-action: manipulation; }
     #rm-here-go.on { background-color: #3f7aa1; color: #ffffff; }
 
     /* ミニ地図内の操作ボタン（ミニ表示のときだけ出る） */
-    #railmap .rm-mctl, #railmap .rm-rz, #railmap .rm-move { display: none; }
-    #railmap.rm-float .rm-mctl { display: flex; position: absolute; top: 20px; left: 22px; right: 22px; z-index: 1300; gap: 5px; align-items: center; pointer-events: none; }
+    #railmap .rm-mctl, #railmap .rm-move { display: none; }
+    #railmap.rm-float .rm-mctl { display: flex; position: absolute; top: 6px; left: 6px; right: 6px; z-index: 1300; gap: 5px; align-items: center; pointer-events: none; }
     #railmap.rm-float .rm-mctl button { pointer-events: auto; min-width: 44px; height: 44px; padding: 0 6px; border: 1px solid #8a96a3; border-radius: 8px; background: rgba(255,255,255,0.92); color: #222222; font-size: 13px; font-weight: 600; font-family: inherit; line-height: 1; cursor: pointer; touch-action: manipulation; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
     #railmap.rm-float .rm-mctl button.on { background: #3f7aa1; color: #ffffff; border-color: #2c5a78; }
     #railmap.rm-float .rm-mctl .rm-mclose { margin-left: auto; font-size: 20px; }
     /* 移動用の持ち手（ドラッグでミニ地図ごと動かす） */
-    #railmap.rm-float .rm-move { display: flex; position: absolute; left: 22px; bottom: 20px; width: 56px; height: 40px; z-index: 1300; align-items: center; justify-content: center; border: 1px solid #8a96a3; border-radius: 8px; background: rgba(255,255,255,0.92); color: #3f7aa1; font-size: 22px; line-height: 1; cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    #railmap.rm-float .rm-move { display: flex; position: absolute; left: 6px; bottom: 6px; width: 56px; height: 40px; z-index: 1300; align-items: center; justify-content: center; border: 1px solid #8a96a3; border-radius: 8px; background: rgba(255,255,255,0.92); color: #3f7aa1; font-size: 22px; line-height: 1; cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
     /* ミニ表示中は、ズームボタンを大きくしてツールバーの下へ */
-    #railmap.rm-float .leaflet-top .leaflet-control { margin-top: 74px; }
-    #railmap.rm-float .leaflet-left .leaflet-control { margin-left: 22px; }
+    #railmap.rm-float .leaflet-top .leaflet-control { margin-top: 58px; }
+    #railmap.rm-float .leaflet-left .leaflet-control { margin-left: 6px; }
     #railmap.rm-float .leaflet-control-zoom a { width: 40px; height: 40px; line-height: 40px; font-size: 24px; }
     #railmap.rm-float .leaflet-bottom.leaflet-right .leaflet-control { margin-right: 20px; margin-bottom: 16px; }
     #railmap.rm-float .leaflet-control-attribution { font-size: 10px; max-width: 70%; }
-
-    /* 大きさ変更用のつまみ（辺4か所＋角4か所。指でドラッグ） */
-    #railmap .rm-rz { position: absolute; z-index: 1400; touch-action: none; }
-    #railmap.rm-float .rm-rz { display: block; }
-    .rm-rz::after { content: ""; position: absolute; background: rgba(63,122,161,0.8); border-radius: 3px; }
-    .rm-rz-n, .rm-rz-s { left: 28px; right: 28px; height: 18px; cursor: ns-resize; }
-    .rm-rz-n { top: 0; } .rm-rz-s { bottom: 0; }
-    .rm-rz-n::after, .rm-rz-s::after { left: 50%; top: 6px; width: 36px; height: 5px; transform: translateX(-50%); }
-    .rm-rz-e, .rm-rz-w { top: 28px; bottom: 28px; width: 18px; cursor: ew-resize; }
-    .rm-rz-e { right: 0; } .rm-rz-w { left: 0; }
-    .rm-rz-e::after, .rm-rz-w::after { top: 50%; left: 6px; width: 5px; height: 36px; transform: translateY(-50%); }
-    .rm-rz-ne, .rm-rz-nw, .rm-rz-se, .rm-rz-sw { width: 28px; height: 28px; }
-    .rm-rz-ne { top: 0; right: 0; cursor: nesw-resize; } .rm-rz-nw { top: 0; left: 0; cursor: nwse-resize; }
-    .rm-rz-se { bottom: 0; right: 0; cursor: nwse-resize; } .rm-rz-sw { bottom: 0; left: 0; cursor: nesw-resize; }
-    .rm-rz-ne::after, .rm-rz-nw::after, .rm-rz-se::after, .rm-rz-sw::after { width: 10px; height: 10px; border-radius: 50%; }
-    .rm-rz-ne::after { top: 6px; right: 6px; } .rm-rz-nw::after { top: 6px; left: 6px; }
-    .rm-rz-se::after { bottom: 6px; right: 6px; } .rm-rz-sw::after { bottom: 6px; left: 6px; }
   </style>
 </head>
 <body>
@@ -1883,7 +1866,7 @@ applyWatch();
   $('rm-labels').addEventListener('click', syncMini);
   syncMini();
 
-  // ---- ミニ地図の大きさ変更（4辺・4角のつまみをドラッグ。マウスでもスマホの指でも可） ----
+  // ---- ミニ地図の位置・大きさ ----
   const MIN_W = 240, MIN_H = 220;
   let mini = null, rz = null, rzRaf = 0;   // mini: ミニ地図の位置と大きさ（画面上のpx）
   try { const j = JSON.parse(localStorage.getItem('railMiniRect')); if (j && [j.l, j.t, j.w, j.h].every(Number.isFinite)) mini = j; } catch (e) {}
@@ -1902,37 +1885,6 @@ applyWatch();
     if (rzRaf) return;
     rzRaf = requestAnimationFrame(() => { rzRaf = 0; map.invalidateSize(); });
   }
-  ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].forEach(d => {
-    const h = document.createElement('div');
-    h.className = 'rm-rz rm-rz-' + d;
-    mapEl.appendChild(h);
-    L.DomEvent.disableClickPropagation(h);
-    h.addEventListener('pointerdown', e => {
-      if (kind !== 'float' || !inMini || (e.pointerType === 'mouse' && e.button !== 0)) return;
-      e.preventDefault(); e.stopPropagation();
-      try { h.setPointerCapture(e.pointerId); } catch (x) {}
-      rz = { id: e.pointerId, x: e.clientX, y: e.clientY, o: { ...mini } };
-    });
-    h.addEventListener('pointermove', e => {
-      if (!rz || rz.id !== e.pointerId) return;
-      const o = rz.o, dx = e.clientX - rz.x, dy = e.clientY - rz.y, W = vw(), H = vh();
-      const minW = Math.min(MIN_W, W), minH = Math.min(MIN_H, H);
-      let l = o.l, t = o.t, w = o.w, ht = o.h;
-      if (d.includes('e')) w = Math.max(minW, Math.min(o.w + dx, W - o.l));
-      if (d.includes('w')) { const right = o.l + o.w; w = Math.max(minW, Math.min(o.w - dx, right)); l = right - w; }
-      if (d.includes('s')) ht = Math.max(minH, Math.min(o.h + dy, H - o.t));
-      if (d.includes('n')) { const bottom = o.t + o.h; ht = Math.max(minH, Math.min(o.h - dy, bottom)); t = bottom - ht; }
-      mini = { l, t, w, h: ht };
-      applyMini(); refreshMap();
-    });
-    const end = e => {
-      if (!rz || rz.id !== e.pointerId) return;
-      rz = null; map.invalidateSize();
-      try { localStorage.setItem('railMiniRect', JSON.stringify(mini)); } catch (x) {}
-    };
-    h.addEventListener('pointerup', end);
-    h.addEventListener('pointercancel', end);
-  });
   // ---- 移動用の持ち手（ドラッグでミニ地図を動かす） ----
   const mv = document.createElement('div');
   mv.className = 'rm-move'; mv.textContent = '✥'; mv.title = 'ドラッグでミニ地図を移動';
