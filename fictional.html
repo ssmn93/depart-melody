@@ -1654,6 +1654,7 @@ function stopAll() {
 }
 async function show(s, q, notify) {
   cur = { s, q };
+  lsSet('railCurHome', { uid: s.feature.properties.uid, pid: q.id });   // 再読み込み後も同じホームを開けるよう記録
   stopAll();
   urls.forEach(u => URL.revokeObjectURL(u)); urls = [];
   const uid = s.feature.properties.uid;
@@ -1793,6 +1794,13 @@ ready = true;
 pushHist();
 firstFix = !s0;
 applyWatch();
+// 再読み込み前にスイッチで開いていたホームを開き直す（駅やホームが無くなっていれば何もしない）
+{
+  const h0 = lsGet('railCurHome');
+  const hs = h0 && stations().find(x => x.feature.properties.uid === h0.uid);
+  const hq = hs && (hs.feature.properties.platforms || []).find(x => x.id === h0.pid);
+  if (hs && hq) show(hs, hq, false).then(() => { lastSw = Date.now(); startAuto(); });
+}
 /* ---------- ミニ地図（ピクチャインピクチャ） ----------
    一度オンにすると、閉じるまでは「元の地図が画面から外れたらミニ地図に移り、元の位置に戻ったら元の地図に戻る」を繰り返す。
    対応ブラウザ（Chrome/Edge系）では別ウィンドウ、非対応ブラウザでは画面右下の小さな地図になる。
