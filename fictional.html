@@ -355,6 +355,8 @@ if (typeof L === 'undefined') { $('rm-stat').textContent = '地図ライブラ�
 const map = L.map('railmap').setView([35.68, 139.76], 11);
 const items = L.featureGroup().addTo(map);
 const dot = L.divIcon({ className: 'rm-dot', iconSize: [16, 16], iconAnchor: [8, 8] });
+let pipBase = null, pipNoOsm = false;   // 別ウィンドウ表示中：一時的に切り替える前の背景地図／OSMを選べない状態
+const isOsm = i => /openstreetmap\.org/.test(BASES[i].url);
 let base = 0, baseLayer, labelsOn = true, mode = null, sel = null, ready = false, timer;
 const stations = () => items.getLayers().filter(l => l.feature.properties.kind === 'station');
 const lines = () => items.getLayers().filter(l => l.feature.properties.kind === 'line');
@@ -741,7 +743,18 @@ function renderPlats() {
     const opn = document.createElement('button');
     opn.type = 'button'; opn.textContent = 'このホームを開く'; opn.title = '駅メロ操作のスイッチを、このホームで表示します';
     opn.onclick = () => openPlatform(sel, q);
-    r1.append(no,
+    const pi = st.platforms.indexOf(q);
+    const mv = d => {
+      const j = pi + d;
+      if (j < 0 || j >= st.platforms.length) return;
+      [st.platforms[pi], st.platforms[j]] = [st.platforms[j], st.platforms[pi]];
+      renderPlats(); changed();
+    };
+    const up = document.createElement('button'), down = document.createElement('button');
+    up.type = down.type = 'button';
+    up.textContent = '↑'; up.title = 'このホームを上へ'; up.disabled = pi === 0; up.onclick = () => mv(-1);
+    down.textContent = '↓'; down.title = 'このホームを下へ'; down.disabled = pi === st.platforms.length - 1; down.onclick = () => mv(1);
+    r1.append(no, up, down,
       mk(Object.entries(METHODS).map(([k, v]) => [k, v[0]]), q.method, v => { q.method = v; renderPlats(); changed(); applyIfCurrent(q); }),
       opn, del);
     card.append(r1);
@@ -1098,7 +1111,12 @@ document.addEventListener('keydown', e => {
   if (mode !== 'line' || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
   if (e.key === 'Escape') clearDraft(); else if (e.key === 'Enter') finishLine();
 });
-$('rm-base').onclick = () => { setBase((base + 1) % BASES.length); queueSave(); };
+$('rm-base').onclick = () => {
+  let n = (base + 1) % BASES.length;
+  if (pipNoOsm && isOsm(n)) n = (n + 1) % BASES.length;   // 別ウィンドウに地図がある間は、OpenStreetMapを選ばない
+  if (pipNoOsm) pipBase = null;                              // 自分で選んだ背景地図を、そのまま残す
+  setBase(n); queueSave();
+};
 $('rm-labels').onclick = () => { labelsOn = !labelsOn; syncButtons(); queueSave(); };
 function download(obj, suffix) {
   const a = document.createElement('a');
@@ -1201,7 +1219,7 @@ function saveNow() {
   if (!ready) return;
   pushHist();
   const c = map.getCenter();
-  lsSet('railMapState', { v: 2, geojson: withSvcs(items.toGeoJSON()), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
+  lsSet('railMapState', { v: 2, geojson: withSvcs(items.toGeoJSON()), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base: pipBase !== null ? pipBase : base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
 }
 map.on('moveend', queueSave);
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
@@ -1732,13 +1750,13 @@ applyWatch();
   const css = document.createElement('style');
   css.textContent = [
     '#rm-wrap{position:relative}',
-    '#railmap.rm-float{position:fixed !important;right:12px;bottom:12px;width:min(340px,80vw);height:240px;min-height:0;z-index:1500;border:1px solid #b9c0c9}',
+    '#railmap.rm-float{position:fixed !important;right:12px;bottom:12px;width:min(260px,70vw);height:180px;min-height:0;z-index:1500;border:1px solid #b9c0c9}',
     '#railmap.rm-in-pip{width:100vw;height:100vh;min-height:0;border:0;touch-action:none}',
     '#railmap.rm-in-pip .leaflet-marker-icon{pointer-events:none !important}',
     '.rm-tri{background:none;border:0}',
     '.rm-pipnote{padding:16px;font-size:14px;color:#555566}',
     '#rm-pipbtn{position:fixed;right:12px;bottom:12px;z-index:1600;padding:10px 16px;border:0;border-radius:5px;background:#3f7aa1;color:#ffffff;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer}',
-    '#rm-pipbtn.up{bottom:264px}'
+    '#rm-pipbtn.up{bottom:204px}'
   ].join('\n');
   document.head.appendChild(css);
 
@@ -1746,7 +1764,7 @@ applyWatch();
   btn.type = 'button'; btn.id = 'rm-pipbtn'; btn.hidden = true;
   document.body.appendChild(btn);
 
-  const hasDPiP = 'documentPictureInPicture' in window;
+  const hasDPiP = false;   // 別ウィンドウ(Document PiP)では、OpenStreetMapのタイルが参照元なしでブロックされるため使わず、常にページ内のミニ表示にする
   let kind = null;          // null=オフ / 'pip'=別ウィンドウ / 'float'=ページ内のミニ表示
   let pipWin = null, inMini = false, offscreen = false;
 
@@ -1801,6 +1819,9 @@ applyWatch();
       mapEl.classList.add('rm-in-pip');
       pipWin.document.body.replaceChildren(mapEl);
       map.dragging.disable();
+      // 別ウィンドウは参照元(Referer)なしでタイルを取得するため、OpenStreetMapに「Access blocked」にされる。参照元が不要な地理院地図に切り替える
+      pipNoOsm = true;
+      if (isOsm(base)) { pipBase = base; setBase(BASES.findIndex((b, i) => !isOsm(i))); }
     } else mapEl.classList.add('rm-float');
     inMini = true;
     map.invalidateSize(); setTimeout(() => map.invalidateSize(), 50); sync();
@@ -1810,7 +1831,11 @@ applyWatch();
   function hideMini() {
     if (!kind || !inMini) return;
     mapEl.classList.remove('rm-in-pip', 'rm-float');
-    if (kind === 'pip') { wrap.appendChild(mapEl); map.dragging.enable(); pipNote(); }
+    if (kind === 'pip') {
+      wrap.appendChild(mapEl); map.dragging.enable(); pipNote();
+      pipNoOsm = false;
+      if (pipBase !== null) { setBase(pipBase); pipBase = null; }   // 元の背景地図へ戻す
+    }
     wrap.style.minHeight = '';
     inMini = false;
     map.invalidateSize(); sync();
@@ -1830,7 +1855,7 @@ applyWatch();
     if (kind) return;
     if (hasDPiP) {
       try {
-        const w = await window.documentPictureInPicture.requestWindow({ width: Math.max(320, Math.min(640, mapEl.offsetWidth)), height: 360 });
+        const w = await window.documentPictureInPicture.requestWindow({ width: Math.max(240, Math.min(400, mapEl.offsetWidth)), height: 250 });
         document.querySelectorAll('link[rel="stylesheet"], style').forEach(n => {
           if (n.tagName === 'LINK') { const l = w.document.createElement('link'); l.rel = 'stylesheet'; l.href = n.href; w.document.head.appendChild(l); }
           else w.document.head.appendChild(n.cloneNode(true));
