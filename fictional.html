@@ -1621,7 +1621,10 @@ function applyWatch() {
 }
 // 現在地の追跡：ONの間は測位のたびに地図を現在地へ動かし、OFFで追跡をやめる。メイン画面のボタンとミニ地図内のボタンで共有する
 const followHooks = [];
+const savedFollow = lsGet('railFollow') === true;   // 再読み込み前の追跡ON/OFF
+let followSave = false;                              // 起動時の初期描画で、保存値を上書きしないための印
 function syncFollow() {
+  if (followSave) lsSet('railFollow', followOn);
   const b = $('rm-here-go');
   b.textContent = '現在地を追跡：' + (followOn ? 'ON' : 'OFF');
   b.classList.toggle('on', followOn);
@@ -1801,6 +1804,9 @@ applyWatch();
   const hq = hs && (hs.feature.properties.platforms || []).find(x => x.id === h0.pid);
   if (hs && hq) show(hs, hq, false).then(() => { lastSw = Date.now(); startAuto(); });
 }
+// 再読み込み前に追跡がONだったら、ONに戻す（位置情報オフ・非対応のときはOFFのまま）
+if (savedFollow) setFollow(true);
+followSave = true;
 /* ---------- ミニ地図（ピクチャインピクチャ） ----------
    一度オンにすると、閉じるまでは「元の地図が画面から外れたらミニ地図に移り、元の位置に戻ったら元の地図に戻る」を繰り返す。
    対応ブラウザ（Chrome/Edge系）では別ウィンドウ、非対応ブラウザでは画面右下の小さな地図になる。
@@ -2009,6 +2015,7 @@ applyWatch();
     const w = pipWin;
     kind = null; pipWin = null; inMini = false;
     try { if (w && !w.closed) w.close(); } catch (e) {}
+    lsSet('railMini', false);
     sync();
   }
 
@@ -2030,6 +2037,7 @@ applyWatch();
       } catch (e) { pipWin = null; kind = null; }   // 失敗したら、ページ内のミニ表示にする
     }
     kind = 'float'; showMini();
+    lsSet('railMini', true);
   }
 
   btn.onclick = () => { if (kind) stop(); else start(); };
@@ -2046,6 +2054,7 @@ applyWatch();
     }, { threshold: [0, 0.15, 1] }).observe(wrap);
   }
   sync();
+  if (lsGet('railMini') === true) start();   // 再読み込み前にミニ地図がONだったら、ONに戻す
 })();
 
 })();
