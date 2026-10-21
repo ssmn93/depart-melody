@@ -1878,7 +1878,7 @@ applyWatch();
   syncMini();
 
   // ---- ミニ地図の大きさ変更（地図の4辺・4角を直接ドラッグ。マウスでもスマホの指でも可） ----
-  const MIN_W = 240, MIN_H = 220;
+  const MIN_W = 240, MIN_H = 200;
   let mini = null, rz = null, rzRaf = 0;   // mini: ミニ地図の位置と大きさ（画面上のpx）
   try { const j = JSON.parse(localStorage.getItem('railMiniRect')); if (j && [j.l, j.t, j.w, j.h].every(Number.isFinite)) mini = j; } catch (e) {}
   const vw = () => document.documentElement.clientWidth, vh = () => window.innerHeight;
