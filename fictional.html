@@ -15,6 +15,43 @@
   <meta property="og:site_name" content="くうそうステーションベル">
   <title>くうそうステーションベル</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    /* 現在地の追跡ボタン（スマホでも押しやすい大きさ） */
+    #rm-here-go { min-height: 44px; padding: 8px 14px; font-size: 15px; touch-action: manipulation; }
+    #rm-here-go.on { background-color: #3f7aa1; color: #ffffff; }
+
+    /* ミニ地図内の操作ボタン（ミニ表示のときだけ出る） */
+    #railmap .rm-mctl, #railmap .rm-rz, #railmap .rm-move { display: none; }
+    #railmap.rm-float .rm-mctl { display: flex; position: absolute; top: 20px; left: 22px; right: 22px; z-index: 1300; gap: 5px; align-items: center; pointer-events: none; }
+    #railmap.rm-float .rm-mctl button { pointer-events: auto; min-width: 44px; height: 44px; padding: 0 6px; border: 1px solid #8a96a3; border-radius: 8px; background: rgba(255,255,255,0.92); color: #222222; font-size: 13px; font-weight: 600; font-family: inherit; line-height: 1; cursor: pointer; touch-action: manipulation; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    #railmap.rm-float .rm-mctl button.on { background: #3f7aa1; color: #ffffff; border-color: #2c5a78; }
+    #railmap.rm-float .rm-mctl .rm-mclose { margin-left: auto; font-size: 20px; }
+    /* 移動用の持ち手（ドラッグでミニ地図ごと動かす） */
+    #railmap.rm-float .rm-move { display: flex; position: absolute; left: 22px; bottom: 20px; width: 56px; height: 40px; z-index: 1300; align-items: center; justify-content: center; border: 1px solid #8a96a3; border-radius: 8px; background: rgba(255,255,255,0.92); color: #3f7aa1; font-size: 22px; line-height: 1; cursor: move; touch-action: none; user-select: none; -webkit-user-select: none; box-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+    /* ミニ表示中は、ズームボタンを大きくしてツールバーの下へ */
+    #railmap.rm-float .leaflet-top .leaflet-control { margin-top: 74px; }
+    #railmap.rm-float .leaflet-left .leaflet-control { margin-left: 22px; }
+    #railmap.rm-float .leaflet-control-zoom a { width: 40px; height: 40px; line-height: 40px; font-size: 24px; }
+    #railmap.rm-float .leaflet-bottom.leaflet-right .leaflet-control { margin-right: 20px; margin-bottom: 16px; }
+    #railmap.rm-float .leaflet-control-attribution { font-size: 10px; max-width: 70%; }
+
+    /* 大きさ変更用のつまみ（辺4か所＋角4か所。指でドラッグ） */
+    #railmap .rm-rz { position: absolute; z-index: 1400; touch-action: none; }
+    #railmap.rm-float .rm-rz { display: block; }
+    .rm-rz::after { content: ""; position: absolute; background: rgba(63,122,161,0.8); border-radius: 3px; }
+    .rm-rz-n, .rm-rz-s { left: 28px; right: 28px; height: 18px; cursor: ns-resize; }
+    .rm-rz-n { top: 0; } .rm-rz-s { bottom: 0; }
+    .rm-rz-n::after, .rm-rz-s::after { left: 50%; top: 6px; width: 36px; height: 5px; transform: translateX(-50%); }
+    .rm-rz-e, .rm-rz-w { top: 28px; bottom: 28px; width: 18px; cursor: ew-resize; }
+    .rm-rz-e { right: 0; } .rm-rz-w { left: 0; }
+    .rm-rz-e::after, .rm-rz-w::after { top: 50%; left: 6px; width: 5px; height: 36px; transform: translateY(-50%); }
+    .rm-rz-ne, .rm-rz-nw, .rm-rz-se, .rm-rz-sw { width: 28px; height: 28px; }
+    .rm-rz-ne { top: 0; right: 0; cursor: nesw-resize; } .rm-rz-nw { top: 0; left: 0; cursor: nwse-resize; }
+    .rm-rz-se { bottom: 0; right: 0; cursor: nwse-resize; } .rm-rz-sw { bottom: 0; left: 0; cursor: nesw-resize; }
+    .rm-rz-ne::after, .rm-rz-nw::after, .rm-rz-se::after, .rm-rz-sw::after { width: 10px; height: 10px; border-radius: 50%; }
+    .rm-rz-ne::after { top: 6px; right: 6px; } .rm-rz-nw::after { top: 6px; left: 6px; }
+    .rm-rz-se::after { bottom: 6px; right: 6px; } .rm-rz-sw::after { bottom: 6px; left: 6px; }
+  </style>
 </head>
 <body>
   <header>
@@ -69,7 +106,7 @@
     <div class="rm-bar">
       <button type="button" id="rm-labels">駅名表示：ON</button>
       <button type="button" id="rm-base">背景地図切替</button>
-      <button type="button" id="rm-here-go">現在地へ移動</button>
+      <button type="button" id="rm-here-go" aria-pressed="false" title="ONの間、現在地に合わせて地図が自動で動きます。OFFで追跡をやめます">現在地を追跡：OFF</button>
       <button type="button" id="rm-pip" title="地図を別ウィンドウ（ピクチャインピクチャ）に出して、スクロールしても見られるようにします">ミニ地図(PiP)</button>
       <span id="rm-hereinfo"></span>
       <button type="button" id="rm-export">エクスポート</button>
@@ -293,7 +330,6 @@
         <li><a href="https://dkst.net/ikst/ikst.html">IKST動静</a></li>
         <li><a href="https://dkst.net/custom.html">カスタムステーションベル</a></li>
         <li><a href="https://dkst.net/locate.html">ここからステーションベル</a></li>
-        <li><a href="https://dkst.net/fictional.html">くうそうステーションベル</a></li>
         <li><a href="https://dkst.net/fictional.html">くうそうステーションベル</a></li>
         <li><a href="https://status.dkst.net">ステータス</a></li>
       </ul>
@@ -1547,7 +1583,7 @@ $('forceReceiveBtn').onclick = async () => {
 };
 
 /* ---------- 現在地の表示（常時ON。位置情報を連続取得） ---------- */
-let watchId = null, watchGen = 0, lastPos = null, hereDot = null, hereAcc = null, firstFix = false, denied = false;
+let watchId = null, watchGen = 0, lastPos = null, hereDot = null, hereAcc = null, firstFix = false, denied = false, followOn = false;
 function clearHere() {
   if (hereDot) { map.removeLayer(hereDot); map.removeLayer(hereAcc); hereDot = hereAcc = null; }
   $('rm-hereinfo').textContent = '';
@@ -1560,6 +1596,7 @@ function drawHere() {
   } else { hereDot.setLatLng(lastPos.ll); hereAcc.setLatLng(lastPos.ll); hereAcc.setRadius(lastPos.acc); }
   $('rm-hereinfo').textContent = '';
   if (firstFix) { firstFix = false; map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); }
+  else if (followOn) map.panTo(lastPos.ll, { animate: true, duration: 0.5 });   // 追跡ON：測位のたびに現在地へ
 }
 function onPos(p) {
   if ($('placeoff').checked) return;   // 「位置情報オフ」のときは、遅れて届いた測位結果も使わない
@@ -1570,6 +1607,7 @@ function onPos(p) {
 function stopWatch() {
   if (watchId !== null) navigator.geolocation.clearWatch(watchId);
   watchId = null; watchGen++; lastPos = null; clearHere(); updateNext();   // watchGen を進めて、停止前に開始した取得の結果を無効にする
+  followOn = false; syncFollow();   // 測位が止まったら追跡もOFFに
 }
 // 「位置情報オフ」にチェックが入っていない間は、常に位置情報を連続取得して現在地を表示する
 function applyWatch() {
@@ -1587,7 +1625,28 @@ function applyWatch() {
   if (off) $('rm-hereinfo').textContent = '位置情報オフ';
   else if (!ok) $('rm-hereinfo').textContent = 'このブラウザは位置情報に対応していません';
 }
-$('rm-here-go').onclick = () => { if (lastPos) map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); };
+// 現在地の追跡：ONの間は測位のたびに地図を現在地へ動かし、OFFで追跡をやめる。メイン画面のボタンとミニ地図内のボタンで共有する
+const followHooks = [];
+function syncFollow() {
+  const b = $('rm-here-go');
+  b.textContent = '現在地を追跡：' + (followOn ? 'ON' : 'OFF');
+  b.classList.toggle('on', followOn);
+  b.setAttribute('aria-pressed', followOn ? 'true' : 'false');
+  if (followOn) map.dragging.disable(); else map.dragging.enable();   // 追跡中は地図を指で動かせない（動かすには追跡をOFFにする）
+  followHooks.forEach(f => f());
+}
+function setFollow(on) {
+  followOn = !!on;
+  if (followOn) {
+    denied = false; applyWatch();   // 許可されていなかった場合も、もう一度試す
+    if ($('placeoff').checked || !('geolocation' in navigator)) followOn = false;   // 位置情報オフ・非対応のときは追跡できない
+    else if (lastPos) map.setView(lastPos.ll, Math.max(map.getZoom(), 15));
+    else firstFix = true;   // 最初の測位結果が届いたら現在地へ移動する
+  }
+  syncFollow();
+}
+$('rm-here-go').onclick = () => setFollow(!followOn);
+syncFollow();
 $('placeoff').addEventListener('change', () => { denied = false; applyWatch(); });
 
 /* ---------- 駅メロ再生（カスタムステーションベルの方式を移植） ---------- */
@@ -1750,13 +1809,12 @@ applyWatch();
   const css = document.createElement('style');
   css.textContent = [
     '#rm-wrap{position:relative}',
-    '#railmap.rm-float{position:fixed !important;right:12px;bottom:12px;width:min(260px,70vw);height:180px;min-height:0;z-index:1500;border:1px solid #b9c0c9}',
+    '#railmap.rm-float{position:fixed !important;min-height:0;z-index:1500;border:2px solid #3f7aa1;border-radius:8px;box-sizing:border-box;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.35)}',
     '#railmap.rm-in-pip{width:100vw;height:100vh;min-height:0;border:0;touch-action:none}',
     '#railmap.rm-in-pip .leaflet-marker-icon{pointer-events:none !important}',
     '.rm-tri{background:none;border:0}',
     '.rm-pipnote{padding:16px;font-size:14px;color:#555566}',
-    '#rm-pipbtn{position:fixed;right:12px;bottom:12px;z-index:1600;padding:10px 16px;border:0;border-radius:5px;background:#3f7aa1;color:#ffffff;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer}',
-    '#rm-pipbtn.up{bottom:204px}'
+    '#rm-pipbtn{position:fixed;right:12px;bottom:12px;z-index:1600;min-height:44px;padding:0 18px;border:0;border-radius:8px;background:#3f7aa1;color:#ffffff;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;touch-action:manipulation}'
   ].join('\n');
   document.head.appendChild(css);
 
@@ -1770,8 +1828,7 @@ applyWatch();
 
   function sync() {
     $('rm-pip').textContent = kind ? 'ミニ地図を閉じる' : 'ミニ地図(PiP)';
-    btn.hidden = kind === 'pip' || !(kind === 'float' || offscreen);
-    btn.classList.toggle('up', kind === 'float' && inMini);
+    btn.hidden = kind === 'pip' || (kind === 'float' && inMini) || !(kind === 'float' || offscreen);
     btn.textContent = kind === 'float' ? 'ミニ地図を閉じる' : (hasDPiP ? '地図をPiPで表示' : '地図をミニ表示');
   }
 
@@ -1801,6 +1858,107 @@ applyWatch();
   mapEl.addEventListener('pointerup', panEnd);
   mapEl.addEventListener('pointercancel', panEnd);
 
+  // ---- ミニ地図内の操作ボタン（追跡・駅名・背景・閉じる） ----
+  const ctl = document.createElement('div');
+  ctl.className = 'rm-mctl';
+  const mk = (txt, cls, title, fn) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = txt; b.title = title; b.setAttribute('aria-label', title);
+    if (cls) b.className = cls;
+    b.onclick = fn; ctl.appendChild(b); return b;
+  };
+  const bFollow = mk('追跡', '', '現在地を追跡（ONの間、地図が現在地に合わせて動きます）', () => setFollow(!followOn));
+  const bLabel = mk('駅名', '', '駅名の表示／非表示', () => $('rm-labels').click());
+  mk('背景', '', '背景地図を切り替え', () => $('rm-base').click());
+  mk('✕', 'rm-mclose', 'ミニ地図を閉じる', () => stop());
+  mapEl.appendChild(ctl);
+  L.DomEvent.disableClickPropagation(ctl);
+  L.DomEvent.disableScrollPropagation(ctl);
+  function syncMini() {
+    bFollow.classList.toggle('on', followOn);
+    bFollow.setAttribute('aria-pressed', followOn ? 'true' : 'false');
+    bLabel.classList.toggle('on', /ON$/.test($('rm-labels').textContent));
+  }
+  followHooks.push(syncMini);
+  $('rm-labels').addEventListener('click', syncMini);
+  syncMini();
+
+  // ---- ミニ地図の大きさ変更（4辺・4角のつまみをドラッグ。マウスでもスマホの指でも可） ----
+  const MIN_W = 240, MIN_H = 220;
+  let mini = null, rz = null, rzRaf = 0;   // mini: ミニ地図の位置と大きさ（画面上のpx）
+  try { const j = JSON.parse(localStorage.getItem('railMiniRect')); if (j && [j.l, j.t, j.w, j.h].every(Number.isFinite)) mini = j; } catch (e) {}
+  const vw = () => document.documentElement.clientWidth, vh = () => window.innerHeight;
+  function applyMini() {
+    if (!mini) { const w = Math.min(300, vw() - 24), h = Math.min(240, vh() - 24); mini = { w, h, l: vw() - w - 12, t: vh() - h - 12 }; }
+    mini.w = Math.max(Math.min(MIN_W, vw()), Math.min(mini.w, vw()));
+    mini.h = Math.max(Math.min(MIN_H, vh()), Math.min(mini.h, vh()));
+    mini.l = Math.max(0, Math.min(mini.l, vw() - mini.w));
+    mini.t = Math.max(0, Math.min(mini.t, vh() - mini.h));
+    const st = mapEl.style;
+    st.left = mini.l + 'px'; st.top = mini.t + 'px'; st.width = mini.w + 'px'; st.height = mini.h + 'px'; st.right = 'auto'; st.bottom = 'auto';
+  }
+  function clearMiniStyle() { ['left', 'top', 'width', 'height', 'right', 'bottom'].forEach(k => { mapEl.style[k] = ''; }); }
+  function refreshMap() {
+    if (rzRaf) return;
+    rzRaf = requestAnimationFrame(() => { rzRaf = 0; map.invalidateSize(); });
+  }
+  ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'].forEach(d => {
+    const h = document.createElement('div');
+    h.className = 'rm-rz rm-rz-' + d;
+    mapEl.appendChild(h);
+    L.DomEvent.disableClickPropagation(h);
+    h.addEventListener('pointerdown', e => {
+      if (kind !== 'float' || !inMini || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      e.preventDefault(); e.stopPropagation();
+      try { h.setPointerCapture(e.pointerId); } catch (x) {}
+      rz = { id: e.pointerId, x: e.clientX, y: e.clientY, o: { ...mini } };
+    });
+    h.addEventListener('pointermove', e => {
+      if (!rz || rz.id !== e.pointerId) return;
+      const o = rz.o, dx = e.clientX - rz.x, dy = e.clientY - rz.y, W = vw(), H = vh();
+      const minW = Math.min(MIN_W, W), minH = Math.min(MIN_H, H);
+      let l = o.l, t = o.t, w = o.w, ht = o.h;
+      if (d.includes('e')) w = Math.max(minW, Math.min(o.w + dx, W - o.l));
+      if (d.includes('w')) { const right = o.l + o.w; w = Math.max(minW, Math.min(o.w - dx, right)); l = right - w; }
+      if (d.includes('s')) ht = Math.max(minH, Math.min(o.h + dy, H - o.t));
+      if (d.includes('n')) { const bottom = o.t + o.h; ht = Math.max(minH, Math.min(o.h - dy, bottom)); t = bottom - ht; }
+      mini = { l, t, w, h: ht };
+      applyMini(); refreshMap();
+    });
+    const end = e => {
+      if (!rz || rz.id !== e.pointerId) return;
+      rz = null; map.invalidateSize();
+      try { localStorage.setItem('railMiniRect', JSON.stringify(mini)); } catch (x) {}
+    };
+    h.addEventListener('pointerup', end);
+    h.addEventListener('pointercancel', end);
+  });
+  // ---- 移動用の持ち手（ドラッグでミニ地図を動かす） ----
+  const mv = document.createElement('div');
+  mv.className = 'rm-move'; mv.textContent = '✥'; mv.title = 'ドラッグでミニ地図を移動';
+  mapEl.appendChild(mv);
+  L.DomEvent.disableClickPropagation(mv);
+  let mvs = null;
+  mv.addEventListener('pointerdown', e => {
+    if (kind !== 'float' || !inMini || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    e.preventDefault(); e.stopPropagation();
+    try { mv.setPointerCapture(e.pointerId); } catch (x) {}
+    mvs = { id: e.pointerId, x: e.clientX, y: e.clientY, l: mini.l, t: mini.t };
+  });
+  mv.addEventListener('pointermove', e => {
+    if (!mvs || mvs.id !== e.pointerId) return;
+    mini.l = mvs.l + (e.clientX - mvs.x); mini.t = mvs.t + (e.clientY - mvs.y);
+    applyMini();   // 画面の外に出ないよう、applyMini内で位置を補正する
+  });
+  const mvEnd = e => {
+    if (!mvs || mvs.id !== e.pointerId) return;
+    mvs = null;
+    try { localStorage.setItem('railMiniRect', JSON.stringify(mini)); } catch (x) {}
+  };
+  mv.addEventListener('pointerup', mvEnd);
+  mv.addEventListener('pointercancel', mvEnd);
+  window.addEventListener('resize', () => { if (kind === 'float' && inMini) { applyMini(); map.invalidateSize(); } });
+
   function pipNote() {
     if (!pipWin) return;
     try {
@@ -1822,7 +1980,7 @@ applyWatch();
       // 別ウィンドウは参照元(Referer)なしでタイルを取得するため、OpenStreetMapに「Access blocked」にされる。参照元が不要な地理院地図に切り替える
       pipNoOsm = true;
       if (isOsm(base)) { pipBase = base; setBase(BASES.findIndex((b, i) => !isOsm(i))); }
-    } else mapEl.classList.add('rm-float');
+    } else { mapEl.classList.add('rm-float'); applyMini(); }
     inMini = true;
     map.invalidateSize(); setTimeout(() => map.invalidateSize(), 50); sync();
   }
@@ -1831,8 +1989,9 @@ applyWatch();
   function hideMini() {
     if (!kind || !inMini) return;
     mapEl.classList.remove('rm-in-pip', 'rm-float');
+    clearMiniStyle();
     if (kind === 'pip') {
-      wrap.appendChild(mapEl); map.dragging.enable(); pipNote();
+      wrap.appendChild(mapEl); if (!followOn) map.dragging.enable(); pipNote();
       pipNoOsm = false;
       if (pipBase !== null) { setBase(pipBase); pipBase = null; }   // 元の背景地図へ戻す
     }
