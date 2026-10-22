@@ -35,6 +35,9 @@
     #railmap.rm-float .leaflet-bottom.leaflet-right .leaflet-control { margin-right: 20px; margin-bottom: 16px; }
     #railmap.rm-float .leaflet-control-attribution { font-size: 10px; max-width: 70%; }
 
+    #rm-speed { font-size: 14px; color: #555566; }
+    #railmap .rm-mspeed { display: none; }
+    #railmap.rm-float .rm-mspeed { display: block; position: absolute; top: 64px; right: 12px; z-index: 1300; padding: 2px 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.88); font-size: 13px; font-weight: 600; color: #1f2d36; pointer-events: none; }
     /* 大きさ変更：見えない当たり判定を地図の縁に置き、縁を直接ドラッグして変える（辺4か所＋角4か所） */
     #railmap .rm-rz { position: absolute; z-index: 1400; touch-action: none; }
     #railmap.rm-float .rm-rz { display: block; }
@@ -103,6 +106,7 @@
       <button type="button" id="rm-here-go" aria-pressed="false" title="ONの間、現在地に合わせて地図が自動で動きます。OFFで追跡をやめます">現在地を追跡：OFF</button>
       <button type="button" id="rm-pip" title="地図を別ウィンドウ（ピクチャインピクチャ）に出して、スクロールしても見られるようにします">ミニ地図(PiP)</button>
       <span id="rm-hereinfo"></span>
+      <span id="rm-speed">速度：-- km/h</span>
       <button type="button" id="rm-export">エクスポート</button>
       <button type="button" id="rm-export-audio" title="登録した音声ファイルも一緒に書き出します（ファイルが大きくなります）">音声込みエクスポート</button>
       <button type="button" id="rm-import">インポート</button>
@@ -1578,7 +1582,16 @@ $('forceReceiveBtn').onclick = async () => {
 
 /* ---------- 現在地の表示（常時ON。位置情報を連続取得） ---------- */
 let watchId = null, watchGen = 0, lastPos = null, hereDot = null, hereAcc = null, firstFix = false, denied = false, followOn = false;
+// 速度計：端末が出す速度（m/s）を使い、無ければ直前の測位との距離と時間から求める。表示はkm/h
+const spdMini = document.createElement('div');
+spdMini.className = 'rm-mspeed';
+$('railmap').appendChild(spdMini);
+function updateSpeed() {
+  const t = lastPos && lastPos.spd != null ? '速度：' + Math.round(lastPos.spd * 3.6) + ' km/h' : '速度：-- km/h';
+  $('rm-speed').textContent = t; spdMini.textContent = t;
+}
 function clearHere() {
+  updateSpeed();
   if (hereDot) { map.removeLayer(hereDot); map.removeLayer(hereAcc); hereDot = hereAcc = null; }
   $('rm-hereinfo').textContent = '';
 }
@@ -1594,7 +1607,14 @@ function drawHere() {
 }
 function onPos(p) {
   if ($('placeoff').checked) return;   // 「位置情報オフ」のときは、遅れて届いた測位結果も使わない
-  lastPos = { ll: L.latLng(p.coords.latitude, p.coords.longitude), acc: p.coords.accuracy || 0, t: Date.now() };
+  const ll = L.latLng(p.coords.latitude, p.coords.longitude), acc = p.coords.accuracy || 0, now = Date.now();
+  let spd = (typeof p.coords.speed === 'number' && isFinite(p.coords.speed) && p.coords.speed >= 0) ? p.coords.speed : null;
+  if (spd === null && lastPos && now - lastPos.t >= 500 && now - lastPos.t <= 30000) {
+    const d = lastPos.ll.distanceTo(ll);
+    spd = d < Math.max(3, acc * 0.5) ? 0 : d / ((now - lastPos.t) / 1000);   // 測位のぶれ程度の移動は0扱い
+  }
+  lastPos = { ll, acc, t: now, spd };
+  updateSpeed();
   drawHere();
   updateNext();   // 測位のたびに「あと◯m」を更新
 }
@@ -1622,9 +1642,7 @@ function applyWatch() {
 // 現在地の追跡：ONの間は測位のたびに地図を現在地へ動かし、OFFで追跡をやめる。メイン画面のボタンとミニ地図内のボタンで共有する
 const followHooks = [];
 const savedFollow = lsGet('railFollow') === true;   // 再読み込み前の追跡ON/OFF
-let followSave = false;                              // 起動時の初期描画で、保存値を上書きしないための印
 function syncFollow() {
-  if (followSave) lsSet('railFollow', followOn);
   const b = $('rm-here-go');
   b.textContent = '現在地を追跡：' + (followOn ? 'ON' : 'OFF');
   b.classList.toggle('on', followOn);
@@ -1640,11 +1658,15 @@ function setFollow(on) {
     else if (lastPos) map.setView(lastPos.ll, Math.max(map.getZoom(), 15));
     else firstFix = true;   // 最初の測位結果が届いたら現在地へ移動する
   }
+  if (!$('placeoff').checked) lsSet('railFollow', followOn);   // 位置情報オフ中の強制OFFは保存を変えない（オフ解除で元に戻すため）
   syncFollow();
 }
 $('rm-here-go').onclick = () => setFollow(!followOn);
 syncFollow();
-$('placeoff').addEventListener('change', () => { denied = false; applyWatch(); });
+$('placeoff').addEventListener('change', () => {
+  denied = false; applyWatch();
+  if (!$('placeoff').checked && lsGet('railFollow') === true) setFollow(true);   // 位置情報オフを解除したら、オフにする前の追跡状況に戻す
+});
 
 /* ---------- 駅メロ再生（カスタムステーションベルの方式を移植） ---------- */
 const bell = { method: 'normal', playing: false };
@@ -1806,7 +1828,6 @@ applyWatch();
 }
 // 再読み込み前に追跡がONだったら、ONに戻す（位置情報オフ・非対応のときはOFFのまま）
 if (savedFollow) setFollow(true);
-followSave = true;
 /* ---------- ミニ地図（ピクチャインピクチャ） ----------
    一度オンにすると、閉じるまでは「元の地図が画面から外れたらミニ地図に移り、元の位置に戻ったら元の地図に戻る」を繰り返す。
    対応ブラウザ（Chrome/Edge系）では別ウィンドウ、非対応ブラウザでは画面右下の小さな地図になる。
