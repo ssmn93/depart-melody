@@ -36,6 +36,8 @@
     #railmap.rm-float .leaflet-control-attribution { font-size: 10px; max-width: 70%; }
 
     #rm-speed { font-size: 14px; color: #555566; }
+    .rm-cone { pointer-events: none; }
+    .rm-cone-in { width: 100px; height: 100px; transform-origin: 50% 50%; }
     #railmap .rm-mspeed { display: none; }
     #railmap.rm-float .rm-mspeed { display: block; position: absolute; top: 64px; right: 12px; z-index: 1300; padding: 2px 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.88); font-size: 13px; font-weight: 600; color: #1f2d36; pointer-events: none; }
     /* 大きさ変更：見えない当たり判定を地図の縁に置き、縁を直接ドラッグして変える（辺4か所＋角4か所） */
@@ -1581,7 +1583,7 @@ $('forceReceiveBtn').onclick = async () => {
 };
 
 /* ---------- 現在地の表示（常時ON。位置情報を連続取得） ---------- */
-let watchId = null, watchGen = 0, lastPos = null, hereDot = null, hereAcc = null, firstFix = false, denied = false, followOn = false;
+let watchId = null, watchGen = 0, lastPos = null, hereDot = null, hereAcc = null, firstFix = false, denied = false, followOn = false, coneM = null, compassOn = false, heading = null, compassRaf = 0;
 // 速度計：端末が出す速度（m/s）を使い、無ければ直前の測位との距離と時間から求める。表示はkm/h
 const spdMini = document.createElement('div');
 spdMini.className = 'rm-mspeed';
@@ -1593,7 +1595,42 @@ function updateSpeed() {
 function clearHere() {
   updateSpeed();
   if (hereDot) { map.removeLayer(hereDot); map.removeLayer(hereAcc); hereDot = hereAcc = null; }
+  if (coneM) { map.removeLayer(coneM); coneM = null; }
   $('rm-hereinfo').textContent = '';
+}
+/* ---------- 向きの表示（端末のコンパス。Googleマップのように現在地から扇形で表示） ---------- */
+const CONE_SVG = '<svg viewBox="-50 -50 100 100" width="100" height="100"><defs><radialGradient id="rm-cg" cx="0" cy="0" r="50" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#1a73e8" stop-opacity="0.6"/><stop offset="1" stop-color="#1a73e8" stop-opacity="0"/></radialGradient></defs><path d="M0 0 L-26 -43 A50 50 0 0 1 26 -43 Z" fill="url(#rm-cg)"/></svg>';
+map.createPane('rmCone').style.zIndex = 390;   // 線や現在地の点より下に描く
+map.getPane('rmCone').style.pointerEvents = 'none';
+function drawCone() {
+  if (!compassOn || heading === null || !lastPos) { if (coneM) { map.removeLayer(coneM); coneM = null; } return; }
+  if (!coneM) {
+    coneM = L.marker(lastPos.ll, { pane: 'rmCone', interactive: false, keyboard: false, icon: L.divIcon({ className: 'rm-cone', html: '<div class="rm-cone-in">' + CONE_SVG + '</div>', iconSize: [100, 100], iconAnchor: [50, 50] }) }).addTo(map);
+  } else coneM.setLatLng(lastPos.ll);
+  const el = coneM.getElement();
+  if (el && el.firstChild) el.firstChild.style.transform = 'rotate(' + heading + 'deg)';
+}
+function onOri(e) {
+  let h = null;
+  if (typeof e.webkitCompassHeading === 'number') h = e.webkitCompassHeading;                 // iPhone：北=0、時計回り
+  else if (e.absolute === true && typeof e.alpha === 'number') h = 360 - e.alpha;            // Android：alpha は反時計回りなので変換
+  if (h === null || !isFinite(h)) return;
+  const ang = (screen.orientation && typeof screen.orientation.angle === 'number') ? screen.orientation.angle : 0;   // 画面を横向きにしたときの補正
+  h = ((h + ang) % 360 + 360) % 360;
+  if (heading !== null) { const d = Math.abs(h - heading); if (Math.min(d, 360 - d) < 2) return; }   // 細かい揺れは無視
+  heading = h;
+  if (!compassRaf) compassRaf = requestAnimationFrame(() => { compassRaf = 0; drawCone(); });
+}
+async function startCompass() {
+  if (compassOn || typeof DeviceOrientationEvent === 'undefined') return;
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {   // iPhone：許可はユーザー操作の中で求める必要がある
+    let r = 'denied';
+    try { r = await DeviceOrientationEvent.requestPermission(); } catch (e) {}
+    if (r !== 'granted') return;
+  }
+  window.addEventListener('deviceorientationabsolute', onOri);
+  window.addEventListener('deviceorientation', onOri);
+  compassOn = true;
 }
 function drawHere() {
   if (!lastPos) return;
@@ -1601,6 +1638,7 @@ function drawHere() {
     hereAcc = L.circle(lastPos.ll, { radius: lastPos.acc, color: '#1a73e8', weight: 1, fillColor: '#1a73e8', fillOpacity: 0.12, interactive: false }).addTo(map);
     hereDot = L.circleMarker(lastPos.ll, { radius: 7, color: '#ffffff', weight: 2, fillColor: '#1a73e8', fillOpacity: 1, interactive: false }).addTo(map);
   } else { hereDot.setLatLng(lastPos.ll); hereAcc.setLatLng(lastPos.ll); hereAcc.setRadius(lastPos.acc); }
+  drawCone();
   $('rm-hereinfo').textContent = '';
   if (firstFix) { firstFix = false; map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); }
   else if (followOn) map.panTo(lastPos.ll, { animate: true, duration: 0.5 });   // 追跡ON：測位のたびに現在地へ
@@ -1828,6 +1866,9 @@ applyWatch();
 }
 // 再読み込み前に追跡がONだったら、ONに戻す（位置情報オフ・非対応のときはOFFのまま）
 if (savedFollow) setFollow(true);
+// 向き表示は常時ON。Androidなどはそのまま開始。iPhoneは許可を求める操作が必要なので、最初に画面のどこかをタップした時点で開始する
+if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') document.addEventListener('click', startCompass, { once: true, capture: true });
+else startCompass();
 /* ---------- ミニ地図（ピクチャインピクチャ） ----------
    一度オンにすると、閉じるまでは「元の地図が画面から外れたらミニ地図に移り、元の位置に戻ったら元の地図に戻る」を繰り返す。
    対応ブラウザ（Chrome/Edge系）では別ウィンドウ、非対応ブラウザでは画面右下の小さな地図になる。
