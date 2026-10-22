@@ -588,7 +588,7 @@ function adopt(l, props) {
   l.feature = { type: 'Feature', properties: p };
   label(l);
   l.on('click', ev => {
-    if (splitLid && kind === 'line') { L.DomEvent.stopPropagation(ev); if (p.lid === splitLid) doSplit(l, ev.latlng); setSplit(null); return; }
+    if (splitLid) { L.DomEvent.stopPropagation(ev); splitClick(kind === 'station' ? l.getLatLng() : ev.latlng); return; }   // 駅の真上でも分割できる
     if (mode === 'line') { if (l instanceof L.Marker) addVertex(l.getLatLng()); return; }
     if (mode === 'station') { if (kind === 'station') placeStation(l.getLatLng()); return; }   // 既存の駅の上にも、同じ位置に駅を重ねて置ける
     L.DomEvent.stopPropagation(ev);
@@ -699,12 +699,14 @@ function markCur() {
 function changed() { pruneLines(); pruneSvcs(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') { fillMsel(); updateLineInfo(); } drawBends(); markCur(); }
 
 /* ---------- 選択パネル（名前・色・ホーム登録） ---------- */
-let splitLid = null;
+let splitLid = null, splitPrev = null;
 function setSplit(lid) {
   splitLid = lid;
   $('rm-split').textContent = lid ? '分割をやめる' : '分割';
-  $('rm-opnote').textContent = lid ? '分割する位置で、この路線の線上をクリックしてください（Escで取消）' : '';
+  $('rm-opnote').textContent = lid ? '分割する位置（この路線の線上、または線上の駅）をクリックしてください（Escで取消）' : '';
   map.getContainer().style.cursor = lid || mode === 'station' || mode === 'line' ? 'crosshair' : '';
+  if (!lid && splitPrev) { map.removeLayer(splitPrev); splitPrev = null; }
+  buildHandles();   // 分割中は、曲がり角のハンドルが線や駅のクリックを邪魔しないように隠す
 }
 function fillMsel() {
   const sl = $('rm-msel'), old = sl.value, cur = sel && sel.feature.properties.lid;
@@ -891,29 +893,57 @@ function renderPlats() {
 
 /* ---------- 路線の分割・併合・上下の逆転 ---------- */
 const pathLen = a => a.reduce((t, q, i) => i ? t + mp(q).distanceTo(mp(a[i - 1])) : t, 0);
+// 路線lidの線のうち、指定位置に最も近い点（メルカトル座標）を探す
+function nearestOnLine(lid, ll) {
+  const p = mp(ll);
+  let best = null;
+  lines().filter(l => l.feature.properties.lid === lid).forEach(l => {
+    const a = l.getLatLngs();
+    for (let i = 0; i < a.length - 1; i++) {
+      const c = L.LineUtil.closestPointOnSegment(p, mp(a[i]), mp(a[i + 1])), d = c.distanceTo(p);
+      if (!best || d < best.d) best = { d, c, l };
+    }
+  });
+  return best;
+}
+const splitTol = () => Math.max(16 * 156543.03392 / Math.pow(2, map.getZoom()), 40);   // 約16px（または40m）以内なら、線上とみなす
+function splitClick(ll) {
+  const b = nearestOnLine(splitLid, ll);
+  if (!b || b.d > splitTol()) { $('rm-opnote').textContent = '線から離れています。分割する路線の線上、またはその線上の駅をクリックしてください（Escで取消）'; return; }
+  if (doSplit(b.l, L.CRS.EPSG3857.unproject(b.c))) setSplit(null);   // 取消や端での失敗のときは、分割モードのまま
+}
+map.on('mousemove', e => {   // 分割する位置の目印
+  if (!splitLid) return;
+  const b = nearestOnLine(splitLid, e.latlng);
+  if (b && b.d <= splitTol()) {
+    const ll = L.CRS.EPSG3857.unproject(b.c);
+    if (!splitPrev) splitPrev = L.circleMarker(ll, { radius: 7, color: '#ffffff', weight: 2, fillColor: '#d32f2f', fillOpacity: 0.95, interactive: false }).addTo(map);
+    else splitPrev.setLatLng(ll);
+  } else if (splitPrev) { map.removeLayer(splitPrev); splitPrev = null; }
+});
 function doSplit(ln, ll) {
   const lid = ln.feature.properties.lid, color = ln.feature.properties.color, oldName = ln.feature.properties.name;
   const os = orderedSegs(lid), k = os.findIndex(x => x.ln === ln);
-  if (k < 0) return;
+  if (k < 0) return false;
   const pts = os[k].pts, p = mp(ll);
   let bj = 0, bd = Infinity, bc = null;
   for (let j = 0; j < pts.length - 1; j++) {
     const c = L.LineUtil.closestPointOnSegment(p, mp(pts[j]), mp(pts[j + 1])), d = c.distanceTo(p);
     if (d < bd) { bd = d; bj = j; bc = c; }
   }
-  if (!bc) return;
+  if (!bc) return false;
   const cll = L.CRS.EPSG3857.unproject(bc);
   const A = pts.slice(0, bj + 1).concat(cll), B = [cll].concat(pts.slice(bj + 1));
   const aOk = pathLen(A) >= 2, bOk = pathLen(B) >= 2;
   const before = os.slice(0, k).map(x => x.ln), after = os.slice(k + 1).map(x => x.ln);
   if (aOk) before.push(ln); else if (bOk) after.unshift(ln);
-  if (!before.length || (!after.length && !(aOk && bOk))) { alert('路線の端では分割できません。路線の途中をクリックしてください。'); return; }
+  if (!before.length || (!after.length && !(aOk && bOk))) { alert('路線の端では分割できません。路線の途中、または途中の駅をクリックしてください。'); return false; }
   let n = 2;
   while (lineList().some(x => x.name === oldName + '（' + n + '）')) n++;
   const def = oldName + '（' + n + '）', nm0 = prompt('分割位置より先の側の、新しい路線名を入力', def);
-  if (nm0 === null) return;
+  if (nm0 === null) return false;
   const nm = nm0.trim() || def;
-  if (lineList().some(x => x.name === nm)) { alert('同じ名前の路線があります。別の名前にしてください。'); return; }
+  if (lineList().some(x => x.name === nm)) { alert('同じ名前の路線があります。別の名前にしてください。'); return false; }
   const nl = rid();
   if (aOk && bOk) {
     ln.setLatLngs(A);
@@ -925,7 +955,16 @@ function doSplit(ln, ll) {
     const sv = geomServes(s);
     s.feature.properties.platforms.forEach(q => q.routes.forEach(r => { if (r.line === lid && sv.has(nl) && !sv.has(lid)) r.line = nl; }));
   });
+  // 分割位置にある駅は、両方の路線に乗り入れる駅にする（新しい路線にも、元の路線と同じ方向・本線／副本線の役割を追加）
+  const cp = mp(cll);
+  stations().forEach(s => {
+    if (mp(s.getLatLng()).distanceTo(cp) > 25) return;
+    s.feature.properties.platforms.forEach(q => q.routes.filter(r => r.line === lid).forEach(r => {
+      if (!q.routes.some(x => x.line === nl && x.dir === r.dir)) q.routes.push({ line: nl, dir: r.dir, type: r.type });
+    }));
+  });
   buildHandles(); changed();
+  return true;
 }
 $('rm-split').onclick = () => {
   if (!sel || sel.feature.properties.kind !== 'line') return;
@@ -1066,6 +1105,7 @@ function endVertex(ln, i, ll) {
 }
 const shade = (hex, f) => '#' + [1, 3, 5].map(i => Math.max(0, Math.min(255, Math.round(parseInt(hex.slice(i, i + 2), 16) * f))).toString(16).padStart(2, '0')).join('');
 function handleTargets() {
+  if (splitLid) return [];
   if (mode === 'edit') return lines();
   if (!mode && sel && sel.feature.properties.kind === 'line') return lines().filter(l => l.feature.properties.lid === sel.feature.properties.lid);
   return [];
@@ -1132,7 +1172,7 @@ function placeStation(ll) {
   changed();
 }
 map.on('click', e => {
-  if (splitLid) { setSplit(null); return; }
+  if (splitLid) { splitClick(e.latlng); return; }
   if (mode === 'station') placeStation(snapStation(e.latlng));
   else if (mode === 'line') addVertex(snapVertex(e.latlng, null, -1, e.originalEvent && e.originalEvent.altKey));
   else select(null);
