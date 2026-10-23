@@ -1748,11 +1748,37 @@ $('placeoff').addEventListener('change', () => {
 
 /* ---------- 駅メロ再生（カスタムステーションベルの方式を移植） ---------- */
 const bell = { method: 'normal', playing: false };
+// 「途中切り可能」のメロディ部：<audio>のloopではなく、Web Audio APIでバッファを繰り返し再生して、曲の継ぎ目で間が開かないようにする
+const AC = window.AudioContext || window.webkitAudioContext;
+let actx = null, melBuf = null, melSrc = null, melTok = 0;
+const getCtx = () => AC ? (actx = actx || new AC()) : null;
+let melStarting = false, melWant = false;
+async function startMelWA() {
+  if (melStarting || bell.playing) return;
+  melStarting = true;
+  try {
+    const ctx = getCtx();
+    if (ctx.state === 'suspended') await ctx.resume();
+    if (!melWant || !melBuf || bell.method !== 'normal') return;   // 待っている間にOFFやホームの切替があった場合は再生しない
+    const src = ctx.createBufferSource();
+    src.buffer = melBuf; src.loop = true;
+    src.connect(ctx.destination); src.start(0);
+    melSrc = src; bell.playing = true;
+  } finally { melStarting = false; }
+}
+function stopMelWA() {
+  if (!melSrc) return;
+  try { melSrc.stop(); } catch (e) {}
+  try { melSrc.disconnect(); } catch (e) {}
+  melSrc = null;
+}
+document.addEventListener('pointerdown', () => { if (actx && actx.state === 'suspended') actx.resume(); }, { passive: true });
 const A = k => $(EL[k]);
 const nish = () => { A('tojime').currentTime = 0; A('tojime').play(); };
 function stopAll() {
   Object.keys(EL).forEach(k => { const a = A(k); a.pause(); a.currentTime = 0; a.loop = false; });
   A('melody').removeEventListener('ended', nish);
+  stopMelWA(); melWant = false;
   bell.playing = false;
 }
 async function show(s, q, notify) {
@@ -1761,11 +1787,16 @@ async function show(s, q, notify) {
   stopAll();
   urls.forEach(u => URL.revokeObjectURL(u)); urls = [];
   const uid = s.feature.properties.uid;
+  const tok = ++melTok; melBuf = null;
   for (const k of Object.keys(SLOTS)) {
     const r = await getF(fkey(uid, q.id, k));
     if (r && r.blob) { const u = URL.createObjectURL(r.blob); urls.push(u); A(k).src = u; } else A(k).src = SIL;
   }
   bell.method = q.method;
+  // 途中切り可能のメロディ部：音声データを読み込んで変換する。終わるまでは、ON/OFFを押しても何も起こらない（参照ページ isesaki_ti1.html と同じ仕様）
+  if (q.method === 'normal' && getCtx()) {
+    fetch(A('melody').src).then(r => r.arrayBuffer()).then(ab => getCtx().decodeAudioData(ab)).then(buf => { if (tok === melTok) melBuf = buf; }).catch(() => {});
+  }
   $('sw').hidden = false;
   updateNext();
   markCur();
@@ -1778,6 +1809,7 @@ function applyIfCurrent(q) { if (cur && cur.q === q) show(cur.s, q, false); }
 function btnSnd() { const b = $('button'); b.currentTime = 0; if (!$('buttonon').checked) b.play().catch(() => {}); }
 function on() {
   if (!cur) return;
+  if (bell.method === 'normal' && !melBuf) return;   // 途中切り可能：音声の読み込みが終わるまでは何も起こらない（ボタン音も鳴らさない）
   btnSnd();
   const m = bell.method;
   if (m === 'shinkansen' || m === 'shintachikawa') {
@@ -1789,17 +1821,22 @@ function on() {
     A('full').play(); bell.playing = true;
   } else if (m === 'fullcut') {
     if (!bell.playing) { A('fullcut').play(); bell.playing = true; }
+  } else if (m === 'normal') {
+    melWant = true;
+    startMelWA();
   } else if (!bell.playing) {
     A('melody').loop = true; A('melody').play(); bell.playing = true;
   }
 }
 function off() {
   if (!cur) return;
+  if (bell.method === 'normal' && !melBuf) return;   // 途中切り可能：音声の読み込みが終わるまでは何も起こらない
+  melWant = false;
   const m = bell.method, mel = A('melody'), muk = A('mukaburi');
   mel.removeEventListener('ended', nish);
   btnSnd();
   if (!bell.playing) return;
-  if (m === 'normal') { bell.playing = false; mel.loop = false; mel.pause(); mel.currentTime = 0; nish(); }
+  if (m === 'normal') { bell.playing = false; stopMelWA(); mel.loop = false; mel.pause(); mel.currentTime = 0; nish(); }
   else if (m === 'tachikawa') { bell.playing = false; mel.loop = false; nish(); }
   else if (m === 'nishiogikubo') { bell.playing = false; mel.loop = false; mel.addEventListener('ended', nish); }
   else if (m === 'shinkansen') { bell.playing = false; muk.loop = false; muk.pause(); muk.currentTime = 0; A('gensui').pause(); A('gensui').currentTime = 0; }
