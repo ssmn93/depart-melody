@@ -1645,8 +1645,8 @@ map.getPane('rmCone').style.pointerEvents = 'none';
 function drawCone() {
   if (!compassOn || heading === null || !lastPos) { if (coneM) { map.removeLayer(coneM); coneM = null; } return; }
   if (!coneM) {
-    coneM = L.marker(lastPos.ll, { pane: 'rmCone', interactive: false, keyboard: false, icon: L.divIcon({ className: 'rm-cone', html: '<div class="rm-cone-in">' + CONE_SVG + '</div>', iconSize: [100, 100], iconAnchor: [50, 50] }) }).addTo(map);
-  } else coneM.setLatLng(lastPos.ll);
+    coneM = L.marker(curLL(), { pane: 'rmCone', interactive: false, keyboard: false, icon: L.divIcon({ className: 'rm-cone', html: '<div class="rm-cone-in">' + CONE_SVG + '</div>', iconSize: [100, 100], iconAnchor: [50, 50] }) }).addTo(map);
+  } else coneM.setLatLng(curLL());
   const el = coneM.getElement();
   if (el && el.firstChild) el.firstChild.style.transform = 'rotate(' + heading + 'deg)';
 }
@@ -1672,32 +1672,79 @@ async function startCompass() {
   window.addEventListener('deviceorientation', onOri);
   compassOn = true;
 }
+/* ---------- 表示の遅れを減らす：測位してから画面に出るまでの時間の分だけ、進行方向へ位置を進めて表示する ---------- */
+const PREDICT = true;        // false にすると、測位結果をそのまま表示する
+const PRED_MIN_SPEED = 1.5;  // この速度(m/s)未満では位置を進めない（停止中のぶれを防ぐ）
+const PRED_MAX_AGE = 2.5;    // 最後の測位から、何秒先まで進めるか
+let predRaf = 0, predLast = 0, predPanT = 0;
+function dest(ll, brg, d) {
+  const R = 6371008.8, b = brg * Math.PI / 180, la1 = ll.lat * Math.PI / 180, lo1 = ll.lng * Math.PI / 180, dr = d / R;
+  const la2 = Math.asin(Math.sin(la1) * Math.cos(dr) + Math.cos(la1) * Math.sin(dr) * Math.cos(b));
+  const lo2 = lo1 + Math.atan2(Math.sin(b) * Math.sin(dr) * Math.cos(la1), Math.cos(dr) - Math.sin(la1) * Math.sin(la2));
+  return L.latLng(la2 * 180 / Math.PI, ((lo2 * 180 / Math.PI + 540) % 360) - 180);
+}
+function bearing(a, b) {
+  const f1 = a.lat * Math.PI / 180, f2 = b.lat * Math.PI / 180, dl = (b.lng - a.lng) * Math.PI / 180;
+  return (Math.atan2(Math.sin(dl) * Math.cos(f2), Math.cos(f1) * Math.sin(f2) - Math.sin(f1) * Math.cos(f2) * Math.cos(dl)) * 180 / Math.PI + 360) % 360;
+}
+const predicting = () => PREDICT && lastPos && lastPos.spd != null && lastPos.spd >= PRED_MIN_SPEED && lastPos.hdg != null;
+function curLL() {   // いま表示する現在地
+  if (!lastPos) return null;
+  if (!predicting()) return lastPos.ll;
+  const age = Math.min(PRED_MAX_AGE, Math.max(0, (Date.now() - lastPos.ts) / 1000));
+  return age > 0 ? dest(lastPos.ll, lastPos.hdg, lastPos.spd * age) : lastPos.ll;
+}
+function followPan(ll, t) {
+  if (!followOn || t - predPanT < 100) return;
+  predPanT = t;
+  map.panTo(ll, { animate: false });
+}
+function predLoop(t) {
+  predRaf = 0;
+  if (!lastPos || !hereDot || !predicting() || Date.now() - lastPos.ts > (PRED_MAX_AGE + 0.3) * 1000) return;   // 動いていないときは止める
+  if (t - predLast >= 50) {
+    predLast = t;
+    const pl = curLL();
+    hereDot.setLatLng(pl); hereAcc.setLatLng(pl); if (coneM) coneM.setLatLng(pl);
+    followPan(pl, t);
+  }
+  predRaf = requestAnimationFrame(predLoop);
+}
+function startPred() { if (!predRaf && predicting()) predRaf = requestAnimationFrame(predLoop); }
 function drawHere() {
   if (!lastPos) return;
+  const ll = curLL();
   if (!hereDot) {
-    hereAcc = L.circle(lastPos.ll, { radius: lastPos.acc, color: '#1a73e8', weight: 1, fillColor: '#1a73e8', fillOpacity: 0.12, interactive: false }).addTo(map);
-    hereDot = L.circleMarker(lastPos.ll, { radius: 7, color: '#ffffff', weight: 2, fillColor: '#1a73e8', fillOpacity: 1, interactive: false }).addTo(map);
-  } else { hereDot.setLatLng(lastPos.ll); hereAcc.setLatLng(lastPos.ll); hereAcc.setRadius(lastPos.acc); }
+    hereAcc = L.circle(ll, { radius: lastPos.acc, color: '#1a73e8', weight: 1, fillColor: '#1a73e8', fillOpacity: 0.12, interactive: false }).addTo(map);
+    hereDot = L.circleMarker(ll, { radius: 7, color: '#ffffff', weight: 2, fillColor: '#1a73e8', fillOpacity: 1, interactive: false }).addTo(map);
+  } else { hereDot.setLatLng(ll); hereAcc.setLatLng(ll); hereAcc.setRadius(lastPos.acc); }
   drawCone();
   $('rm-hereinfo').textContent = '';
-  if (firstFix) { firstFix = false; map.setView(lastPos.ll, Math.max(map.getZoom(), 15)); }
-  else if (followOn) map.panTo(lastPos.ll, { animate: true, duration: 0.5 });   // 追跡ON：測位のたびに現在地へ
+  if (firstFix) { firstFix = false; map.setView(ll, Math.max(map.getZoom(), 15)); }
+  else if (followOn) map.panTo(ll, { animate: false });   // 追跡ON：測位のたびに、アニメーションなしですぐ現在地へ
+  startPred();
 }
 function onPos(p) {
   if ($('placeoff').checked) return;   // 「位置情報オフ」のときは、遅れて届いた測位結果も使わない
   const ll = L.latLng(p.coords.latitude, p.coords.longitude), acc = p.coords.accuracy || 0, now = Date.now();
+  const ts = (typeof p.timestamp === 'number' && Math.abs(now - p.timestamp) < 10000) ? p.timestamp : now;   // 測位した時刻（届いた時刻ではない）
   let spd = (typeof p.coords.speed === 'number' && isFinite(p.coords.speed) && p.coords.speed >= 0) ? p.coords.speed : null;
-  if (spd === null && lastPos && now - lastPos.t >= 500 && now - lastPos.t <= 30000) {
-    const d = lastPos.ll.distanceTo(ll);
-    spd = d < Math.max(3, acc * 0.5) ? 0 : d / ((now - lastPos.t) / 1000);   // 測位のぶれ程度の移動は0扱い
+  let hdg = (typeof p.coords.heading === 'number' && isFinite(p.coords.heading)) ? p.coords.heading : null;
+  const prev = lastPos, dt = prev ? (ts - prev.ts) / 1000 : 0;
+  if (prev && dt >= 0.3 && dt <= 30) {
+    const d = prev.ll.distanceTo(ll), moved = d >= Math.max(3, acc * 0.5);   // 測位のぶれ程度の移動は、動いていないものとして扱う
+    if (spd === null) spd = moved ? d / dt : 0;
+    if (hdg === null && moved) hdg = bearing(prev.ll, ll);
   }
-  lastPos = { ll, acc, t: now, spd };
+  if (hdg === null && prev && prev.hdg != null) hdg = prev.hdg;   // 向きが分からないときは、直前の向きを使う
+  lastPos = { ll, acc, t: now, ts, spd, hdg };
   updateSpeed();
   drawHere();
   updateNext();   // 測位のたびに「あと◯m」を更新
 }
 function stopWatch() {
   if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  if (predRaf) { cancelAnimationFrame(predRaf); predRaf = 0; }
   watchId = null; watchGen++; lastPos = null; clearHere(); updateNext();   // watchGen を進めて、停止前に開始した取得の結果を無効にする
   followOn = false; syncFollow();   // 測位が止まったら追跡もOFFに
 }
@@ -1711,7 +1758,7 @@ function applyWatch() {
       if (gen !== watchGen || $('placeoff').checked) return;
       if (e.code === 1) { denied = true; stopWatch(); $('rm-hereinfo').textContent = '位置情報の利用が許可されていません'; }
       else $('rm-hereinfo').textContent = '位置情報を取得できません（エラーコード：' + e.code + '）';
-    }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
+    }, { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 });
   }
   if ((off || !ok) && watchId !== null) stopWatch();
   if (off) $('rm-hereinfo').textContent = '位置情報オフ';
