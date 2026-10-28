@@ -882,6 +882,7 @@
             <td><a href="https://x.com/i/user/1246818704488198146">なろさん様</a></td>
             <td>
               <button id="play_sound8">聴く</button>
+              <audio id="sound7" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/星めぐりの歌%20在来線ver.mp3"></audio>
               <script>
                 const button8 = document.getElementById("play_sound8");
                 const sound8 = document.getElementById("sound8");
@@ -899,6 +900,33 @@
 
                 sound8.addEventListener("ended", () => {
                   isPlaying8 = false;
+                });
+              </script>
+            </td>
+          </tr>
+          <tr>
+            <td>【限定】2026/10/28~「熱き星たちよ フルver」</td>
+            <td><a href="https://x.com/i/user/1739555404886224896">わーたー様</a></td>
+            <td>
+              <button id="play_sound9">聴く</button>
+              <audio id="sound7" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/熱き星たちよ%20フルver.mp3"></audio>
+              <script>
+                const button9 = document.getElementById("play_sound9");
+                const sound9 = document.getElementById("sound9");
+                let isPlaying9 = false;
+
+                button9.addEventListener("click", (e) => {
+                  if (!isPlaying9) {
+                    sound9.play();
+                    isPlaying9 = true;
+                  } else {
+                    sound9.pause();
+                    isPlaying9 = false;
+                  }
+                });
+
+                sound9.addEventListener("ended", () => {
+                  isPlaying9 = false;
                 });
               </script>
             </td>
