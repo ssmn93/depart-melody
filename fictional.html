@@ -1358,9 +1358,9 @@ function buildRoute(lid, dk, cids, js = jointList()) {
     const c = js.find(x => x.id === cid), nx = c && connNext(c, cl, cd);
     if (!nx) return null;
     const i = rows.findIndex(r => stUid(r) === c.at);
-    if (i < 0 || i <= jIdx || (i === 0 && jIdx < 0)) return null;   // 起点の駅での乗り換えだけの行先は作らない
+    if (i < 0 || i <= jIdx || (i === 0 && jIdx < 0 && rows.length > 1)) return null;   // 起点の駅での乗り換えだけの行先は作らない（ただし登録駅が接続駅1つだけの路線は除く）
     const next = legRows(nx.lid, nx.dk), j = next.findIndex(r => stUid(r) === c.at);
-    if (j < 0 || j + 1 >= next.length) return null;
+    if (j < 0 || (j + 1 >= next.length && next.length > 1)) return null;   // 登録駅が接続駅1つだけの路線は、その駅で終わる並びとして許可
     const rest = next.slice(j + 1);
     if (rest.some(r => rows.some(x => stUid(x) === stUid(r)))) return null;   // 同じ駅を2回通る並びは作らない
     const joint = Object.assign({}, rows[i], { pls: rows[i].pls.concat(next[j].pls.filter(q => !rows[i].pls.includes(q))), alt: next[j] });
@@ -1412,6 +1412,12 @@ function renderConn() {
       t1.textContent = '　前の路線との接続駅'; t2.textContent = 'で';
       row.append(t1, S, t2, M);
     }
+    const mvLeg = d => { const j = i + d; if (j < 0 || j >= cnDraft.length) return; [cnDraft[i], cnDraft[j]] = [cnDraft[j], cnDraft[i]]; renderConn(); };
+    const up = document.createElement('button'), dn = document.createElement('button');
+    up.type = dn.type = 'button';
+    up.textContent = '↑'; up.title = 'この路線を上へ'; up.disabled = i === 0; up.onclick = () => mvLeg(-1);
+    dn.textContent = '↓'; dn.title = 'この路線を下へ'; dn.disabled = i === cnDraft.length - 1; dn.onclick = () => mvLeg(1);
+    row.append(up, dn);
     if (cnDraft.length > 2) {
       const del = document.createElement('button'); del.type = 'button'; del.textContent = 'この路線を外す';
       del.onclick = () => { cnDraft.splice(i, 1); renderConn(); };
