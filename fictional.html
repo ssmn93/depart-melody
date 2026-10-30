@@ -1254,6 +1254,9 @@ async function importAudio(audio, uidMap, pool) {
 }
 $('rm-export').onclick = () => download(withSvcs(items.toGeoJSON()), '');
 $('rm-export-audio').onclick = async () => {
+  const btn = $('rm-export-audio'), label = btn.textContent;
+  if (btn.disabled) return;
+  btn.disabled = true; btn.textContent = 'エクスポートデータを作成中…';
   try {
     const fc = withSvcs(items.toGeoJSON());
     const au = await collectAudio();
@@ -1261,6 +1264,7 @@ $('rm-export-audio').onclick = async () => {
     if (!Object.keys(fc.railAudio).length) alert('登録済みの音声ファイルがないため、地図データのみ書き出します。');
     download(fc, '_audio');
   } catch (err) { alert('書き出せませんでした。\n' + err.message); }
+  finally { btn.disabled = false; btn.textContent = label; }
 };
 $('rm-import').onclick = () => $('rm-file').click();
 $('rm-file').onchange = async e => {
