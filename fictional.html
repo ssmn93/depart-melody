@@ -372,9 +372,31 @@ const idb = (mode, fn) => new Promise((res, rej) => {
     tx.onabort = tx.onerror = () => { db.close(); rej(tx.error); };
   };
 });
-const putF = (k, f) => idb('readwrite', s => s.put({ blob: f, name: f.name }, k)).catch(() => {});
-const getF = k => idb('readonly', s => s.get(k)).catch(() => null);
-const delF = k => idb('readwrite', s => s.delete(k)).catch(() => {});
+// 音声の実体は内容のハッシュ（'h:'+ハッシュ）で1つだけ保存し、ホームごとの枠（uid:pid:スロット）はそれを指す
+const hashB = async b => [...new Uint8Array(await crypto.subtle.digest('SHA-256', await b.arrayBuffer()))].map(x => x.toString(16).padStart(2, '0')).join('');
+const gcF = () => idb('readwrite', s => {   // どの枠からも使われなくなった実体を消す
+  const ks = s.getAllKeys();
+  ks.onsuccess = () => { const vs = s.getAll(); vs.onsuccess = () => { const used = new Set(vs.result.map(v => v && v.h)); ks.result.forEach(k => { if (String(k).startsWith('h:') && !used.has(String(k).slice(2))) s.delete(k); }); }; };
+  return ks;
+}).catch(() => {});
+const putF = async (k, f, name = f.name) => {
+  try {
+    const h = await hashB(f);
+    await idb('readwrite', s => { const g = s.get('h:' + h); g.onsuccess = () => { if (!g.result) s.put({ blob: f }, 'h:' + h); }; s.put({ h, name }, k); return g; });
+    await gcF();
+  } catch (e) {}
+};
+const getF = k => idb('readonly', s => s.get(k)).then(r => r && r.h ? idb('readonly', s => s.get('h:' + r.h)).then(b => b && { blob: b.blob, name: r.name, h: r.h }) : r).catch(() => null);
+const delF = k => idb('readwrite', s => s.delete(k)).then(gcF).catch(() => {});
+// 以前の形式（枠ごとに音声を丸ごと保存）を、共有する形式に変換する（変換済みなら何もしない）
+(async () => {
+  const keys = await idb('readonly', s => s.getAllKeys()).catch(() => []);
+  for (const k of keys) {
+    if (String(k).startsWith('h:')) continue;
+    const r = await idb('readonly', s => s.get(k)).catch(() => null);
+    if (r && r.blob) await putF(k, r.blob, r.name);
+  }
+})();
 const fkey = (uid, pid, slot) => uid + ':' + pid + ':' + slot;
 const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -1204,23 +1226,26 @@ async function collectAudio() {
   const keys = await idb('readonly', st => st.getAllKeys()).catch(() => []);
   const pre = [];
   stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
-  const out = {};
+  const out = {}, pool = {};
   for (const k of keys) {
     if (!pre.some(x => String(k).startsWith(x))) continue;
     const r = await getF(k);
     if (!r || !r.blob) continue;
-    out[k] = { name: r.name, data: await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(r.blob); }) };
+    const h = r.h || await hashB(r.blob);
+    if (!pool[h]) pool[h] = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(r.blob); });
+    out[k] = { name: r.name, h };
   }
-  return out;
+  return { out, pool };
 }
-async function importAudio(audio, uidMap) {
+async function importAudio(audio, uidMap, pool) {
   if (!audio || typeof audio !== 'object') return 0;
   let n = 0;
   for (const [k, v] of Object.entries(audio)) {
     const m = /^([\w-]{1,20}):([\w-]{1,20}):(\w+)$/.exec(k);
-    if (!m || !own(SLOTS, m[3]) || !v || typeof v.data !== 'string' || !v.data.startsWith('data:audio/')) continue;
+    const data = v && (typeof v.data === 'string' ? v.data : (pool && own(pool, v.h) ? pool[v.h] : null));
+    if (!m || !own(SLOTS, m[3]) || typeof data !== 'string' || !data.startsWith('data:audio/')) continue;
     try {
-      const blob = await (await fetch(v.data)).blob();
+      const blob = await (await fetch(data)).blob();
       await putF((uidMap[m[1]] || m[1]) + ':' + m[2] + ':' + m[3], new File([blob], String(v.name || 'audio').slice(0, 100), { type: blob.type }));
       n++;
     } catch (e) { /* 壊れた音声データは読み飛ばす */ }
@@ -1231,7 +1256,8 @@ $('rm-export').onclick = () => download(withSvcs(items.toGeoJSON()), '');
 $('rm-export-audio').onclick = async () => {
   try {
     const fc = withSvcs(items.toGeoJSON());
-    fc.railAudio = await collectAudio();
+    const au = await collectAudio();
+    fc.railAudio = au.out; fc.railAudioData = au.pool;
     if (!Object.keys(fc.railAudio).length) alert('登録済みの音声ファイルがないため、地図データのみ書き出します。');
     download(fc, '_audio');
   } catch (err) { alert('書き出せませんでした。\n' + err.message); }
@@ -1243,7 +1269,7 @@ $('rm-file').onchange = async e => {
   try {
     const geo = JSON.parse(await f.text());
     const uidMap = loadGeo(geo, !items.getLayers().length || confirm('今のデータを消して読み込みますか？\nOK＝置き換え／キャンセル＝追加で読み込み'));
-    const n = await importAudio(geo && geo.railAudio, uidMap);
+    const n = await importAudio(geo && geo.railAudio, uidMap, geo && geo.railAudioData);
     if (items.getLayers().length) map.fitBounds(items.getBounds().pad(0.1));
     changed();
     if (n) $('rm-stat').textContent += '　音声 ' + n + ' 件を読み込みました';
