@@ -381,8 +381,19 @@ const idb = (mode, fn) => new Promise((res, rej) => {
   };
 });
 // 音声の実体は内容のハッシュ（'h:'+ハッシュ）で1つだけ保存し、ホームごとの枠（uid:pid:スロット）はそれを指す
-const hashB = async b => {   // ハッシュを作れない環境（http等でcrypto.subtleが無い）ではnull。その場合は共有せずそのまま保存する
-  try { return [...new Uint8Array(await crypto.subtle.digest('SHA-256', await b.arrayBuffer()))].map(x => x.toString(16).padStart(2, '0')).join(''); } catch (e) { return null; }
+const h53 = u => {   // crypto.subtleが使えない環境（http等）用の、軽い内容ハッシュ（53ビット＋サイズ）
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < u.length; i++) { const c = u[i]; h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return u.length + '-' + (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
+};
+const hashB = async b => {
+  try {
+    const buf = await b.arrayBuffer();
+    if (window.crypto && crypto.subtle) return [...new Uint8Array(await crypto.subtle.digest('SHA-256', buf))].map(x => x.toString(16).padStart(2, '0')).join('');
+    return 'x' + h53(new Uint8Array(buf));
+  } catch (e) { return null; }
 };
 const gcF = () => idb('readwrite', s => {   // どの枠からも使われなくなった実体を消す
   const ks = s.getAllKeys();
@@ -1252,13 +1263,15 @@ function download(obj, suffix) {
   a.download = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + suffix + '.geojson';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
-async function collectAudio() {
+async function collectAudio(onProg) {
   const keys = await idb('readonly', st => st.getAllKeys()).catch(() => []);
   const pre = [];
   stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
   const out = {}, pool = {};
-  for (const k of keys) {
-    if (!pre.some(x => String(k).startsWith(x))) continue;
+  const tg = keys.filter(k => pre.some(x => String(k).startsWith(x)));
+  let n = 0;
+  for (const k of tg) {
+    if (onProg) onProg(++n, tg.length);
     const r = await getF(k);
     if (!r || !r.blob) continue;
     const h = r.h || await hashB(r.blob) || 'k:' + k;
@@ -1315,7 +1328,7 @@ $('rm-export-audio').onclick = async () => {
     try {
       if (!f) {
         btn.textContent = '共有データを作成中…';
-        const t0 = Date.now(), fc = withSvcs(items.toGeoJSON()), au = await collectAudio();
+        const t0 = Date.now(), fc = withSvcs(items.toGeoJSON()), au = await collectAudio((i, n) => { btn.textContent = '共有データを作成中… ' + i + '/' + n; });
         fc.railAudio = au.out; fc.railAudioData = au.pool;
         const name = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '_audio.geojson', body = JSON.stringify(fc);
         f = new File([body], name, { type: 'application/json' });
@@ -1519,6 +1532,7 @@ function cnReset() {
   $('cn-name').value = '';
 }
 function renderConn() {
+  $('rm-conn').style.display = lineList().length < 2 ? 'none' : '';   // 路線が2つ以上あるときだけ表示
   const opts = lineOptions(), valid = new Set(opts.map(o => o[0])), box = $('cn-legs');
   cnDraft.forEach(g => { if (!valid.has(g.lid)) g.lid = ''; });
   // 未選択の路線には、まだ使っていない路線を順に当てる
