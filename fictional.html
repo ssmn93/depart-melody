@@ -95,6 +95,10 @@
       <button type="button" id="rm-map-new">マップ新規</button>
       <button type="button" id="rm-map-name">マップ名変更</button>
       <button type="button" id="rm-map-del">マップ削除</button>
+      <button type="button" id="rm-export">エクスポート</button>
+      <button type="button" id="rm-export-audio" title="登録した音声ファイルも一緒に書き出します（ファイルが大きくなります）">音声込みエクスポート</button>
+      <button type="button" id="rm-import">インポート</button>
+      <button type="button" id="rm-share" title="このマップを音声込みのファイルにして、端末の共有メニュー（LINE・メール・AirDropなど）から送ります">共有</button>
     </div>
     <h1>駅・路線の作成</h1>
     <div class="rm-bar">
@@ -116,9 +120,6 @@
       <button type="button" id="rm-pip" title="地図を別ウィンドウ（ピクチャインピクチャ）に出して、スクロールしても見られるようにします">ミニ地図(PiP)</button>
       <span id="rm-hereinfo"></span>
       <span id="rm-speed">速度：-- km/h</span>
-      <button type="button" id="rm-export">エクスポート</button>
-      <button type="button" id="rm-export-audio" title="登録した音声ファイルも一緒に書き出します（ファイルが大きくなります）">音声込みエクスポート</button>
-      <button type="button" id="rm-import">インポート</button>
       <button type="button" id="rm-clear">全消去</button>
       <input type="file" id="rm-file" accept=".geojson,.json,application/geo+json,application/json" hidden>
     </div>
@@ -1295,6 +1296,39 @@ $('rm-export-audio').onclick = async () => {
   } catch (err) { alert('書き出せませんでした。\n' + err.message); }
   finally { btn.disabled = false; btn.textContent = label; }
 };
+// 共有（Web Share API）：音声込みのファイルを作り、端末の共有メニューへ渡す。非対応の環境ではダウンロードにする
+{
+  const btn = $('rm-share'), label = btn.textContent;
+  let ready = null;   // 共有メニューを開く操作が許可されなかったときのために、作成済みのファイルを1回だけ取っておく
+  const send = async f => {
+    const ok = navigator.canShare && navigator.canShare({ files: [f] });
+    if (!ok) { const u = URL.createObjectURL(f), a = document.createElement('a'); a.href = u; a.download = f.name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 1000); alert('この環境では共有メニューを使えないため、ファイルをダウンロードしました。'); return; }
+    await navigator.share({ files: [f], title: f.name });
+  };
+  btn.onclick = async () => {
+    if (btn.disabled) return;
+    btn.disabled = true;
+    try {
+      if (!ready) {
+        btn.textContent = '共有データを作成中…';
+        const fc = withSvcs(items.toGeoJSON()), au = await collectAudio();
+        fc.railAudio = au.out; fc.railAudioData = au.pool;
+        const name = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '_audio.geojson', body = JSON.stringify(fc);
+        let f = new File([body], name, { type: 'application/json' });
+        if (navigator.canShare && !navigator.canShare({ files: [f] })) f = new File([body], name, { type: 'text/plain' });
+        ready = f;
+      }
+      const f = ready; ready = null;
+      try { await send(f); }
+      catch (err) {
+        if (err && err.name === 'AbortError') return;   // 共有メニューを閉じただけ
+        if (err && err.name === 'NotAllowedError') { ready = f; btn.textContent = '共有する（準備完了）'; btn.disabled = false; return; }   // 作成に時間がかかり、操作の許可が切れた：もう一度押すとすぐ共有メニューを開く
+        throw err;
+      }
+    } catch (err) { alert('共有できませんでした。\n' + err.message); }
+    btn.disabled = false; if (!ready) btn.textContent = label;
+  };
+}
 $('rm-import').onclick = () => $('rm-file').click();
 $('rm-file').onchange = async e => {
   const f = e.target.files[0]; e.target.value = '';
