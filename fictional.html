@@ -89,6 +89,13 @@
     <audio id="tojime" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
     <audio id="fullml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
     <audio id="fullcutml" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/無音.mp3"></audio>
+    <h1>マップの作成</h1>
+    <div class="rm-bar">
+      <select id="rm-maps" title="マップを切り替えます"></select>
+      <button type="button" id="rm-map-new">マップ新規</button>
+      <button type="button" id="rm-map-name">マップ名変更</button>
+      <button type="button" id="rm-map-del">マップ削除</button>
+    </div>
     <h1>駅・路線の作成</h1>
     <div class="rm-bar">
       <button type="button" id="rm-undo" disabled title="直前の操作を取り消す（Ctrl+Z）">戻る</button>
@@ -373,7 +380,9 @@ const idb = (mode, fn) => new Promise((res, rej) => {
   };
 });
 // 音声の実体は内容のハッシュ（'h:'+ハッシュ）で1つだけ保存し、ホームごとの枠（uid:pid:スロット）はそれを指す
-const hashB = async b => [...new Uint8Array(await crypto.subtle.digest('SHA-256', await b.arrayBuffer()))].map(x => x.toString(16).padStart(2, '0')).join('');
+const hashB = async b => {   // ハッシュを作れない環境（http等でcrypto.subtleが無い）ではnull。その場合は共有せずそのまま保存する
+  try { return [...new Uint8Array(await crypto.subtle.digest('SHA-256', await b.arrayBuffer()))].map(x => x.toString(16).padStart(2, '0')).join(''); } catch (e) { return null; }
+};
 const gcF = () => idb('readwrite', s => {   // どの枠からも使われなくなった実体を消す
   const ks = s.getAllKeys();
   ks.onsuccess = () => { const vs = s.getAll(); vs.onsuccess = () => { const used = new Set(vs.result.map(v => v && v.h)); ks.result.forEach(k => { if (String(k).startsWith('h:') && !used.has(String(k).slice(2))) s.delete(k); }); }; };
@@ -382,9 +391,10 @@ const gcF = () => idb('readwrite', s => {   // どの枠からも使われなく
 const putF = async (k, f, name = f.name) => {
   try {
     const h = await hashB(f);
+    if (!h) return await idb('readwrite', s => s.put({ blob: f, name }, k));
     await idb('readwrite', s => { const g = s.get('h:' + h); g.onsuccess = () => { if (!g.result) s.put({ blob: f }, 'h:' + h); }; s.put({ h, name }, k); return g; });
     await gcF();
-  } catch (e) {}
+  } catch (e) { console.error('音声の保存に失敗しました', e); }
 };
 const getF = k => idb('readonly', s => s.get(k)).then(r => r && r.h ? idb('readonly', s => s.get('h:' + r.h)).then(b => b && { blob: b.blob, name: r.name, h: r.h }) : r).catch(() => null);
 const delF = k => idb('readwrite', s => s.delete(k)).then(gcF).catch(() => {});
@@ -398,8 +408,27 @@ const delF = k => idb('readwrite', s => s.delete(k)).then(gcF).catch(() => {});
   }
 })();
 const fkey = (uid, pid, slot) => uid + ':' + pid + ':' + slot;
-const lsGet = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
-const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
+// 複数マップ：一覧（railMaps）と、マップごとの保存データ（キーの末尾に ':マップID' を付ける）
+const PERMAP = ['railMapState', 'railUseState', 'railCurHome', 'railView'];
+const MAPS = (() => {
+  let m = null;
+  try {
+    m = JSON.parse(localStorage.getItem('railMaps'));
+    if (!m || !Array.isArray(m.list) || !m.list.length) {   // 初回：今までの1つのマップを「マップ1」として引き継ぐ
+      const id = 'm' + Date.now().toString(36);
+      m = { cur: id, list: [{ id, name: 'マップ1' }] };
+      PERMAP.forEach(k => { const v = localStorage.getItem(k); if (v !== null) { localStorage.setItem(k + ':' + id, v); localStorage.removeItem(k); } });
+      localStorage.setItem('railMaps', JSON.stringify(m));
+    }
+  } catch (e) { m = m && Array.isArray(m.list) && m.list.length ? m : { cur: 'm0', list: [{ id: 'm0', name: 'マップ1' }] }; }
+  if (!m.list.some(x => x.id === m.cur)) m.cur = m.list[0].id;
+  return m;
+})();
+const MID = MAPS.cur;
+const saveMaps = () => { try { localStorage.setItem('railMaps', JSON.stringify(MAPS)); } catch (e) {} };
+const pk = k => PERMAP.includes(k) ? k + ':' + MID : k;
+const lsGet = k => { try { return JSON.parse(localStorage.getItem(pk(k))); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { localStorage.setItem(pk(k), JSON.stringify(v)); } catch (e) {} };
 
 /* ---------- 地図 ---------- */
 const GSI = '<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>';
@@ -1231,7 +1260,7 @@ async function collectAudio() {
     if (!pre.some(x => String(k).startsWith(x))) continue;
     const r = await getF(k);
     if (!r || !r.blob) continue;
-    const h = r.h || await hashB(r.blob);
+    const h = r.h || await hashB(r.blob) || 'k:' + k;
     if (!pool[h]) pool[h] = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(r.blob); });
     out[k] = { name: r.name, h };
   }
@@ -1284,6 +1313,42 @@ $('rm-clear').onclick = () => {
   items.clearLayers(); select(null); buildHandles(); changed();
 };
 
+/* ---------- 複数マップ（切り替え・新規・名前変更・削除。切り替えは再読み込みで行い、前のマップの分のメモリは解放される） ---------- */
+{
+  const sel = $('rm-maps');
+  MAPS.list.forEach(m => { const o = document.createElement('option'); o.value = m.id; o.textContent = m.name; sel.append(o); });
+  sel.value = MID;
+  const go = id => { ready = false; MAPS.cur = id; saveMaps(); location.reload(); };
+  sel.onchange = () => { saveNow(); go(sel.value); };
+  $('rm-map-new').onclick = () => {
+    const n = prompt('新しいマップの名前', 'マップ' + (MAPS.list.length + 1));
+    if (n === null) return;
+    saveNow();
+    const id = 'm' + Date.now().toString(36);
+    MAPS.list.push({ id, name: n.trim().slice(0, 30) || 'マップ' + MAPS.list.length });
+    go(id);
+  };
+  $('rm-map-name').onclick = () => {
+    const m = MAPS.list.find(x => x.id === MID), n = prompt('マップの名前', m.name);
+    if (n === null || !n.trim()) return;
+    m.name = n.trim().slice(0, 30); saveMaps();
+    sel.selectedOptions[0].textContent = m.name;
+  };
+  $('rm-map-del').onclick = async () => {
+    if (MAPS.list.length <= 1) { alert('マップが1つだけのときは削除できません。'); return; }
+    const m = MAPS.list.find(x => x.id === MID);
+    if (!confirm('マップ「' + m.name + '」を削除します（登録した音声も消えます）。よろしいですか？')) return;
+    ready = false; clearTimeout(timer);
+    const pre = [];
+    stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
+    const ks = (await idb('readonly', st => st.getAllKeys()).catch(() => [])).filter(k => pre.some(x => String(k).startsWith(x)));
+    if (ks.length) { await idb('readwrite', st => { ks.forEach(k => st.delete(k)); return st.count(); }).catch(() => {}); await gcF(); }
+    PERMAP.forEach(k => { try { localStorage.removeItem(k + ':' + MID); } catch (e) {} });
+    MAPS.list = MAPS.list.filter(x => x.id !== MID);
+    go(MAPS.list[0].id);
+  };
+}
+
 /* ---------- 戻る／進む（駅・路線・ホーム登録の編集履歴。音声ファイルは対象外） ---------- */
 const hist = { stack: [], idx: -1 };
 const snapshot = () => JSON.stringify(withSvcs(items.toGeoJSON()));
@@ -1291,12 +1356,11 @@ function syncUndo() {
   $('rm-undo').disabled = hist.idx <= 0;
   $('rm-redo').disabled = hist.idx >= hist.stack.length - 1;
 }
-function pushHist() {
-  const j = snapshot();
+function pushHist(j = snapshot()) {
   if (hist.stack[hist.idx] === j) return;
   hist.stack = hist.stack.slice(0, hist.idx + 1);
   hist.stack.push(j);
-  if (hist.stack.length > 100) hist.stack.shift();
+  if (hist.stack.length > 30) hist.stack.shift();
   hist.idx = hist.stack.length - 1;
   syncUndo();
 }
@@ -1323,11 +1387,13 @@ function queueSave() { clearTimeout(timer); timer = setTimeout(saveNow, 300); }
 function saveNow() {
   clearTimeout(timer);
   if (!ready) return;
-  pushHist();
+  const g = withSvcs(items.toGeoJSON());   // 1回だけ作って、履歴と保存の両方に使う
+  pushHist(JSON.stringify(g));
   const c = map.getCenter();
-  lsSet('railMapState', { v: 2, geojson: withSvcs(items.toGeoJSON()), view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base: pipBase !== null ? pipBase : base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
+  lsSet('railMapState', { v: 2, geojson: g, view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base: pipBase !== null ? pipBase : base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
 }
-map.on('moveend', queueSave);
+let vtimer;   // 地図の移動は表示位置だけ保存する（全データの作り直しはしない）
+map.on('moveend', () => { clearTimeout(vtimer); vtimer = setTimeout(() => { const c = map.getCenter(); lsSet('railView', { lat: c.lat, lng: c.lng, zoom: map.getZoom() }); }, 500); });
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') saveNow(); });
 window.addEventListener('pagehide', saveNow);
 
@@ -2000,7 +2066,7 @@ if (s0) {
   labelsOn = s0.labels !== false;
   if (HEX.test(s0.color)) $('rm-color').value = s0.color;
   loadGeo(s0.geojson, true);
-  const v = s0.view;
+  const v = lsGet('railView') || s0.view;
   if (v && Number.isFinite(v.lat) && Number.isFinite(v.lng) && Number.isFinite(v.zoom)) map.setView([v.lat, v.lng], v.zoom);
 }
 if (u0) {
