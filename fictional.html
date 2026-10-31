@@ -1299,34 +1299,37 @@ $('rm-export-audio').onclick = async () => {
 // 共有（Web Share API）：音声込みのファイルを作り、端末の共有メニューへ渡す。非対応の環境ではダウンロードにする
 {
   const btn = $('rm-share'), label = btn.textContent;
-  let ready = null;   // 共有メニューを開く操作が許可されなかったときのために、作成済みのファイルを1回だけ取っておく
+  let prepared = null;   // 作成に時間がかかった場合は、いったんここで止めて「準備完了」にし、次の1回の操作ですぐ共有メニューを開く（ブラウザは操作の直後でないと共有メニューを開かせないため）
   const send = async f => {
-    const ok = navigator.canShare && navigator.canShare({ files: [f] });
-    if (!ok) { const u = URL.createObjectURL(f), a = document.createElement('a'); a.href = u; a.download = f.name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 1000); alert('この環境では共有メニューを使えないため、ファイルをダウンロードしました。'); return; }
+    if (!(navigator.canShare && navigator.canShare({ files: [f] }))) {
+      const u = URL.createObjectURL(f), a = document.createElement('a'); a.href = u; a.download = f.name; a.click(); setTimeout(() => URL.revokeObjectURL(u), 1000);
+      alert('この環境では共有メニューを使えないため、ファイルをダウンロードしました。'); return;
+    }
     await navigator.share({ files: [f], title: f.name });
   };
   btn.onclick = async () => {
     if (btn.disabled) return;
     btn.disabled = true;
+    let f = prepared && Date.now() - prepared.t < 60000 ? prepared.f : null;   // 古い準備（マップが変わっている可能性）は使わない
+    prepared = null;
     try {
-      if (!ready) {
+      if (!f) {
         btn.textContent = '共有データを作成中…';
-        const fc = withSvcs(items.toGeoJSON()), au = await collectAudio();
+        const t0 = Date.now(), fc = withSvcs(items.toGeoJSON()), au = await collectAudio();
         fc.railAudio = au.out; fc.railAudioData = au.pool;
         const name = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + '_audio.geojson', body = JSON.stringify(fc);
-        let f = new File([body], name, { type: 'application/json' });
+        f = new File([body], name, { type: 'application/json' });
         if (navigator.canShare && !navigator.canShare({ files: [f] })) f = new File([body], name, { type: 'text/plain' });
-        ready = f;
+        if (Date.now() - t0 > 2000) { prepared = { f, t: Date.now() }; btn.textContent = '共有する（準備完了）'; return; }
       }
-      const f = ready; ready = null;
-      try { await send(f); }
-      catch (err) {
-        if (err && err.name === 'AbortError') return;   // 共有メニューを閉じただけ
-        if (err && err.name === 'NotAllowedError') { ready = f; btn.textContent = '共有する（準備完了）'; btn.disabled = false; return; }   // 作成に時間がかかり、操作の許可が切れた：もう一度押すとすぐ共有メニューを開く
-        throw err;
-      }
-    } catch (err) { alert('共有できませんでした。\n' + err.message); }
-    btn.disabled = false; if (!ready) btn.textContent = label;
+      await send(f);
+    } catch (err) {
+      if (err && err.name === 'NotAllowedError' && f) { prepared = { f, t: Date.now() }; btn.textContent = '共有する（準備完了）'; }
+      else if (!(err && err.name === 'AbortError')) { console.error(err); alert('共有できませんでした。\n' + (err && err.message)); }   // AbortErrorは共有メニューを閉じただけ
+    } finally {
+      btn.disabled = false;
+      if (!prepared) btn.textContent = label;
+    }
   };
 }
 $('rm-import').onclick = () => $('rm-file').click();
