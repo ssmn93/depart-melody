@@ -456,8 +456,20 @@ const dot = L.divIcon({ className: 'rm-dot', iconSize: [16, 16], iconAnchor: [8,
 let pipBase = null, pipNoOsm = false;   // 別ウィンドウ表示中：一時的に切り替える前の背景地図／OSMを選べない状態
 const isOsm = i => /openstreetmap\.org/.test(BASES[i].url);
 let base = 0, baseLayer, labelsOn = true, mode = null, sel = null, ready = false, timer;
-const stations = () => items.getLayers().filter(l => l.feature.properties.kind === 'station');
-const lines = () => items.getLayers().filter(l => l.feature.properties.kind === 'line');
+let stC = null, lnC = null;   // 駅・路線の一覧は、追加・削除のときだけ作り直す
+items.on('layeradd layerremove', () => { stC = lnC = null; });
+const stations = () => (stC || (stC = items.getLayers().filter(l => l.feature.properties.kind === 'station'))).slice();
+const lines = () => (lnC || (lnC = items.getLayers().filter(l => l.feature.properties.kind === 'line'))).slice();
+// 駅の近く(2m以内)かの判定を、格子で素早く行う
+const stGrid = pts => {
+  const g = new Map(), key = (x, y) => x + ',' + y;
+  pts.forEach(q => { const k = key(Math.floor(q.x / 2), Math.floor(q.y / 2)); (g.get(k) || g.set(k, []).get(k)).push(q); });
+  return q => {
+    const cx = Math.floor(q.x / 2), cy = Math.floor(q.y / 2);
+    for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) { const a = g.get(key(cx + i, cy + j)); if (a && a.some(p => p.distanceTo(q) < 2)) return true; }
+    return false;
+  };
+};
 // 直通系統：{ id, name(直通系統名), legs:[{ lid, at, map }] }。直通する路線を順に並べたもの（最大 MAX_LEGS 路線）
 //   legs[0] は起点の路線（at・mapなし）。legs[i] は、1つ前の路線と接続駅 at(駅のuid) で続く路線で、
 //   map('same'|'flip') は向きの対応（同じ向き／反対向きに続く）。向きの対応は自動判定せず、設定した内容を使う
@@ -755,7 +767,7 @@ function markCur() {
   stations().forEach(s => {
     const on = !!uid && s.feature.properties.uid === uid, el = s.getElement && s.getElement();
     if (el) el.classList.toggle('rm-cur', on);
-    s.setZIndexOffset(on ? 800 : 0);
+    if (s.options.zIndexOffset !== (on ? 800 : 0)) s.setZIndexOffset(on ? 800 : 0);
   });
 }
 function changed() { pruneLines(); pruneSvcs(); queueSave(); stat(); renderUse(); renderLineSel(); if (sel && sel.feature.properties.kind === 'line') { fillMsel(); updateLineInfo(); } drawBends(); markCur(); }
@@ -1173,28 +1185,39 @@ function handleTargets() {
   return [];
 }
 // 曲がり角ハンドルを表示していない路線の曲がり角を、路線の色を少し濃くした三角形（下り＝描いた向きを指す）で示す
+let bendKey = null, bendZ = null, bendB = null;   // 前回描いた路線・駅の形／ズーム／描いた範囲。同じなら描き直さない（折れ曲がりのマーカーは数が多く重いため）
+const BEND_MINZ = 12;   // これより引いた表示では、折れ曲がりは小さすぎるので描かない
 function drawBends() {
+  const z = map.getZoom();
+  if (z < BEND_MINZ) { if (bends.getLayers().length) bends.clearLayers(); bendKey = null; return; }
+  const hs = new Set(handleTargets());
+  const key = lines().map(ln => (hs.has(ln) ? 'h' : '') + ln.feature.properties.color + ln.getLatLngs().map(v => v.lat + ',' + v.lng).join(';')).join('|') + '#' + stations().map(s => { const q = s.getLatLng(); return q.lat + ',' + q.lng; }).join(';');
+  const vb = map.getBounds();
+  if (key === bendKey && z === bendZ && bendB && bendB.contains(vb) && bends.getLayers().length) return;
+  bendKey = key; bendZ = z; bendB = vb.pad(0.5);   // 画面の周りを少し広めに、画面内の分だけ描く
   bends.clearLayers();
-  const hs = new Set(handleTargets()), stPts = stations().map(s => mp(s.getLatLng()));
+  const nearSt = stGrid(stations().map(s => mp(s.getLatLng())));
   lines().forEach(ln => {
     if (hs.has(ln)) return;
     const c = shade(ln.feature.properties.color, BEND_SHADE), a = ln.getLatLngs();
     a.forEach((v, j) => {
-      if (j === 0 || j === a.length - 1 || stPts.some(q => q.distanceTo(mp(v)) < 2)) return;
+      if (j === 0 || j === a.length - 1 || !bendB.contains(v) || nearSt(mp(v))) return;
       L.marker(v, { icon: triIcon(dirAngle(a, j), BEND_PX, c), interactive: false, keyboard: false, zIndexOffset: -500 }).addTo(bends);
     });
   });
 }
+let bendT;   // 地図を動かしたりズームしたりした後に、画面内の折れ曲がりを描き直す
+map.on('moveend zoomend', () => { clearTimeout(bendT); bendT = setTimeout(drawBends, 150); });
 function buildHandles() {
   handles.clearLayers();
   drawBends();
   const targets = handleTargets();
   if (!targets.length) return;
-  const stPts = stations().map(s => mp(s.getLatLng()));
+  const nearSt = stGrid(stations().map(s => mp(s.getLatLng())));
   targets.forEach(ln => {
     const a = ln.getLatLngs();
     a.forEach((ll, i) => {
-      if (stPts.some(q => q.distanceTo(mp(ll)) < 2)) return;   // 駅につながった頂点は駅をドラッグして動かす
+      if (nearSt(mp(ll))) return;   // 駅につながった頂点は駅をドラッグして動かす
       const h = L.marker(ll, { draggable: true, icon: triIcon(dirAngle(a, i), HANDLE_PX, '#ffffff', '#3f7aa1'), zIndexOffset: 1000 });
       h.on('drag', () => { const arr = ln.getLatLngs(); arr[i] = h.getLatLng(); ln.setLatLngs(arr); });
       h.on('dragend', () => endVertex(ln, i, h.getLatLng()));
@@ -1396,7 +1419,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------- 地図の自動保存・復元 ---------- */
-function queueSave() { clearTimeout(timer); timer = setTimeout(saveNow, 300); }
+function queueSave() { clearTimeout(timer); timer = setTimeout(saveNow, 800); }
 function saveNow() {
   clearTimeout(timer);
   if (!ready) return;
