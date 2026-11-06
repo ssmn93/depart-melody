@@ -146,7 +146,7 @@
 
     <div id="rm-conn">
       <div><b>直通（直通系統）</b>：直通系統名をつけて、直通する路線を順に（最大8路線まで）登録します。路線選択では、ここで付けた直通系統名で選べます。</div>
-      <details>
+      <details id="fold-conn">
         <summary>メニューを開く</summary>
         <div class="rm-bar"><span>直通系統名</span><input type="text" id="cn-name" maxlength="30" placeholder="例：快速A"></div>
         <div id="cn-legs"></div>
@@ -166,7 +166,7 @@
       <p>②停車駅・使用ホームを選択してください。</p>
       <div id="use-hint">ラジオボタンをダブルクリックすると選択を解除できます。ホームを選んでいない駅は通過駅として飛ばします。</div>
       <div class="rm-bar"><button class="butt" type="button" id="mains">本線選択</button><button class="butt" type="button" id="deletes">全消去</button></div>
-      <details>
+      <details id="fold-use">
         <summary>メニューを開く</summary>
         <div class="lines" id="use-list"></div>
       </details>
@@ -1780,6 +1780,15 @@ async function stepStop(d) {
 }
 $('prevStopBtn').onclick = () => stepStop(-1);
 $('nextStopBtn').onclick = () => stepStop(1);
+// 「メニューを開く」の開閉を端末に保存し、次回も同じ状態にする
+{
+  const saved = lsGet('railFold') || {}, ids = ['fold-conn', 'fold-use'];
+  ids.forEach(id => {
+    const d = $(id);
+    d.open = saved[id] === true;
+    d.addEventListener('toggle', () => { const o = lsGet('railFold') || {}; o[id] = d.open; lsSet('railFold', o); });
+  });
+}
 // ホーム選択：使用ホームを選ぶ場所まで移動する（折りたたまれていれば開く）
 $('pickPlatBtn').onclick = () => {
   const d = $('use-list').closest('details');
