@@ -171,7 +171,7 @@
         <div class="lines" id="use-list"></div>
       </details>
       <p>③指定の始発駅到着後に「強制受信」ボタンを押し、操作を開始してください。</p>
-      <div class="rm-bar"><button class="GPS" type="button" id="forceReceiveBtn">強制受信</button><span id="cur"></span></div>
+      <div class="rm-bar"><button class="GPS" type="button" id="forceReceiveBtn">強制受信</button><button class="butt" type="button" id="prevStopBtn">前駅</button><button class="butt" type="button" id="nextStopBtn">次駅</button><button class="butt" type="button" id="pickPlatBtn">ホーム選択</button><span id="cur"></span></div>
     </div>
     <div id="sw" hidden>
       <div id="rm-next"></div>
@@ -1765,6 +1765,26 @@ $('forceReceiveBtn').onclick = async () => {
   if ($('placeoff').checked) return;
   await locate(true);
   if (cur) startAuto();
+};
+// 前駅・次駅：選んだ停車駅（使用ホームを選んだ駅）の並びの中で、いまの駅の前後へ進む
+async function stepStop(d) {
+  const cs = candidates();
+  if (!cs.length) { alert('停車駅・使用ホームを選択してください。'); return; }
+  const i = cur ? cs.findIndex(c => c.s === cur.s) : -1;
+  if (i < 0 && d < 0) { alert('現在の駅が分かりません。先に「強制受信」を押すか、駅を開いてください。'); return; }
+  const n = i < 0 ? 0 : i + d;   // まだ駅を開いていないときの「次駅」は、先頭の駅
+  if (n < 0 || n >= cs.length) { alert(d < 0 ? 'これより前の駅はありません。' : 'これより先の駅はありません。'); return; }
+  await show(cs[n].s, cs[n].q, true);
+  lastSw = Date.now() + 8000;   // 手動で進めた直後は、自動判定で元の駅に戻らないよう、少しの間（約10秒）自動切り替えを止める
+  if (!$('placeoff').checked) startAuto();
+}
+$('prevStopBtn').onclick = () => stepStop(-1);
+$('nextStopBtn').onclick = () => stepStop(1);
+// ホーム選択：使用ホームを選ぶ場所まで移動する（折りたたまれていれば開く）
+$('pickPlatBtn').onclick = () => {
+  const d = $('use-list').closest('details');
+  if (d) d.open = true;
+  $('use-list').scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 /* ---------- 現在地の表示（常時ON。位置情報を連続取得） ---------- */
