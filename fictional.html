@@ -146,14 +146,17 @@
 
     <div id="rm-conn">
       <div><b>直通（直通系統）</b>：直通系統名をつけて、直通する路線を順に（最大8路線まで）登録します。路線選択では、ここで付けた直通系統名で選べます。</div>
-      <div class="rm-bar"><span>直通系統名</span><input type="text" id="cn-name" maxlength="30" placeholder="例：快速A"></div>
-      <div id="cn-legs"></div>
-      <div class="rm-bar">
-        <button type="button" id="cn-addleg">路線を追加</button>
-        <button type="button" id="cn-add">直通系統を登録</button>
-        <button type="button" id="cn-cancel" hidden>編集を取消</button>
-      </div>
-      <div id="cn-list"></div>
+      <details>
+        <summary>メニューを開く</summary>
+        <div class="rm-bar"><span>直通系統名</span><input type="text" id="cn-name" maxlength="30" placeholder="例：快速A"></div>
+        <div id="cn-legs"></div>
+        <div class="rm-bar">
+          <button type="button" id="cn-addleg">路線を追加</button>
+          <button type="button" id="cn-add">直通系統を登録</button>
+          <button type="button" id="cn-cancel" hidden>編集を取消</button>
+        </div>
+        <div id="cn-list"></div>
+      </details>
     </div>
 
     <h1>設定</h1>
@@ -163,7 +166,10 @@
       <p>②停車駅・使用ホームを選択してください。</p>
       <div id="use-hint">ラジオボタンをダブルクリックすると選択を解除できます。ホームを選んでいない駅は通過駅として飛ばします。</div>
       <div class="rm-bar"><button class="butt" type="button" id="mains">本線選択</button><button class="butt" type="button" id="deletes">全消去</button></div>
-      <div class="lines" id="use-list"></div>
+      <details>
+        <summary>メニューを開く</summary>
+        <div class="lines" id="use-list"></div>
+      </details>
       <p>③指定の始発駅到着後に「強制受信」ボタンを押し、操作を開始してください。</p>
       <div class="rm-bar"><button class="GPS" type="button" id="forceReceiveBtn">強制受信</button><span id="cur"></span></div>
     </div>
