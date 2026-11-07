@@ -99,6 +99,15 @@
       <button type="button" id="rm-export-audio" title="登録した音声ファイルも一緒に書き出します（ファイルが大きくなります）">音声込みエクスポート</button>
       <button type="button" id="rm-import">インポート</button>
     </div>
+    <div class="rm-bar" id="fh-bar" hidden>
+      <button type="button" class="butt" id="fh-new" title="保存先のGeoJSONファイルを指定し、以後の編集を自動で書き込みます（音声は含みません）">保存先を指定</button>
+      <button type="button" class="butt" id="fh-new-au" title="保存先のGeoJSONファイルを指定し、以後の編集を音声も含めて自動で書き込みます（ファイルが大きくなります）">音声込み保存先を指定</button>
+      <button type="button" class="butt" id="fh-open" title="既存のGeoJSONファイルを読み込み、以後の編集をそのファイルへ自動で書き込みます（音声を含むファイルなら音声込みで保存します）">自動保存ファイルを開く</button>
+      <button type="button" class="butt" id="fh-perm" hidden>書き込みを許可</button>
+      <button type="button" class="butt" id="fh-off" hidden>自動保存を解除</button>
+      <span id="fh-stat"></span>
+    </div>
+    <div id="ls-stat" style="font-size:12px"></div>
     <h1>駅・路線の作成</h1>
     <div class="rm-bar">
       <button type="button" id="rm-undo" disabled title="直前の操作を取り消す（Ctrl+Z）">戻る</button>
@@ -445,7 +454,7 @@ const MID = MAPS.cur;
 const saveMaps = () => { try { localStorage.setItem('railMaps', JSON.stringify(MAPS)); } catch (e) {} };
 const pk = k => PERMAP.includes(k) ? k + ':' + MID : k;
 const lsGet = k => { try { return JSON.parse(localStorage.getItem(pk(k))); } catch (e) { return null; } };
-const lsSet = (k, v) => { try { localStorage.setItem(pk(k), JSON.stringify(v)); } catch (e) {} };
+const lsSet = (k, v) => { try { localStorage.setItem(pk(k), JSON.stringify(v)); return true; } catch (e) { return false; } };
 
 /* ---------- 地図 ---------- */
 const GSI = '<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>';
@@ -1291,7 +1300,7 @@ function download(obj, suffix) {
   a.download = 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + suffix + '.geojson';
   a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
-async function collectAudio(onProg) {
+async function collectAudio(onProg, cache) {
   const keys = await idb('readonly', st => st.getAllKeys()).catch(() => []);
   const pre = [];
   stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
@@ -1303,7 +1312,9 @@ async function collectAudio(onProg) {
     const r = await getF(k);
     if (!r || !r.blob) continue;
     const h = r.h || await hashB(r.blob) || 'k:' + k;
-    if (!pool[h]) pool[h] = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(r.blob); });
+    const ck = cache && !h.startsWith('k:');   // 内容のハッシュがあるものだけ使い回す
+    if (!pool[h]) pool[h] = (ck && cache.get(h)) || await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(r.blob); });
+    if (ck) cache.set(h, pool[h]);
     out[k] = { name: r.name, h };
   }
   return { out, pool };
@@ -1338,9 +1349,8 @@ $('rm-export-audio').onclick = async () => {
   finally { btn.disabled = false; btn.textContent = label; }
 };
 $('rm-import').onclick = () => $('rm-file').click();
-$('rm-file').onchange = async e => {
-  const f = e.target.files[0]; e.target.value = '';
-  if (!f) return;
+$('rm-file').onchange = e => { const f = e.target.files[0]; e.target.value = ''; if (f) importGeoFile(f); };
+async function importGeoFile(f) {
   try {
     const geo = JSON.parse(await f.text());
     const uidMap = loadGeo(geo, !items.getLayers().length || confirm('今のデータを消して読み込みますか？\nOK＝置き換え／キャンセル＝追加で読み込み'));
@@ -1348,8 +1358,9 @@ $('rm-file').onchange = async e => {
     if (items.getLayers().length) map.fitBounds(items.getBounds().pad(0.1));
     changed();
     if (n) $('rm-stat').textContent += '　音声 ' + n + ' 件を読み込みました';
+    return geo;
   } catch (err) { alert('読み込めませんでした。GeoJSONファイルを選んでください。\n' + err.message); }
-};
+}
 $('rm-clear').onclick = () => {
   if (!items.getLayers().length || !confirm('駅と路線をすべて消去します。よろしいですか？')) return;
   items.clearLayers(); select(null); buildHandles(); changed();
@@ -1385,6 +1396,7 @@ $('rm-clear').onclick = () => {
     stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
     const ks = (await idb('readonly', st => st.getAllKeys()).catch(() => [])).filter(k => pre.some(x => String(k).startsWith(x)));
     if (ks.length) { await idb('readwrite', st => { ks.forEach(k => st.delete(k)); return st.count(); }).catch(() => {}); await gcF(); }
+    await idb('readwrite', st => st.delete('fh:' + MID)).catch(() => {});
     PERMAP.forEach(k => { try { localStorage.removeItem(k + ':' + MID); } catch (e) {} });
     MAPS.list = MAPS.list.filter(x => x.id !== MID);
     go(MAPS.list[0].id);
@@ -1426,13 +1438,85 @@ document.addEventListener('keydown', e => {
 
 /* ---------- 地図の自動保存・復元 ---------- */
 function queueSave() { clearTimeout(timer); timer = setTimeout(saveNow, 800); }
+/* ---------- ファイルへの自動保存（File System Access API：パソコン版のChrome・Edgeなど。保存先は音声を含まない地図データ） ---------- */
+let saveFH = null, fhAudioOn = false, fhLatest = null, fhBusy = false, fhPending = null, fhSig = null, fhAu = null;
+const fhCache = new Map();   // 音声込み自動保存のあいだだけ、読み込み済みの音声（ハッシュ→データ）を持つ
+const fhOK = !!(window.showSaveFilePicker && window.showOpenFilePicker && window.isSecureContext);
+const fhStat = t => { $('fh-stat').textContent = t; };
+const fhName = () => saveFH.name + (fhAudioOn ? '（音声込み）' : '');
+const fhUi = () => { $('fh-off').hidden = !saveFH && !fhPending; $('fh-perm').hidden = !fhPending; };
+async function fhAudioNow() {   // 音声に変更があったときだけ、音声を読み直す
+  const pre = [];
+  stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
+  let vs;
+  const keys = await idb('readonly', st => { const k = st.getAllKeys(), v = st.getAll(); v.onsuccess = () => { vs = v.result; }; return k; });
+  const sig = keys.map((k, i) => [k, vs[i] && (vs[i].h || (vs[i].blob ? 'L' + vs[i].blob.size : '')), vs[i] && vs[i].name])
+    .filter(([k]) => !String(k).startsWith('h:') && !String(k).startsWith('fh:') && pre.some(x => String(k).startsWith(x))).join('|');
+  if (sig !== fhSig || !fhAu) { fhAu = await collectAudio(null, fhCache); fhSig = sig; }
+  return fhAu;
+}
+async function fhWrite() {
+  if (!saveFH || !fhLatest || fhBusy) return;   // 書き込み中に変更があれば、終わった後に最新の内容をもう一度書く
+  fhBusy = true;
+  try {
+    let g;
+    do {
+      g = fhLatest;
+      let data = g;
+      if (fhAudioOn) { const au = await fhAudioNow(); data = { ...g, railAudio: au.out, railAudioData: au.pool }; }
+      const w = await saveFH.createWritable(); await w.write(JSON.stringify(data, null, 2)); await w.close();
+    } while (g !== fhLatest);
+    fhStat('保存先：' + fhName() + '（自動保存 ' + new Date().toLocaleTimeString() + '）');
+  } catch (e) { fhStat('自動保存に失敗：' + e.message); }
+  fhBusy = false;
+}
+async function fhSet(fh, audio) {
+  saveFH = fh; fhAudioOn = !!audio; fhPending = null; fhSig = fhAu = null; if (!fhAudioOn) fhCache.clear(); fhUi();
+  idb('readwrite', st => st.put({ fh, audio: fhAudioOn }, 'fh:' + MID)).catch(() => {});   // 保存先の記憶は待たずに、すぐ書き込みを始める
+  fhLatest = withSvcs(items.toGeoJSON()); fhWrite();
+}
+const fhTypes = [{ description: 'GeoJSON', accept: { 'application/geo+json': ['.geojson'], 'application/json': ['.json'] } }];
+const fhAbort = e => { if (!(e && e.name === 'AbortError')) alert('ファイルを扱えませんでした。\n' + (e && e.message)); };
+if (fhOK) {
+  $('fh-bar').hidden = false;
+  const pick = audio => async () => {
+    try { await fhSet(await showSaveFilePicker({ suggestedName: 'railmap_' + new Date().toISOString().slice(0, 10).replace(/-/g, '') + (audio ? '_audio' : '') + '.geojson', types: fhTypes }), audio); } catch (e) { fhAbort(e); }
+  };
+  $('fh-new').onclick = pick(false);
+  $('fh-new-au').onclick = pick(true);
+  $('fh-open').onclick = async () => {
+    try {
+      const [fh] = await showOpenFilePicker({ types: fhTypes });
+      if (await fh.requestPermission({ mode: 'readwrite' }) !== 'granted') { alert('書き込みが許可されなかったため、自動保存は使えません。'); return; }
+      const geo = await importGeoFile(await fh.getFile());
+      await fhSet(fh, !!(geo && geo.railAudio && Object.keys(geo.railAudio).length));
+    } catch (e) { fhAbort(e); }
+  };
+  $('fh-perm').onclick = async () => {
+    try { if (fhPending && await fhPending.fh.requestPermission({ mode: 'readwrite' }) === 'granted') await fhSet(fhPending.fh, fhPending.audio); } catch (e) { fhAbort(e); }
+  };
+  $('fh-off').onclick = async () => {
+    saveFH = null; fhPending = null; fhSig = fhAu = null; fhCache.clear(); fhUi(); fhStat('');
+    await idb('readwrite', st => st.delete('fh:' + MID)).catch(() => {});
+  };
+  // 前回の保存先を引き継ぐ（ブラウザを閉じると書き込みの許可が切れるので、その場合はボタンで許可し直す）
+  idb('readonly', st => st.get('fh:' + MID)).then(async r => {
+    if (!r || !r.fh) return;
+    const nm = r.fh.name + (r.audio ? '（音声込み）' : '');
+    if (await r.fh.queryPermission({ mode: 'readwrite' }) === 'granted') { saveFH = r.fh; fhAudioOn = !!r.audio; fhStat('保存先：' + nm); }
+    else { fhPending = { fh: r.fh, audio: !!r.audio }; fhStat('保存先：' + nm + '（書き込みの許可が必要です）'); }
+    fhUi();
+  }).catch(() => {});
+}
 function saveNow() {
   clearTimeout(timer);
   if (!ready) return;
   const g = withSvcs(items.toGeoJSON());   // 1回だけ作って、履歴と保存の両方に使う
   pushHist(JSON.stringify(g));
   const c = map.getCenter();
-  lsSet('railMapState', { v: 2, geojson: g, view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base: pipBase !== null ? pipBase : base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
+  fhLatest = g; fhWrite();
+  const lsOk = lsSet('railMapState', { v: 2, geojson: g, view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base: pipBase !== null ? pipBase : base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
+  $('ls-stat').textContent = lsOk ? '端末に保存：' + new Date().toLocaleTimeString() : '端末への保存に失敗しました（保存容量が足りない可能性があります）';
 }
 let vtimer;   // 地図の移動は表示位置だけ保存する（全データの作り直しはしない）
 map.on('moveend', () => { clearTimeout(vtimer); vtimer = setTimeout(() => { const c = map.getCenter(); lsSet('railView', { lat: c.lat, lng: c.lng, zoom: map.getZoom() }); }, 500); });
