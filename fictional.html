@@ -433,7 +433,7 @@ const delF = k => idb('readwrite', s => s.delete(k)).then(gcF).catch(() => {});
     if (r && r.blob) await putF(k, r.blob, r.name);
   }
 })();
-const fkey = (uid, pid, slot) => uid + ':' + pid + ':' + slot;
+const fkey = (uid, pid, slot) => AK + uid + ':' + pid + ':' + slot;
 // 複数マップ：一覧（railMaps）と、マップごとの保存データ（キーの末尾に ':マップID' を付ける）
 const PERMAP = ['railMapState', 'railUseState', 'railCurHome', 'railView'];
 const MAPS = (() => {
@@ -451,6 +451,7 @@ const MAPS = (() => {
   return m;
 })();
 const MID = MAPS.cur;
+const AK = MID + '/';   // 音声の保存キーの先頭。マップごとに音声を分け、同じ駅ID（同じファイルを読み込んだマップ）でも共有しない
 const saveMaps = () => { try { localStorage.setItem('railMaps', JSON.stringify(MAPS)); } catch (e) {} };
 const pk = k => PERMAP.includes(k) ? k + ':' + MID : k;
 const lsGet = k => { try { return JSON.parse(localStorage.getItem(pk(k))); } catch (e) { return null; } };
@@ -1304,7 +1305,7 @@ function download(obj, suffix) {
 async function collectAudio(onProg, cache) {
   const keys = await idb('readonly', st => st.getAllKeys()).catch(() => []);
   const pre = [];
-  stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
+  stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(AK + s.feature.properties.uid + ':' + q.id + ':')));
   const out = {}, pool = {};
   const tg = keys.filter(k => pre.some(x => String(k).startsWith(x)));
   let n = 0;
@@ -1316,7 +1317,7 @@ async function collectAudio(onProg, cache) {
     const ck = cache && !h.startsWith('k:');   // 内容のハッシュがあるものだけ使い回す
     if (!pool[h]) pool[h] = (ck && cache.get(h)) || await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(r.blob); });
     if (ck) cache.set(h, pool[h]);
-    out[k] = { name: r.name, h };
+    out[String(k).slice(AK.length)] = { name: r.name, h };   // ファイルには、マップIDを除いた形で書く
   }
   return { out, pool };
 }
@@ -1329,7 +1330,7 @@ async function importAudio(audio, uidMap, pool) {
     if (!m || !own(SLOTS, m[3]) || typeof data !== 'string' || !data.startsWith('data:audio/')) continue;
     try {
       const blob = await (await fetch(data)).blob();
-      await putF((uidMap[m[1]] || m[1]) + ':' + m[2] + ':' + m[3], new File([blob], String(v.name || 'audio').slice(0, 100), { type: blob.type }));
+      await putF(AK + (uidMap[m[1]] || m[1]) + ':' + m[2] + ':' + m[3], new File([blob], String(v.name || 'audio').slice(0, 100), { type: blob.type }));
       n++;
     } catch (e) { /* 壊れた音声データは読み飛ばす */ }
   }
@@ -1354,13 +1355,15 @@ $('rm-file').onchange = e => { const f = e.target.files[0]; e.target.value = '';
 async function importGeoFile(f) {
   try {
     const geo = JSON.parse(await f.text());
-    const uidMap = loadGeo(geo, !items.getLayers().length || confirm('今のデータを消して読み込みますか？\nOK＝置き換え／キャンセル＝追加で読み込み'));
+    const empty = !items.getLayers().length;
+    if (!empty && !confirm('このマップに追加で読み込みますか？\nOK＝追加で読み込み／キャンセル＝インポートを取り消し')) return null;   // キャンセルは取り消し
+    const uidMap = loadGeo(geo, empty);
     const n = await importAudio(geo && geo.railAudio, uidMap, geo && geo.railAudioData);
     if (items.getLayers().length) map.fitBounds(items.getBounds().pad(0.1));
     changed();
     if (n) $('rm-stat').textContent += '　音声 ' + n + ' 件を読み込みました';
     return geo;
-  } catch (err) { alert('読み込めませんでした。GeoJSONファイルを選んでください。\n' + err.message); }
+  } catch (err) { alert('読み込めませんでした。GeoJSONファイルを選んでください。\n' + err.message); return null; }
 }
 $('rm-clear').onclick = () => {
   if (!items.getLayers().length || !confirm('駅と路線をすべて消去します。よろしいですか？')) return;
@@ -1379,7 +1382,7 @@ $('rm-clear').onclick = () => {
     if (n === null) return;
     saveNow();
     const id = 'm' + Date.now().toString(36);
-    MAPS.list.push({ id, name: n.trim().slice(0, 30) || 'マップ' + MAPS.list.length });
+    MAPS.list.push({ id, name: n.trim().slice(0, 30) || 'マップ' + MAPS.list.length, am: true });
     go(id);
   };
   $('rm-map-name').onclick = () => {
@@ -1394,7 +1397,7 @@ $('rm-clear').onclick = () => {
     if (!confirm('マップ「' + m.name + '」を削除します（登録した音声も消えます）。よろしいですか？')) return;
     ready = false; clearTimeout(timer);
     const pre = [];
-    stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
+    stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(AK + s.feature.properties.uid + ':' + q.id + ':')));
     const ks = (await idb('readonly', st => st.getAllKeys()).catch(() => [])).filter(k => pre.some(x => String(k).startsWith(x)));
     if (ks.length) { await idb('readwrite', st => { ks.forEach(k => st.delete(k)); return st.count(); }).catch(() => {}); await gcF(); }
     await idb('readwrite', st => st.delete('fh:' + MID)).catch(() => {});
@@ -1448,7 +1451,7 @@ const fhName = () => saveFH.name + (fhAudioOn ? '（音声込み）' : '');
 const fhUi = () => { $('fh-off').hidden = !saveFH && !fhPending; $('fh-perm').hidden = !fhPending; };
 async function fhAudioNow() {   // 音声に変更があったときだけ、音声を読み直す
   const pre = [];
-  stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(s.feature.properties.uid + ':' + q.id + ':')));
+  stations().forEach(s => s.feature.properties.platforms.forEach(q => pre.push(AK + s.feature.properties.uid + ':' + q.id + ':')));
   let vs;
   const keys = await idb('readonly', st => { const k = st.getAllKeys(), v = st.getAll(); v.onsuccess = () => { vs = v.result; }; return k; });
   const sig = keys.map((k, i) => [k, vs[i] && (vs[i].h || (vs[i].blob ? 'L' + vs[i].blob.size : '')), vs[i] && vs[i].name])
@@ -1495,6 +1498,7 @@ if (fhOK) {
       const [fh] = await showOpenFilePicker({ types: fhTypes });
       if (await fh.requestPermission({ mode: 'readwrite' }) !== 'granted') { alert('書き込みが許可されなかったため、自動保存は使えません。'); return; }
       const geo = await importGeoFile(await fh.getFile());
+      if (!geo) return;   // 取り消し・失敗のときは、保存先にしない（今のマップでファイルを上書きしないため）
       await fhSet(fh, !!(geo && geo.railAudio && Object.keys(geo.railAudio).length));
     } catch (e) { fhAbort(e); }
   };
@@ -2246,6 +2250,25 @@ if (s0 && Array.isArray(s0.draft)) {
   s0.draft.forEach(q => { if (Array.isArray(q) && Number.isFinite(q[0]) && Number.isFinite(q[1])) addVertex(L.latLng(q[0], q[1])); });
 }
 ready = true;
+// 以前の版で保存した音声（マップIDなしのキー）を、このマップ用のキーへ移す（一度だけ）
+(async () => {
+  const me = MAPS.list.find(x => x.id === MID);
+  if (!me || me.am) return;
+  const uids = new Set(stations().map(s => s.feature.properties.uid));
+  const keys = await idb('readonly', s => s.getAllKeys()).catch(() => null);
+  if (!keys) return;
+  const old = keys.filter(k => /^[\w-]{1,20}:[\w-]{1,20}:\w+$/.test(String(k)) && uids.has(String(k).split(':')[0]));
+  for (const k of old) {
+    const r = await idb('readonly', s => s.get(k)).catch(() => null);
+    if (r) await idb('readwrite', s => s.put(r, AK + k)).catch(() => {});
+  }
+  me.am = true; saveMaps();
+  // まだ移していない他のマップにも同じ駅がある分は、そのマップが移すまで元のキーを残す
+  const use = new Set();
+  MAPS.list.forEach(x => { if (x.am) return; try { JSON.parse(localStorage.getItem('railMapState:' + x.id)).geojson.features.forEach(f => { const u = f && f.properties && f.properties.uid; if (u) use.add(String(u)); }); } catch (e) {} });
+  const del = old.filter(k => !use.has(String(k).split(':')[0]));
+  if (del.length) { await idb('readwrite', s => { del.forEach(k => s.delete(k)); return s.count(); }).catch(() => {}); await gcF(); }
+})();
 pushHist();
 firstFix = !s0;
 applyWatch();
