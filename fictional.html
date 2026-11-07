@@ -100,8 +100,8 @@
       <button type="button" id="rm-import">インポート</button>
     </div>
     <div class="rm-bar" id="fh-bar" hidden>
-      <button type="button" class="butt" id="fh-new" title="保存先のGeoJSONファイルを指定し、以後の編集を自動で書き込みます（音声は含みません）">保存先を指定</button>
-      <button type="button" class="butt" id="fh-new-au" title="保存先のGeoJSONファイルを指定し、以後の編集を音声も含めて自動で書き込みます（ファイルが大きくなります）">音声込み保存先を指定</button>
+      <button type="button" class="butt" id="fh-new" title="保存先のGeoJSONファイルを指定し、以後の編集を自動で書き込みます（音声は含みません）">自動保存先を指定</button>
+      <button type="button" class="butt" id="fh-new-au" title="保存先のGeoJSONファイルを指定し、以後の編集を音声も含めて自動で書き込みます（ファイルが大きくなります）">音声込み自動保存先を指定</button>
       <button type="button" class="butt" id="fh-open" title="既存のGeoJSONファイルを読み込み、以後の編集をそのファイルへ自動で書き込みます（音声を含むファイルなら音声込みで保存します）">自動保存ファイルを開く</button>
       <button type="button" class="butt" id="fh-perm" hidden>書き込みを許可</button>
       <button type="button" class="butt" id="fh-off" hidden>自動保存を解除</button>
@@ -1437,7 +1437,7 @@ document.addEventListener('keydown', e => {
 });
 
 /* ---------- 地図の自動保存・復元 ---------- */
-function queueSave() { clearTimeout(timer); timer = setTimeout(saveNow, 800); }
+function queueSave() { clearTimeout(timer); timer = setTimeout(() => { if (window.requestIdleCallback) requestIdleCallback(saveNow, { timeout: 2000 }); else saveNow(); }, 800); }   // 操作中のカクつきを避けるため、ブラウザが空いたときに保存する
 /* ---------- ファイルへの自動保存（File System Access API：パソコン版のChrome・Edgeなど。保存先は音声を含まない地図データ） ---------- */
 let saveFH = null, fhAudioOn = false, fhLatest = null, fhBusy = false, fhPending = null, fhSig = null, fhAu = null;
 const fhCache = new Map();   // 音声込み自動保存のあいだだけ、読み込み済みの音声（ハッシュ→データ）を持つ
@@ -1452,7 +1452,11 @@ async function fhAudioNow() {   // 音声に変更があったときだけ、音
   const keys = await idb('readonly', st => { const k = st.getAllKeys(), v = st.getAll(); v.onsuccess = () => { vs = v.result; }; return k; });
   const sig = keys.map((k, i) => [k, vs[i] && (vs[i].h || (vs[i].blob ? 'L' + vs[i].blob.size : '')), vs[i] && vs[i].name])
     .filter(([k]) => !String(k).startsWith('h:') && !String(k).startsWith('fh:') && pre.some(x => String(k).startsWith(x))).join('|');
-  if (sig !== fhSig || !fhAu) { fhAu = await collectAudio(null, fhCache); fhSig = sig; }
+  if (sig !== fhSig || !fhAu) {
+    const au = await collectAudio(null, fhCache);
+    fhAu = { blob: new Blob([',"railAudio":' + JSON.stringify(au.out) + ',"railAudioData":' + JSON.stringify(au.pool) + '}']) };   // 音声部分は変更があったときだけ作る
+    fhSig = sig;
+  }
   return fhAu;
 }
 async function fhWrite() {
@@ -1462,9 +1466,10 @@ async function fhWrite() {
     let g;
     do {
       g = fhLatest;
-      let data = g;
-      if (fhAudioOn) { const au = await fhAudioNow(); data = { ...g, railAudio: au.out, railAudioData: au.pool }; }
-      const w = await saveFH.createWritable(); await w.write(JSON.stringify(data, null, 2)); await w.close();
+      const au = fhAudioOn ? await fhAudioNow() : null;
+      const w = await saveFH.createWritable();
+      await w.write(au ? new Blob([g.gs.slice(0, -1), au.blob]) : g.gs);   // 地図データの文字列に、音声部分をそのまま続ける
+      await w.close();
     } while (g !== fhLatest);
     fhStat('保存先：' + fhName() + '（自動保存 ' + new Date().toLocaleTimeString() + '）');
   } catch (e) { fhStat('自動保存に失敗：' + e.message); }
@@ -1473,7 +1478,7 @@ async function fhWrite() {
 async function fhSet(fh, audio) {
   saveFH = fh; fhAudioOn = !!audio; fhPending = null; fhSig = fhAu = null; if (!fhAudioOn) fhCache.clear(); fhUi();
   idb('readwrite', st => st.put({ fh, audio: fhAudioOn }, 'fh:' + MID)).catch(() => {});   // 保存先の記憶は待たずに、すぐ書き込みを始める
-  fhLatest = withSvcs(items.toGeoJSON()); fhWrite();
+  const g0 = withSvcs(items.toGeoJSON()); fhLatest = { g: g0, gs: JSON.stringify(g0) }; fhWrite();
 }
 const fhTypes = [{ description: 'GeoJSON', accept: { 'application/geo+json': ['.geojson'], 'application/json': ['.json'] } }];
 const fhAbort = e => { if (!(e && e.name === 'AbortError')) alert('ファイルを扱えませんでした。\n' + (e && e.message)); };
@@ -1511,11 +1516,15 @@ if (fhOK) {
 function saveNow() {
   clearTimeout(timer);
   if (!ready) return;
-  const g = withSvcs(items.toGeoJSON());   // 1回だけ作って、履歴と保存の両方に使う
-  pushHist(JSON.stringify(g));
+  const g = withSvcs(items.toGeoJSON()), gs = JSON.stringify(g);   // 大きなJSON化は1回だけにして、履歴・端末への保存・ファイルへの保存で使い回す
+  pushHist(gs);
   const c = map.getCenter();
-  fhLatest = g; fhWrite();
-  const lsOk = lsSet('railMapState', { v: 2, geojson: g, view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base: pipBase !== null ? pipBase : base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
+  fhLatest = { g, gs }; fhWrite();
+  let lsOk = true;
+  try {
+    const rest = JSON.stringify({ v: 2, view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base: pipBase !== null ? pipBase : base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
+    localStorage.setItem(pk('railMapState'), rest.slice(0, -1) + ',"geojson":' + gs + '}');
+  } catch (e) { lsOk = false; }
   $('ls-stat').textContent = lsOk ? '端末に保存：' + new Date().toLocaleTimeString() : '端末への保存に失敗しました（保存容量が足りない可能性があります）';
 }
 let vtimer;   // 地図の移動は表示位置だけ保存する（全データの作り直しはしない）
