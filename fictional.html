@@ -454,7 +454,8 @@ const MID = MAPS.cur;
 const saveMaps = () => { try { localStorage.setItem('railMaps', JSON.stringify(MAPS)); } catch (e) {} };
 const pk = k => PERMAP.includes(k) ? k + ':' + MID : k;
 const lsGet = k => { try { return JSON.parse(localStorage.getItem(pk(k))); } catch (e) { return null; } };
-const lsSet = (k, v) => { try { localStorage.setItem(pk(k), JSON.stringify(v)); return true; } catch (e) { return false; } };
+const lsStat = ok => { const el = document.getElementById('ls-stat'); if (el) el.textContent = ok ? '端末に保存：' + new Date().toLocaleTimeString() : '端末への保存に失敗しました（保存容量が足りない可能性があります）'; };
+const lsSet = (k, v) => { try { localStorage.setItem(pk(k), JSON.stringify(v)); lsStat(true); return true; } catch (e) { lsStat(false); return false; } };
 
 /* ---------- 地図 ---------- */
 const GSI = '<a href="https://maps.gsi.go.jp/development/ichiran.html">地理院タイル</a>';
@@ -969,10 +970,10 @@ function renderPlats() {
       pick.onclick = () => f.click();
       f.onchange = () => {
         const file = f.files[0];
-        if (file && file.type.startsWith('audio/')) putF(key, file).then(refresh).then(() => applyIfCurrent(q));
+        if (file && file.type.startsWith('audio/')) putF(key, file).then(refresh).then(() => { queueSave(); applyIfCurrent(q); });
         f.value = '';
       };
-      off.onclick = () => delF(key).then(refresh).then(() => applyIfCurrent(q));
+      off.onclick = () => delF(key).then(refresh).then(() => { queueSave(); applyIfCurrent(q); });
       refresh();
       row.append(lb, f, pick, stt, off); card.append(row);
     });
@@ -1525,7 +1526,7 @@ function saveNow() {
     const rest = JSON.stringify({ v: 2, view: { lat: c.lat, lng: c.lng, zoom: map.getZoom() }, base: pipBase !== null ? pipBase : base, labels: labelsOn, color: $('rm-color').value, draft: draft.pts.map(q => [q.lat, q.lng]), lsel: $('rm-lsel').value });
     localStorage.setItem(pk('railMapState'), rest.slice(0, -1) + ',"geojson":' + gs + '}');
   } catch (e) { lsOk = false; }
-  $('ls-stat').textContent = lsOk ? '端末に保存：' + new Date().toLocaleTimeString() : '端末への保存に失敗しました（保存容量が足りない可能性があります）';
+  lsStat(lsOk);
 }
 let vtimer;   // 地図の移動は表示位置だけ保存する（全データの作り直しはしない）
 map.on('moveend', () => { clearTimeout(vtimer); vtimer = setTimeout(() => { const c = map.getCenter(); lsSet('railView', { lat: c.lat, lng: c.lng, zoom: map.getZoom() }); }, 500); });
@@ -2511,6 +2512,7 @@ else startCompass();
 })();
 
 })();
+
   </script>
 </body>
 </html>
