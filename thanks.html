@@ -931,6 +931,33 @@
               </script>
             </td>
           </tr>
+          <tr>
+            <td>【限定】2026/11/15~2026/12/14「言の葉青葉 フルver」</td>
+            <td><a href="https://x.com/i/user/1669323825673281536">みなのん♬様</a></td>
+            <td>
+              <button id="play_sound10">聴く</button>
+              <audio id="sound10" src="https://raw.githubusercontent.com/ssmn93/dokobell_melody/main/言の葉青葉%20フルver.mp3"></audio>
+              <script>
+                const button10 = document.getElementById("play_sound10");
+                const sound10 = document.getElementById("sound10");
+                let isPlaying10 = false;
+
+                button10.addEventListener("click", (e) => {
+                  if (!isPlaying10) {
+                    sound10.play();
+                    isPlaying10 = true;
+                  } else {
+                    sound10.pause();
+                    isPlaying10 = false;
+                  }
+                });
+
+                sound10.addEventListener("ended", () => {
+                  isPlaying10 = false;
+                });
+              </script>
+            </td>
+          </tr>
         </tbody>
       </table>
       <h1>音声提供</h1>      
